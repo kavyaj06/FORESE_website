@@ -43,7 +43,7 @@ export function Card({
         'bg-surface-raised border-border rounded-lg border',
         PADDING[padding],
         interactive &&
-          'ease-out-brand duration-base hover:border-border-strong hover:shadow-md transition-[border-color,box-shadow,transform] hover:-translate-y-0.5',
+          'ease-out-brand duration-base hover:border-border-strong transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 hover:shadow-md',
         className,
       )}
     >

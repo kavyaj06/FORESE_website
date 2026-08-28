@@ -50,23 +50,36 @@ export function MobileNav({ open, onClose, returnFocusRef }: MobileNavProps) {
     <div
       ref={panelRef}
       id="mobile-navigation"
-      className="animate-fade-in border-border bg-bg fixed inset-x-0 top-16 bottom-0 z-40 border-t desktop:hidden"
+      className="animate-fade-in border-border bg-bg desktop:hidden fixed inset-x-0 top-16 bottom-0 z-40 border-t"
     >
       <nav aria-label="Mobile" className="px-gutter py-lg">
         <ul className="flex flex-col">
           {MOBILE_NAV.map((route) => (
             <li key={route.path}>
+              {/* The active route is marked by weight, contrast and a bullet
+                  rather than by colour. The palette is monochrome, so a
+                  colour-only active state would be no active state at all. */}
               <NavLink
                 to={route.path}
                 onClick={onClose}
                 className={({ isActive }) =>
                   cn(
-                    'text-h3 border-border flex min-h-14 items-center border-b transition-colors duration-fast',
-                    isActive ? 'text-accent' : 'text-text hover:text-accent',
+                    'text-h3 border-border gap-md duration-fast flex min-h-14 items-center justify-between border-b transition-colors',
+                    isActive ? 'text-text font-semibold' : 'text-text-muted hover:text-text',
                   )
                 }
               >
-                {route.label}
+                {({ isActive }) => (
+                  <>
+                    {route.label}
+                    {isActive && (
+                      <span
+                        aria-hidden="true"
+                        className="bg-accent rounded-pill size-1.5 shrink-0"
+                      />
+                    )}
+                  </>
+                )}
               </NavLink>
             </li>
           ))}

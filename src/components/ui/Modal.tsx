@@ -27,7 +27,14 @@ const FOCUSABLE =
  *
  * Built now because the Gallery lightbox in Phase 2 needs exactly this.
  */
-export function Modal({ open, onClose, title, hideTitle = false, children, className }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  hideTitle = false,
+  children,
+  className,
+}: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
@@ -58,7 +65,9 @@ export function Modal({ open, onClose, title, hideTitle = false, children, class
 
       if (event.key !== 'Tab') return;
 
-      const focusable = Array.from(panelRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []);
+      const focusable = Array.from(
+        panelRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [],
+      );
       if (focusable.length === 0) return;
 
       const first = focusable[0];
@@ -80,13 +89,13 @@ export function Modal({ open, onClose, title, hideTitle = false, children, class
 
   return createPortal(
     <div
-      className="animate-fade-in fixed inset-0 z-50 flex items-center justify-center p-gutter"
+      className="animate-fade-in p-gutter fixed inset-0 z-50 flex items-center justify-center"
       onKeyDown={handleKeyDown}
     >
       {/* Backdrop. Presentational — the dialog itself owns the close semantics,
           so this is not a button and is hidden from assistive tech. */}
       <div
-        className="absolute inset-0 bg-surface-inverse/70"
+        className="bg-surface-inverse/70 absolute inset-0"
         onClick={onClose}
         aria-hidden="true"
       />
@@ -98,11 +107,11 @@ export function Modal({ open, onClose, title, hideTitle = false, children, class
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          'bg-surface-raised shadow-lg relative z-10 max-h-full w-full max-w-content overflow-auto rounded-lg',
+          'bg-surface-raised max-w-content relative z-10 max-h-full w-full overflow-auto rounded-lg shadow-lg',
           className,
         )}
       >
-        <div className="flex items-start justify-between gap-md p-lg">
+        <div className="gap-md p-lg flex items-start justify-between">
           <h2 id={titleId} className={cn('text-h3', hideTitle && 'sr-only')}>
             {title}
           </h2>
@@ -110,7 +119,7 @@ export function Modal({ open, onClose, title, hideTitle = false, children, class
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="text-text-muted hover:text-text hover:bg-surface -m-1 rounded-md p-1 transition-colors duration-fast"
+            className="text-text-muted hover:text-text hover:bg-surface duration-fast -m-1 rounded-md p-1 transition-colors"
           >
             <X size={20} aria-hidden="true" />
           </button>

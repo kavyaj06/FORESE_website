@@ -84,7 +84,7 @@ const SHADOWS: { box: string; label: string }[] = [
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="border-border border-t py-section">
+    <section className="border-border py-section border-t">
       <SectionHeading title={title} className="mb-xl" />
       {children}
     </section>
@@ -104,9 +104,9 @@ export default function StyleguidePage() {
 
       <Container>
         <Section title="Colour">
-          <ul className="grid grid-cols-2 gap-lg tablet:grid-cols-3 desktop:grid-cols-5">
+          <ul className="gap-lg tablet:grid-cols-3 desktop:grid-cols-5 grid grid-cols-2">
             {COLORS.map(({ swatch, label, token }) => (
-              <li key={token} className="flex flex-col gap-xs">
+              <li key={token} className="gap-xs flex flex-col">
                 <div
                   className={`border-border h-16 w-full rounded-md border ${swatch}`}
                   aria-hidden="true"
@@ -119,9 +119,9 @@ export default function StyleguidePage() {
         </Section>
 
         <Section title="Typography">
-          <ul className="flex flex-col gap-lg">
+          <ul className="gap-lg flex flex-col">
             {TYPE_SCALE.map(({ className, label, sample }) => (
-              <li key={label} className="border-border flex flex-col gap-xs border-b pb-lg">
+              <li key={label} className="border-border gap-xs pb-lg flex flex-col border-b">
                 <code className="text-caption text-text-subtle">{label}</code>
                 <p className={className}>{sample}</p>
               </li>
@@ -130,9 +130,9 @@ export default function StyleguidePage() {
         </Section>
 
         <Section title="Spacing">
-          <ul className="flex flex-col gap-sm">
+          <ul className="gap-sm flex flex-col">
             {SPACING.map(({ bar, label }) => (
-              <li key={label} className="flex items-center gap-md">
+              <li key={label} className="gap-md flex items-center">
                 <code className="text-caption text-text-subtle w-32 shrink-0">{label}</code>
                 <div className={`bg-accent h-4 rounded-sm ${bar}`} aria-hidden="true" />
               </li>
@@ -141,9 +141,9 @@ export default function StyleguidePage() {
         </Section>
 
         <Section title="Radius">
-          <ul className="flex flex-wrap gap-lg">
+          <ul className="gap-lg flex flex-wrap">
             {RADII.map(({ box, label }) => (
-              <li key={label} className="flex flex-col items-center gap-xs">
+              <li key={label} className="gap-xs flex flex-col items-center">
                 <div
                   className={`bg-surface border-border-strong size-20 border ${box}`}
                   aria-hidden="true"
@@ -155,13 +155,10 @@ export default function StyleguidePage() {
         </Section>
 
         <Section title="Shadow">
-          <ul className="flex flex-wrap gap-xl">
+          <ul className="gap-xl flex flex-wrap">
             {SHADOWS.map(({ box, label }) => (
-              <li key={label} className="flex flex-col items-center gap-sm">
-                <div
-                  className={`bg-surface-raised size-24 rounded-lg ${box}`}
-                  aria-hidden="true"
-                />
+              <li key={label} className="gap-sm flex flex-col items-center">
+                <div className={`bg-surface-raised size-24 rounded-lg ${box}`} aria-hidden="true" />
                 <code className="text-caption text-text-subtle">{label}</code>
               </li>
             ))}
@@ -169,8 +166,8 @@ export default function StyleguidePage() {
         </Section>
 
         <Section title="Buttons">
-          <div className="flex flex-col gap-xl">
-            <div className="flex flex-wrap items-center gap-md">
+          <div className="gap-xl flex flex-col">
+            <div className="gap-md flex flex-wrap items-center">
               <Button variant="primary">Primary</Button>
               <Button variant="secondary">Secondary</Button>
               <Button variant="ghost">Ghost</Button>
@@ -179,14 +176,14 @@ export default function StyleguidePage() {
               </Button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-md">
+            <div className="gap-md flex flex-wrap items-center">
               <Button size="sm">Small</Button>
               <Button size="md">Medium</Button>
               <Button size="lg">Large</Button>
               <Button iconRight={<ArrowRight size={16} aria-hidden="true" />}>With icon</Button>
             </div>
 
-            <div className="flex flex-wrap items-center gap-md">
+            <div className="gap-md flex flex-wrap items-center">
               <Button to="/gallery" variant="secondary">
                 Internal link
               </Button>
@@ -198,7 +195,7 @@ export default function StyleguidePage() {
         </Section>
 
         <Section title="Cards and badges">
-          <div className="grid gap-lg tablet:grid-cols-3">
+          <div className="gap-lg tablet:grid-cols-3 grid">
             <Card>
               <h3 className="text-h3">Static card</h3>
               <p className="text-small text-text-muted mt-xs">No hover state — not clickable.</p>
@@ -210,7 +207,7 @@ export default function StyleguidePage() {
             </Card>
 
             <Card>
-              <div className="flex flex-wrap gap-xs">
+              <div className="gap-xs flex flex-wrap">
                 <Badge>Neutral</Badge>
                 <Badge tone="accent">Accent</Badge>
                 <Badge tone="success">Open</Badge>
@@ -221,7 +218,7 @@ export default function StyleguidePage() {
         </Section>
 
         <Section title="Loading states">
-          <Card className="flex flex-col gap-sm">
+          <Card className="gap-sm flex flex-col">
             <Skeleton className="h-6 w-1/3" />
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-4/5" />
@@ -232,14 +229,14 @@ export default function StyleguidePage() {
           <Button onClick={() => setModalOpen(true)}>Open modal</Button>
           <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Example dialog">
             <p className="text-body text-text-muted">
-              Escape closes this. Tab cycles inside it. Focus returns to the trigger on close,
-              and the page behind cannot scroll.
+              Escape closes this. Tab cycles inside it. Focus returns to the trigger on close, and
+              the page behind cannot scroll.
             </p>
           </Modal>
         </Section>
 
         <Section title="Motion">
-          <Reveal staggerChildren className="grid gap-lg tablet:grid-cols-3">
+          <Reveal staggerChildren className="gap-lg tablet:grid-cols-3 grid">
             {['Reveals once', 'On scroll into view', 'Staggered by 60ms'].map((text) => (
               <RevealItem key={text}>
                 <Card>

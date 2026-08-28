@@ -32,25 +32,25 @@ export function Navbar() {
   return (
     <header className="border-border bg-bg/85 sticky top-0 z-50 border-b backdrop-blur-md">
       <Container>
-        <div className="flex h-16 items-center justify-between gap-lg">
+        <div className="gap-lg flex h-16 items-center justify-between">
           <NavLink
             to="/"
-            className="text-h3 tracking-tight transition-opacity duration-fast hover:opacity-70"
+            className="text-h3 duration-fast tracking-tight transition-opacity hover:opacity-70"
             aria-label={`${SITE.name} — home`}
           >
             {SITE.name}
           </NavLink>
 
           {/* Desktop navigation */}
-          <nav aria-label="Primary" className="hidden desktop:block">
-            <ul className="flex items-center gap-xl">
+          <nav aria-label="Primary" className="desktop:block hidden">
+            <ul className="gap-xl flex items-center">
               {PRIMARY_NAV.map((route) => (
                 <li key={route.path}>
                   <NavLink
                     to={route.path}
                     className={({ isActive }) =>
                       cn(
-                        'text-label transition-colors duration-fast',
+                        'text-label duration-fast transition-colors',
                         isActive ? 'text-text' : 'text-text-muted hover:text-text',
                       )
                     }
@@ -66,7 +66,7 @@ export function Navbar() {
           {NAV_ACTION && (
             <NavLink
               to={NAV_ACTION.path}
-              className="text-label hidden font-semibold transition-opacity duration-fast hover:opacity-70 desktop:block"
+              className="text-label duration-fast desktop:block hidden font-semibold transition-opacity hover:opacity-70"
             >
               {NAV_ACTION.label}
             </NavLink>
@@ -80,7 +80,7 @@ export function Navbar() {
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            className="text-text -mr-2 flex size-11 items-center justify-center rounded-md desktop:hidden"
+            className="text-text desktop:hidden -mr-2 flex size-11 items-center justify-center rounded-md"
           >
             {menuOpen ? <X size={22} aria-hidden="true" /> : <Menu size={22} aria-hidden="true" />}
           </button>

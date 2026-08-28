@@ -29,8 +29,11 @@ const WIDTHS: Record<ContainerWidth, string> = {
  * keeps every section's left edge aligned. If a section needs a different
  * width, it passes a `width` prop — it never sets its own padding.
  */
-export function Container({ children, width = 'default', as: Tag = 'div', className }: ContainerProps) {
-  return (
-    <Tag className={cn('mx-auto w-full px-gutter', WIDTHS[width], className)}>{children}</Tag>
-  );
+export function Container({
+  children,
+  width = 'default',
+  as: Tag = 'div',
+  className,
+}: ContainerProps) {
+  return <Tag className={cn('px-gutter mx-auto w-full', WIDTHS[width], className)}>{children}</Tag>;
 }

@@ -11,9 +11,7 @@ import { PhasePlaceholder } from '@/components/dev/PhasePlaceholder';
 export default function GalleryPage() {
   return (
     <>
-      <PageHero
-        title="Gallery"
-        />
+      <PageHero title="Gallery" />
       <PhasePlaceholder
         phase="Phase 2"
         awaiting="Structure confirmed from the outline: a hero, then an event-wise gallery. Awaiting the grid reference and the real event photographs."

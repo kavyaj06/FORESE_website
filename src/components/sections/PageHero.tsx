@@ -33,9 +33,11 @@ export function PageHero({
   className,
 }: PageHeroProps) {
   return (
-    <header className={cn('border-border border-b py-section', className)}>
+    <header className={cn('border-border py-section border-b', className)}>
       <Container>
-        <Reveal className={cn('flex flex-col gap-lg', align === 'center' && 'items-center text-center')}>
+        <Reveal
+          className={cn('gap-lg flex flex-col', align === 'center' && 'items-center text-center')}
+        >
           {eyebrow && <p className="text-eyebrow text-accent uppercase">{eyebrow}</p>}
 
           <h1 className="text-h1">{title}</h1>
@@ -45,7 +47,9 @@ export function PageHero({
           )}
 
           {actions && (
-            <div className={cn('flex flex-wrap gap-sm pt-xs', align === 'center' && 'justify-center')}>
+            <div
+              className={cn('gap-sm pt-xs flex flex-wrap', align === 'center' && 'justify-center')}
+            >
               {actions}
             </div>
           )}

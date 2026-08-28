@@ -29,14 +29,14 @@ export function Footer() {
   return (
     <footer className="border-border bg-surface mt-auto border-t">
       <Container className="py-section">
-        <div className="grid gap-xl tablet:grid-cols-2 desktop:grid-cols-4">
+        <div className="gap-xl tablet:grid-cols-2 desktop:grid-cols-4 grid">
           {/* Brand */}
-          <div className="flex flex-col gap-sm">
+          <div className="gap-sm flex flex-col">
             <p className="text-h3">{SITE.name}</p>
             <p className="text-small text-text-muted">{SITE.description}</p>
 
             {SOCIAL_LINKS.length > 0 && (
-              <ul className="mt-xs flex items-center gap-xs">
+              <ul className="mt-xs gap-xs flex items-center">
                 {SOCIAL_LINKS.map((social) => (
                   <li key={social.label}>
                     <a
@@ -44,7 +44,7 @@ export function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="text-text-muted hover:text-text hover:bg-surface-raised flex size-11 items-center justify-center rounded-md transition-colors duration-fast"
+                      className="text-text-muted hover:text-text hover:bg-surface-raised duration-fast flex size-11 items-center justify-center rounded-md transition-colors"
                     >
                       <SocialIcon name={social.icon} />
                     </a>
@@ -55,9 +55,9 @@ export function Footer() {
           </div>
 
           {/* Quick links */}
-          <nav aria-label="Quick links" className="flex flex-col gap-sm">
+          <nav aria-label="Quick links" className="gap-sm flex flex-col">
             <h2 className={COLUMN_HEADING}>Quick links</h2>
-            <ul className="flex flex-col gap-xs">
+            <ul className="gap-xs flex flex-col">
               {quickLinks.map((route) => (
                 <li key={route.path}>
                   <NavLink to={route.path} className={COLUMN_LINK}>
@@ -69,10 +69,10 @@ export function Footer() {
           </nav>
 
           {/* Contact Us */}
-          <div className="flex flex-col gap-sm">
+          <div className="gap-sm flex flex-col">
             <h2 className={COLUMN_HEADING}>Contact Us</h2>
             {CONTACT.email || CONTACT.phone ? (
-              <ul className="flex flex-col gap-xs">
+              <ul className="gap-xs flex flex-col">
                 {CONTACT.email && (
                   <li>
                     <a href={`mailto:${CONTACT.email}`} className={COLUMN_LINK}>
@@ -94,7 +94,7 @@ export function Footer() {
           </div>
 
           {/* Location */}
-          <div className="flex flex-col gap-sm">
+          <div className="gap-sm flex flex-col">
             <h2 className={COLUMN_HEADING}>Location</h2>
             {LOCATION.length > 0 ? (
               <address className="text-small text-text-muted not-italic">
@@ -110,7 +110,7 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="text-caption text-text-subtle border-border mt-2xl border-t pt-lg">
+        <p className="text-caption text-text-subtle border-border mt-2xl pt-lg border-t">
           © {new Date().getFullYear()} {SITE.name}. All rights reserved.
         </p>
       </Container>

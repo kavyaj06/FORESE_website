@@ -9,9 +9,7 @@ import { PhasePlaceholder } from '@/components/dev/PhasePlaceholder';
 export default function HomePage() {
   return (
     <>
-      <PageHero
-        title="Forese"
-        />
+      <PageHero title="Forese" />
       <PhasePlaceholder
         phase="Phase 3+"
         awaiting="Structure confirmed from the outline: a hero, then a two-column split of Upcoming Events and Announcements. Awaiting the visual reference."

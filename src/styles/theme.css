@@ -11,10 +11,12 @@
  *   --spacing-section     ->  py-section  mt-section
  *   --radius-lg           ->  rounded-lg
  *
- * ⚠️ PROVISIONAL VALUES — Phase 0a
- * The colours and fonts here are deliberately neutral placeholders. They get
- * replaced in Phase 0b with values read from the chosen anchor template.
- * Nothing outside this file needs to change when that happens.
+ * PALETTE: black and white, decided. Colour is not "missing" here — it is a
+ * choice, and the token structure is built so that adding a brand colour later
+ * means editing the four `--color-accent-*` values in this file and nothing
+ * else anywhere in the codebase.
+ *
+ * ⚠️ TYPEFACES are still a provisional system stack, pending a decision.
  * ==========================================================================*/
 
 @theme {
@@ -27,38 +29,48 @@
 
   /* Page + surfaces */
   --color-bg: #ffffff;
-  --color-surface: #f7f7f8;
+  --color-surface: #f4f4f5;
   --color-surface-raised: #ffffff;
-  --color-surface-inverse: #101012;
+  --color-surface-inverse: #000000;
 
-  /* Borders + dividers */
-  --color-border: #e4e4e7;
-  --color-border-strong: #d4d4d8;
+  /* Borders + dividers.
+     `border` is the quiet hairline used on cards and dividers. `border-strong`
+     is near-black, for when a box is meant to assert itself the way the boxes
+     in the outline do. */
+  --color-border: #e4e4e4;
+  --color-border-strong: #171717;
 
-  /* Text */
-  --color-text: #18181b;
-  --color-text-muted: #52525b;
-  --color-text-subtle: #8b8b93;
-  --color-text-inverse: #fafafa;
+  /* Text. Every value below passes AA on white:
+     text 21:1, muted 7.7:1, subtle 5.2:1. */
+  --color-text: #000000;
+  --color-text-muted: #525252;
+  --color-text-subtle: #6e6e6e;
+  --color-text-inverse: #ffffff;
 
   /* Brand actions */
-  --color-primary: #18181b;
-  --color-primary-hover: #2d2d33;
+  --color-primary: #000000;
+  --color-primary-hover: #262626;
   --color-primary-fg: #ffffff;
 
-  --color-accent: #2f5fd8;
-  --color-accent-hover: #2950bb;
+  /* Accent — monochrome today, and THE hook for a brand colour later.
+     Set these four values and every eyebrow, badge, highlight and active
+     state across the site picks the colour up. Nothing else gets edited. */
+  --color-accent: #000000;
+  --color-accent-hover: #262626;
   --color-accent-fg: #ffffff;
-  --color-accent-subtle: #eef2fd;
+  --color-accent-subtle: #f0f0f0;
 
-  /* Feedback */
+  /* Feedback — the sanctioned exception to black and white. A danger state
+     rendered in grey is not a danger state. */
   --color-success: #14804a;
   --color-warning: #a16207;
   --color-danger: #b4232c;
 
-  /* Focus ring — kept separate so it can stay high-contrast even if the
-     accent colour changes to something low-contrast. */
-  --color-focus: #2f5fd8;
+  /* Focus ring. Kept separate from accent so it stays high-contrast whatever
+     accent becomes. Flipped to white inside `[data-theme='inverse']` (see
+     base.css) — a black ring on a black section is no ring at all. */
+  --color-focus: #000000;
+  --color-focus-inverse: #ffffff;
 
   /* --------------------------------------------------------------------
    * TYPOGRAPHY
@@ -196,4 +208,51 @@
   --breakpoint-tablet: 41rem; /*  656px — above mobile */
   --breakpoint-desktop: 64rem; /* 1024px */
   --breakpoint-wide: 90rem; /* 1440px */
+}
+
+/* ============================================================================
+ * INVERSE SECTIONS
+ * ----------------------------------------------------------------------------
+ * In a black-and-white system, flipping a band to dark is the main way to
+ * separate one section from the next — there is no colour available to do
+ * that job. So it is worth making cheap and consistent.
+ *
+ * Put `data-theme="inverse"` on any section:
+ *
+ *   <section data-theme="inverse" className="py-section">
+ *
+ * The tokens invert beneath it. Everything inside keeps using the same
+ * utilities it always uses — `bg-bg`, `text-text`, `text-text-muted`,
+ * `border-border`, `<Button variant="primary">` — and needs no dark variant
+ * of its own. A Card dropped into an inverse section is simply correct.
+ * ==========================================================================*/
+
+[data-theme='inverse'] {
+  --color-bg: #000000;
+  --color-surface: #121212;
+  --color-surface-raised: #1a1a1a;
+  --color-surface-inverse: #ffffff;
+
+  --color-border: #2e2e2e;
+  --color-border-strong: #f0f0f0;
+
+  /* muted 9.7:1 and subtle 6.9:1 against black — both clear AA. */
+  --color-text: #ffffff;
+  --color-text-muted: #b0b0b0;
+  --color-text-subtle: #909090;
+  --color-text-inverse: #000000;
+
+  --color-primary: #ffffff;
+  --color-primary-hover: #e0e0e0;
+  --color-primary-fg: #000000;
+
+  --color-accent: #ffffff;
+  --color-accent-hover: #e0e0e0;
+  --color-accent-fg: #000000;
+  --color-accent-subtle: #1f1f1f;
+
+  --color-focus: var(--color-focus-inverse);
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }

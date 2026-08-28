@@ -27,7 +27,7 @@ export function Badge({ children, tone = 'neutral', className }: BadgeProps) {
   return (
     <span
       className={cn(
-        'text-eyebrow inline-flex items-center rounded-pill border px-2.5 py-1 uppercase',
+        'text-eyebrow rounded-pill inline-flex items-center border px-2.5 py-1 uppercase',
         TONES[tone],
         className,
       )}

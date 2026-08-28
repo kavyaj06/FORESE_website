@@ -31,7 +31,8 @@ type Props = ButtonProps | InternalLinkProps | ExternalLinkProps;
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-primary text-primary-fg hover:bg-primary-hover',
-  secondary: 'bg-surface-raised text-text border border-border hover:border-border-strong hover:bg-surface',
+  secondary:
+    'bg-surface-raised text-text border border-border hover:border-border-strong hover:bg-surface',
   ghost: 'text-text hover:bg-surface',
 };
 
@@ -85,13 +86,7 @@ export function Button({
   if ('href' in rest && rest.href) {
     const { href, ...anchorRest } = rest as ExternalLinkProps;
     return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={classes}
-        {...anchorRest}
-      >
+      <a href={href} target="_blank" rel="noopener noreferrer" className={classes} {...anchorRest}>
         {content}
       </a>
     );

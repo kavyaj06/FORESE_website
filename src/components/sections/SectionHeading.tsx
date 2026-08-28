@@ -34,7 +34,7 @@ export function SectionHeading({
   return (
     <div
       className={cn(
-        'flex flex-col gap-sm',
+        'gap-sm flex flex-col',
         align === 'center' && 'items-center text-center',
         className,
       )}
@@ -44,7 +44,12 @@ export function SectionHeading({
       <Tag className={cn(Tag === 'h2' ? 'text-h2' : 'text-h3')}>{title}</Tag>
 
       {description && (
-        <p className={cn('text-body-lg text-text-muted max-w-content-narrow', align === 'center' && 'mx-auto')}>
+        <p
+          className={cn(
+            'text-body-lg text-text-muted max-w-content-narrow',
+            align === 'center' && 'mx-auto',
+          )}
+        >
           {description}
         </p>
       )}
