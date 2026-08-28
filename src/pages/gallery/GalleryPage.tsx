@@ -1,21 +1,25 @@
 import { PageHero } from '@/components/sections/PageHero';
-import { PhasePlaceholder } from '@/components/dev/PhasePlaceholder';
+import { EventwiseGallery } from './sections/EventwiseGallery';
+import { GALLERY_INTRO } from './data';
 
 /**
- * Gallery — Phase 2.
+ * Gallery.
  *
- * The lightbox will use the shared `Modal` primitive rather than a
- * gallery-specific overlay, so focus handling and scroll locking are solved
- * once for the whole site.
+ * The photographs are the only colour anywhere on this site — every other
+ * surface is black and white. That is the reason nothing here is tinted,
+ * filtered or desaturated: the pictures are meant to be the thing that has
+ * colour in it.
  */
 export default function GalleryPage() {
   return (
     <>
-      <PageHero title="Gallery" />
-      <PhasePlaceholder
-        phase="Phase 2"
-        awaiting="Structure confirmed from the outline: a hero, then an event-wise gallery. Awaiting the grid reference and the real event photographs."
+      <PageHero
+        eyebrow={GALLERY_INTRO.eyebrow}
+        title={GALLERY_INTRO.title}
+        description={GALLERY_INTRO.description}
+        size="compact"
       />
+      <EventwiseGallery />
     </>
   );
 }

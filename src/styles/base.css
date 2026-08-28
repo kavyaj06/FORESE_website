@@ -135,3 +135,18 @@
     background-color: var(--color-text-subtle);
   }
 }
+
+/* ----------------------------------------------------------------------------
+ * Hides the scrollbar on a strip that is deliberately scrollable and whose
+ * affordance is the overflowing content itself — the gallery's event chips.
+ * Sits outside @layer base because `@utility` must be declared at top level.
+ * Use sparingly: on anything the user must discover is scrollable, the
+ * scrollbar is the discovery mechanism.
+ * --------------------------------------------------------------------------*/
+@utility scrollbar-none {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

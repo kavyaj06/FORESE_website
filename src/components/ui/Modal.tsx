@@ -4,6 +4,8 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useScrollLock } from '@/hooks/useScrollLock';
 
+type ModalVariant = 'panel' | 'bare';
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -11,6 +13,13 @@ interface ModalProps {
   title: string;
   /** Hide the title visually while keeping it for screen readers. */
   hideTitle?: boolean;
+  /**
+   * `panel` — the standard bordered surface with a heading row.
+   * `bare`  — no surface, no padding, a floating close control. For content
+   *           that is its own presentation, such as the gallery lightbox.
+   *           The title is always screen-reader only in this variant.
+   */
+  variant?: ModalVariant;
   children: ReactNode;
   className?: string;
 }
@@ -25,13 +34,16 @@ const FOCUSABLE =
  * retrofit later: Escape to close, focus moved in on open and restored on
  * close, Tab cycling trapped inside, and the background frozen.
  *
- * Built now because the Gallery lightbox in Phase 2 needs exactly this.
+ * Built now because the Gallery lightbox in Phase 2 needs exactly this — which
+ * is what the `bare` variant serves: same focus and scroll behaviour, none of
+ * the panel chrome.
  */
 export function Modal({
   open,
   onClose,
   title,
   hideTitle = false,
+  variant = 'panel',
   children,
   className,
 }: ModalProps) {
@@ -107,25 +119,50 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={cn(
-          'bg-surface-raised max-w-content relative z-10 max-h-full w-full overflow-auto rounded-lg shadow-lg',
+          'relative z-10 max-h-full w-full',
+          variant === 'panel'
+            ? 'bg-surface-raised max-w-content overflow-auto rounded-lg shadow-lg'
+            : 'flex flex-col',
           className,
         )}
       >
-        <div className="gap-md p-lg flex items-start justify-between">
-          <h2 id={titleId} className={cn('text-h3', hideTitle && 'sr-only')}>
-            {title}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close dialog"
-            className="text-text-muted hover:text-text hover:bg-surface duration-fast -m-1 rounded-md p-1 transition-colors"
-          >
-            <X size={20} aria-hidden="true" />
-          </button>
-        </div>
+        {variant === 'panel' ? (
+          <>
+            <div className="gap-md p-lg flex items-start justify-between">
+              <h2 id={titleId} className={cn('text-h3', hideTitle && 'sr-only')}>
+                {title}
+              </h2>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close dialog"
+                className="text-text-muted hover:text-text hover:bg-surface duration-fast -m-1 rounded-md p-1 transition-colors"
+              >
+                <X size={20} aria-hidden="true" />
+              </button>
+            </div>
 
-        <div className="px-lg pb-lg">{children}</div>
+            <div className="px-lg pb-lg">{children}</div>
+          </>
+        ) : (
+          <>
+            <h2 id={titleId} className="sr-only">
+              {title}
+            </h2>
+            {/* Kept inside the panel so the focus trap includes it. Coloured
+                against the backdrop rather than against a surface, since in
+                this variant there is no surface behind it. */}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close dialog"
+              className="bg-surface-inverse/60 text-text-inverse hover:bg-surface-inverse duration-fast rounded-pill absolute -top-1 right-0 z-20 flex size-11 items-center justify-center backdrop-blur-sm transition-colors"
+            >
+              <X size={20} aria-hidden="true" />
+            </button>
+            {children}
+          </>
+        )}
       </div>
     </div>,
     document.body,
