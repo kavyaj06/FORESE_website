@@ -11,14 +11,28 @@ import type { Variants, Transition } from 'framer-motion';
 export const EASE_OUT_BRAND = [0.16, 1, 0.3, 1] as const;
 
 export const transition: Transition = {
-  duration: 0.35,
+  duration: 0.55,
   ease: EASE_OUT_BRAND,
 };
 
-/** Section entering the viewport on scroll. */
+/** Section entering the viewport on scroll.
+    The travel is deliberately larger than a token 8px nudge — motion that is
+    too small to notice costs the same to run and reads as no motion at all. */
 export const riseIn: Variants = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 28 },
   visible: { opacity: 1, y: 0, transition },
+};
+
+/** For cards and tiles: adds a slight scale so the element feels like it
+    settles into place rather than merely sliding. */
+export const riseScaleIn: Variants = {
+  hidden: { opacity: 0, y: 32, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.55, ease: EASE_OUT_BRAND },
+  },
 };
 
 /** Reduced-motion equivalent: state change without movement. */
@@ -34,7 +48,7 @@ export const fadeInOnly: Variants = {
 export const stagger: Variants = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.04 },
+    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
   },
 };
 

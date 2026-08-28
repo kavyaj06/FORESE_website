@@ -65,17 +65,47 @@ export function PhotoTile({
         </span>
       )}
 
-      {/* Hover affordance. Pointer-events off so it never intercepts the click
-          that the whole tile already handles. */}
+      {/* Hover state. Pointer-events off throughout, so none of it intercepts
+          the click the whole tile already handles.
+
+          The scrim is literal black rather than a theme token: it sits on a
+          photograph, so it has to darken the picture whatever the surrounding
+          theme is doing. A token that inverts would turn it white on a dark
+          section and wash the image out. */}
       <span
         aria-hidden="true"
         className={cn(
-          'bg-surface-inverse/70 text-text-inverse rounded-pill pointer-events-none absolute top-3 right-3 flex size-9 items-center justify-center backdrop-blur-sm',
+          'pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent',
           'duration-base ease-out-brand opacity-0 transition-opacity',
           'group-hover:opacity-100 group-focus-visible:opacity-100',
         )}
+      />
+
+      <span
+        aria-hidden="true"
+        className={cn(
+          'rounded-pill pointer-events-none absolute top-3 right-3 flex size-9 items-center justify-center bg-white/15 text-white backdrop-blur-sm',
+          'duration-base ease-out-brand translate-y-1 opacity-0 transition-[opacity,transform]',
+          'group-hover:translate-y-0 group-hover:opacity-100',
+          'group-focus-visible:translate-y-0 group-focus-visible:opacity-100',
+        )}
       >
         <Maximize2 size={16} strokeWidth={2} />
+      </span>
+
+      {/* Caption rises slightly behind the scrim rather than fading in with
+          it. Two elements arriving on different beats reads as one considered
+          gesture; a simultaneous fade reads as a tooltip. */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          'text-caption pointer-events-none absolute inset-x-0 bottom-0 p-3 text-left text-white',
+          'duration-base ease-out-brand translate-y-2 opacity-0 transition-[opacity,transform]',
+          'group-hover:translate-y-0 group-hover:opacity-100',
+          'group-focus-visible:translate-y-0 group-focus-visible:opacity-100',
+        )}
+      >
+        {alt}
       </span>
     </button>
   );

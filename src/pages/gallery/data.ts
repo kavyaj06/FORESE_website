@@ -4,13 +4,13 @@
  * Photographs are grouped under the shared event list in `@/data/events.ts`;
  * this file only says which pictures belong to which event.
  *
- * ⚠️ AWAITING PHOTOGRAPHS. Every entry below has its dimensions but no `src`,
- * so tiles render as placeholders that hold the exact shape the real picture
- * will occupy. Adding a photograph is one field:
+ * ⚠️ DUMMY IMAGES IN PLACE. `public/gallery/` currently holds generated
+ * abstracts so the layout, motion and lightbox can be judged against real
+ * image files. To swap in the club's photographs:
  *
- *   1. Drop the file in `public/gallery/<event-slug>/`
- *   2. Set `src: '/gallery/<event-slug>/<file>.webp'`
- *   3. Put the real `width`/`height` in, and write a real `alt`
+ *   1. Replace the files in `public/gallery/<event-slug>/`
+ *   2. Put each photograph's true `width`/`height` in
+ *   3. Write a real `alt` describing what the picture shows
  *
  * `width` and `height` are required even before the file exists. They reserve
  * the tile's box, which is what stops the whole grid reflowing as pictures
@@ -45,27 +45,34 @@ export interface GalleryAlbum {
 }
 
 /** Varied shapes on purpose — a masonry grid of identical rectangles is a
-    spreadsheet. These stand in until the real photographs land. */
+    spreadsheet. Matches the dummy files currently in `public/gallery/`. */
 const PLACEHOLDER_SHAPES: Array<[number, number]> = [
-  [1600, 1067],
-  [1200, 1600],
-  [1600, 1067],
-  [1500, 1500],
-  [1600, 900],
-  [1200, 1600],
-  [1600, 1067],
-  [1500, 1500],
-  [1600, 1067],
+  [1100, 733],
+  [825, 1100],
+  [1100, 733],
+  [1100, 1100],
+  [1100, 619],
+  [825, 1100],
+  [1100, 733],
+  [1100, 1100],
+  [1100, 733],
 ];
 
-function placeholderPhotos(eventId: string, count: number): GalleryPhoto[] {
+/**
+ * ⚠️ DUMMY IMAGES. `public/gallery/<slug>/NN.jpg` are generated abstracts, not
+ * photographs, so the layout can be judged against real files. Replace the
+ * folder contents and the `alt` text below; the shape table above then needs
+ * updating to each real photograph's true dimensions.
+ */
+function placeholderPhotos(slug: string, count: number): GalleryPhoto[] {
   return Array.from({ length: count }, (_, index) => {
     const [width, height] = PLACEHOLDER_SHAPES[index % PLACEHOLDER_SHAPES.length];
     return {
-      id: `${eventId}-${index + 1}`,
+      id: `${slug}-${index + 1}`,
+      src: `/gallery/${slug}/${String(index + 1).padStart(2, '0')}.jpg`,
       width,
       height,
-      alt: `Photograph ${index + 1} — awaiting upload`,
+      alt: `Placeholder image ${index + 1}`,
     };
   });
 }

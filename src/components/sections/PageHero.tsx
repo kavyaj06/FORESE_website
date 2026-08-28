@@ -1,25 +1,31 @@
 import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
+import { TextReveal } from '@/components/motion/TextReveal';
 import { fadeInOnly, riseIn, stagger } from '@/components/motion/variants';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
 
 interface PageHeroProps {
   eyebrow?: string;
-  /** The page's `h1`. There must be exactly one per page. */
-  title: ReactNode;
+  /**
+   * The page's `h1`. A plain string, because the headline animates word by
+   * word and that requires owning the text rather than arbitrary markup.
+   */
+  title: string;
   description?: ReactNode;
   /** Buttons or other calls to action. */
   actions?: ReactNode;
-  /** The outline centres every page hero, so that is the default. */
+  /** Small facts under the headline — "6 stages", "27 photographs". */
+  meta?: string[];
   align?: 'left' | 'center';
-  /**
-   * `display` is the full-height landing treatment. `compact` is for pages
-   * whose content should start higher up the screen.
-   */
   size?: 'display' | 'compact';
-  /** Set false to drop the dot field, e.g. behind a hero image. */
+  /**
+   * `inverse` is the default: a black hero gives each page a hard opening and
+   * is the strongest contrast move available in a palette with no colour in
+   * it. `light` is for pages that open straight into imagery.
+   */
+  tone?: 'inverse' | 'light';
   pattern?: boolean;
   className?: string;
 }
@@ -28,42 +34,47 @@ interface PageHeroProps {
  * Top-of-page header carrying the `h1`.
  *
  * Every page uses this, which is what guarantees a consistent landing rhythm
- * across the site and exactly one `h1` per page.
+ * and exactly one `h1` per page.
  *
- * Three things are doing the visual work here, since there is no colour to do
- * it with:
- *
- *  - A dot field, masked to fade out radially. An unmasked pattern ends on a
- *    hard rectangle and instantly looks like a mistake.
- *  - The eyebrow as a bordered pill rather than loose text, which gives the
- *    block something to sit against.
- *  - A short entrance stagger. This runs on `animate`, not `whileInView` —
- *    the hero is on screen at load, so waiting for a scroll trigger would
- *    mean it either never plays or plays behind the user's back.
+ * The motion runs on `animate`, not `whileInView` — the hero is on screen at
+ * load, so a scroll trigger would either never fire or play behind the user's
+ * back. The pattern drifts at a fraction of scroll speed, which gives the
+ * header depth without hijacking the scroll itself.
  */
 export function PageHero({
   eyebrow,
   title,
   description,
   actions,
+  meta,
   align = 'center',
   size = 'display',
+  tone = 'inverse',
   pattern = true,
   className,
 }: PageHeroProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const centred = align === 'center';
 
+  const { scrollY } = useScroll();
+  const patternY = useTransform(scrollY, [0, 700], [0, 90]);
+  const contentOpacity = useTransform(scrollY, [0, 420], [1, 0.25]);
+
   return (
     <header
+      data-theme={tone === 'inverse' ? 'inverse' : undefined}
       className={cn(
         'border-border relative isolate overflow-hidden border-b',
-        size === 'display' ? 'py-section tablet:pt-3xl tablet:pb-3xl' : 'py-section',
+        size === 'display' ? 'py-section tablet:py-3xl' : 'py-section',
         className,
       )}
     >
       {pattern && (
-        <div aria-hidden="true" className="bg-dot-grid mask-radial-fade absolute inset-0 -z-10" />
+        <motion.div
+          aria-hidden="true"
+          style={{ y: prefersReducedMotion ? 0 : patternY }}
+          className="bg-dot-grid mask-radial-fade absolute inset-x-0 -inset-y-24 -z-10"
+        />
       )}
 
       <Container>
@@ -71,27 +82,28 @@ export function PageHero({
           initial="hidden"
           animate="visible"
           variants={prefersReducedMotion ? fadeInOnly : stagger}
+          style={{ opacity: prefersReducedMotion ? 1 : contentOpacity }}
           className={cn('gap-lg flex flex-col', centred && 'items-center text-center')}
         >
           {eyebrow && (
             <motion.p
               variants={prefersReducedMotion ? fadeInOnly : riseIn}
-              className="text-eyebrow text-text-muted border-border bg-surface-raised gap-xs rounded-pill inline-flex items-center border px-3 py-1.5 uppercase shadow-sm"
+              className="text-eyebrow text-text-muted border-border bg-surface-raised gap-xs rounded-pill inline-flex items-center border px-3 py-1.5 uppercase"
             >
               <span aria-hidden="true" className="bg-accent rounded-pill size-1.5" />
               {eyebrow}
             </motion.p>
           )}
 
-          <motion.h1
-            variants={prefersReducedMotion ? fadeInOnly : riseIn}
+          <TextReveal
+            as="h1"
+            text={title}
+            delay={0.12}
             className={cn(
               size === 'display' ? 'text-display' : 'text-h1',
               centred && 'max-w-content-narrow',
             )}
-          >
-            {title}
-          </motion.h1>
+          />
 
           {description && (
             <motion.p
@@ -100,6 +112,23 @@ export function PageHero({
             >
               {description}
             </motion.p>
+          )}
+
+          {meta && meta.length > 0 && (
+            <motion.ul
+              variants={prefersReducedMotion ? fadeInOnly : riseIn}
+              className={cn(
+                'text-small text-text-muted gap-lg flex flex-wrap',
+                centred && 'justify-center',
+              )}
+            >
+              {meta.map((item) => (
+                <li key={item} className="gap-xs flex items-center">
+                  <span aria-hidden="true" className="bg-border-strong rounded-pill size-1" />
+                  {item}
+                </li>
+              ))}
+            </motion.ul>
           )}
 
           {actions && (

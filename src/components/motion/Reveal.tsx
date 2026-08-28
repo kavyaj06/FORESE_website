@@ -1,6 +1,6 @@
 import type { ElementType, ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { fadeInOnly, riseIn, stagger } from './variants';
+import { fadeInOnly, riseIn, riseScaleIn, stagger } from './variants';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 interface RevealProps {
@@ -9,6 +9,8 @@ interface RevealProps {
   staggerChildren?: boolean;
   /** Delay in seconds before the reveal starts. */
   delay?: number;
+  /** `scale` adds a slight settle, for cards and image tiles. */
+  motionStyle?: 'rise' | 'scale';
   as?: ElementType;
   className?: string;
 }
@@ -26,6 +28,7 @@ export function Reveal({
   children,
   staggerChildren = false,
   delay = 0,
+  motionStyle = 'rise',
   as = 'div',
   className,
 }: RevealProps) {
@@ -33,13 +36,19 @@ export function Reveal({
 
   const MotionTag = motion[as as keyof typeof motion] as typeof motion.div;
 
-  const variants = prefersReducedMotion ? fadeInOnly : staggerChildren ? stagger : riseIn;
+  const variants = prefersReducedMotion
+    ? fadeInOnly
+    : staggerChildren
+      ? stagger
+      : motionStyle === 'scale'
+        ? riseScaleIn
+        : riseIn;
 
   return (
     <MotionTag
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.15, margin: '0px 0px -80px 0px' }}
+      viewport={{ once: true, amount: 0.12, margin: '0px 0px -60px 0px' }}
       variants={variants}
       transition={{ delay }}
       className={className}

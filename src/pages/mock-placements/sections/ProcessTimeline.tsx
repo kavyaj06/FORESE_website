@@ -117,11 +117,6 @@ export function ProcessTimeline() {
 
   return (
     <section className="border-border bg-surface py-section relative isolate overflow-hidden border-b">
-      <div
-        aria-hidden="true"
-        className="bg-line-grid mask-fade-b absolute inset-0 -z-10 opacity-60"
-      />
-
       <Container>
         <Reveal>
           <SectionHeading

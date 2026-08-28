@@ -59,7 +59,7 @@ export function EventAlbum({
           // stagger: an album is taller than the screen, so a single stagger
           // would finish before you scrolled to the later tiles. The small
           // index-based delay still gives a cascade within a row.
-          <Reveal key={photo.id} delay={(index % 3) * 0.06}>
+          <Reveal key={photo.id} delay={(index % 3) * 0.07} motionStyle="scale">
             <PhotoTile
               photo={photo}
               position={index + 1}

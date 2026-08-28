@@ -4,6 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { PageTransition } from '@/components/motion/PageTransition';
+import { ScrollProgress } from '@/components/motion/ScrollProgress';
 import { findRoute } from '@/app/routes';
 import { applyPageMeta } from '@/lib/seo';
 import { SITE } from '@/data/site';
@@ -32,6 +33,8 @@ export function RootLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <ScrollProgress />
+
       <a
         href="#main-content"
         className="bg-primary text-primary-fg text-label sr-only rounded-md px-4 py-2 focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-[60]"

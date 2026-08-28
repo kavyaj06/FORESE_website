@@ -1,6 +1,6 @@
 import { PageHero } from '@/components/sections/PageHero';
 import { EventwiseGallery } from './sections/EventwiseGallery';
-import { GALLERY_INTRO } from './data';
+import { GALLERY_ALBUMS, GALLERY_INTRO } from './data';
 
 /**
  * Gallery.
@@ -18,6 +18,10 @@ export default function GalleryPage() {
         title={GALLERY_INTRO.title}
         description={GALLERY_INTRO.description}
         size="compact"
+        meta={[
+          `${GALLERY_ALBUMS.length} events`,
+          `${GALLERY_ALBUMS.reduce((total, album) => total + album.photos.length, 0)} photographs`,
+        ]}
       />
       <EventwiseGallery />
     </>

@@ -45,7 +45,10 @@ const SIZES: Record<ButtonSize, string> = {
 
 const BASE =
   'inline-flex items-center justify-center rounded-pill font-medium ' +
-  'transition-colors duration-fast ease-out-brand ' +
+  'transition-[background-color,border-color,color,transform] duration-fast ease-out-brand ' +
+  // A button that does not visibly respond to being pressed feels broken on
+  // touch, where there is no hover state to confirm the hit.
+  'active:scale-[0.97] ' +
   'disabled:pointer-events-none disabled:opacity-50';
 
 /**
