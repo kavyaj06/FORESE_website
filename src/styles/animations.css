@@ -1,0 +1,88 @@
+/* ============================================================================
+ * FORESE — MOTION
+ * ----------------------------------------------------------------------------
+ * Keyframes plus the global reduced-motion guard.
+ *
+ * Most motion on the site is driven by framer-motion (see
+ * src/components/motion/). The keyframes here are for the cases where CSS is
+ * simpler and cheaper than mounting a JS animation — loading skeletons, the
+ * mobile drawer, small entrance effects.
+ * ==========================================================================*/
+
+@keyframes forese-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes forese-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes forese-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@utility animate-fade-in {
+  animation: forese-fade-in var(--duration-base) var(--ease-out-brand) both;
+}
+
+@utility animate-rise-in {
+  animation: forese-rise-in var(--duration-slow) var(--ease-out-brand) both;
+}
+
+/* Named duration utilities.
+   Tailwind v4 has no `--duration-*` theme namespace — `duration-*` only
+   accepts numbers — so the three named timings from theme.css are exposed
+   here. This lets call sites write `duration-fast` instead of `duration-150`,
+   keeping the value itself in theme.css where it can be tuned once. */
+@utility duration-fast {
+  transition-duration: var(--duration-fast);
+}
+
+@utility duration-base {
+  transition-duration: var(--duration-base);
+}
+
+@utility duration-slow {
+  transition-duration: var(--duration-slow);
+}
+
+/* ----------------------------------------------------------------------------
+ * REDUCED MOTION
+ * A single global guard. Anything animated anywhere in the app — CSS,
+ * framer-motion, smooth scrolling — collapses to effectively instant when the
+ * visitor has asked their OS for less motion.
+ *
+ * Note this reduces rather than deletes: 0.01ms keeps animation/transition end
+ * events firing, so components that wait on them don't hang.
+ * --------------------------------------------------------------------------*/
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

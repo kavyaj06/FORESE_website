@@ -1,0 +1,137 @@
+/* ============================================================================
+ * FORESE — BASE LAYER
+ * ----------------------------------------------------------------------------
+ * Element defaults only. No component styling lives here, and no raw colours —
+ * everything references a token from theme.css.
+ * ==========================================================================*/
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Offsets in-page anchor targets so the fixed header never covers them. */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings inherit the display face; size comes from an explicit text-*
+     utility at the call site, so nothing is styled by tag name alone. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    font-family: var(--font-display);
+    color: var(--color-text);
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Media defaults to block so images never sit on a stray text baseline. */
+  img,
+  svg,
+  video,
+  canvas,
+  picture {
+    display: block;
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    height: auto;
+  }
+
+  /* Form controls inherit typography rather than falling back to the UA font. */
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+    margin: 0;
+  }
+
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  /* ------------------------------------------------------------------
+   * FOCUS
+   * A visible ring on keyboard focus, never removed. :focus-visible keeps
+   * it off mouse clicks, so it costs nothing visually while remaining a
+   * hard accessibility requirement.
+   * ----------------------------------------------------------------*/
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Selection */
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-accent-fg);
+  }
+
+  /* Scrollbar — subtle, token-driven, Firefox + WebKit */
+  html {
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border: 3px solid var(--color-bg);
+    border-radius: var(--radius-pill);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-text-subtle);
+  }
+}
