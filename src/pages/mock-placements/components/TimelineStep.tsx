@@ -1,8 +1,5 @@
-import { useRef } from 'react';
-import { useInView } from 'framer-motion';
 import { ArrowUpRight, CalendarDays } from 'lucide-react';
 import { Button, Card } from '@/components/ui';
-import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
 import type { ProcessStep } from '../data';
 
@@ -10,36 +7,32 @@ interface TimelineStepProps {
   step: ProcessStep;
   /** 1-based position, drawn as the ghost numeral on the card. */
   index: number;
+  /**
+   * Whether this is the stage currently being read. Decided by the parent, not
+   * here: exactly one step may be active at a time, and a component can only
+   * see itself.
+   */
+  active: boolean;
+  /** Lets the parent measure this step's node against the spine head. */
+  nodeRef?: (element: HTMLDivElement | null) => void;
 }
 
 /**
  * One stage on the mock placement rail: a node on the spine, and the card
  * beside it.
  *
- * The node inverts to solid black while its stage is the one you are reading.
- * That band is tuned to the same point on the screen the spine fill is tied
- * to, so the filled line always ends at whichever node is lit — the two read
- * as one mechanism rather than two unrelated effects.
- *
  * The node is opaque on purpose. The spine runs behind the whole column, and
  * the node covering it is what makes the line appear to run *between* stages
  * rather than straight through them.
  */
-export function TimelineStep({ step, index }: TimelineStepProps) {
+export function TimelineStep({ step, index, active, nodeRef }: TimelineStepProps) {
   const { title, description, icon: Icon, timing, action } = step;
-  const nodeRef = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = usePrefersReducedMotion();
-
-  // A band across the lower-middle of the viewport. The step is "current"
-  // while it sits inside it. Non-latching, so scrolling back up unlights a
-  // step exactly as it unfills the spine.
-  const inBand = useInView(nodeRef, { margin: '-60% 0px -20% 0px' });
-  const active = inBand && !prefersReducedMotion;
 
   return (
-    <div ref={nodeRef} className="gap-md tablet:gap-lg group flex items-start">
+    <div className="gap-md tablet:gap-lg group flex items-start">
       {/* Node */}
       <div
+        ref={nodeRef}
         aria-hidden="true"
         className={cn(
           'tablet:size-12 relative flex size-10 shrink-0 items-center justify-center rounded-lg border',
@@ -69,11 +62,12 @@ export function TimelineStep({ step, index }: TimelineStepProps) {
             active ? 'border-border-strong shadow-lg' : 'shadow-sm',
           )}
         >
-          {/* Ghost numeral. Decorative — the <ol> carries the real ordering,
-              so this stays out of the accessibility tree. */}
+          {/* Ghost numeral. Decorative — the <ol> carries the real ordering, so
+              it stays out of the accessibility tree. Hidden on mobile, where
+              there is not enough card width for it to sit clear of the title. */}
           <span
             aria-hidden="true"
-            className="text-border font-display pointer-events-none absolute -top-3 right-3 text-[4.5rem] leading-none font-bold select-none"
+            className="text-border font-display tablet:block pointer-events-none absolute top-2 right-4 hidden text-[4.5rem] leading-none font-bold select-none"
           >
             {String(index).padStart(2, '0')}
           </span>

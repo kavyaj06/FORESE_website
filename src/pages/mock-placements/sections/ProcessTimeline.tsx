@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
@@ -6,6 +6,16 @@ import { Reveal } from '@/components/motion/Reveal';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { TimelineStep } from '../components/TimelineStep';
 import { MOCK_PLACEMENTS_INTRO, PROCESS_STEPS } from '../data';
+
+/**
+ * Where the spine head sits on screen, as a fraction of viewport height.
+ *
+ * One constant, used twice: `useScroll` anchors the fill to it, and the active
+ * step is the last node this same line has passed. That shared value is what
+ * keeps the filled line ending exactly at the lit node — if these ever drift
+ * apart, the two effects stop looking like one mechanism.
+ */
+const SPINE_HEAD = 0.65;
 
 /**
  * The six-stage vertical timeline.
@@ -26,17 +36,19 @@ import { MOCK_PLACEMENTS_INTRO, PROCESS_STEPS } from '../data';
  *     finished before you ever scrolled to them.
  *
  * Under `prefers-reduced-motion` the spine draws complete and static, `Reveal`
- * drops to opacity only, and the nodes hold their resting state.
+ * drops to opacity only, and no step is highlighted.
  */
 export function ProcessTimeline() {
   const listRef = useRef<HTMLOListElement>(null);
+  const nodesRef = useRef<Array<HTMLDivElement | null>>([]);
   const prefersReducedMotion = usePrefersReducedMotion();
 
-  // Tied to the same point on screen the step nodes light at, so the filled
-  // line always ends at the lit node.
+  // -1 means the line has not reached the first stage yet.
+  const [activeIndex, setActiveIndex] = useState(-1);
+
   const { scrollYProgress } = useScroll({
     target: listRef,
-    offset: ['start 65%', 'end 65%'],
+    offset: [`start ${SPINE_HEAD * 100}%`, `end ${SPINE_HEAD * 100}%`],
   });
 
   // Spring-smoothed: raw scroll progress driving a transform reads as jittery
@@ -46,6 +58,62 @@ export function ProcessTimeline() {
     damping: 30,
     restDelta: 0.001,
   });
+
+  const registerNode = useCallback(
+    (index: number) => (element: HTMLDivElement | null) => {
+      nodesRef.current[index] = element;
+    },
+    [],
+  );
+
+  /**
+   * Exactly one step is active: the last one whose node centre the spine head
+   * has passed.
+   *
+   * This replaced a per-step IntersectionObserver, which could not work — an
+   * observer band wide enough to catch a node reliably is also wide enough for
+   * two neighbouring cards to sit in it at once, so two nodes lit together.
+   * Activity is a property of the list, so the list decides it.
+   */
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setActiveIndex(-1);
+      return;
+    }
+
+    let frame = 0;
+
+    const measure = () => {
+      frame = 0;
+      const line = window.innerHeight * SPINE_HEAD;
+      let next = -1;
+
+      nodesRef.current.forEach((element, index) => {
+        if (!element) return;
+        const { top, height } = element.getBoundingClientRect();
+        if (top + height / 2 <= line) next = index;
+      });
+
+      setActiveIndex((previous) => (previous === next ? previous : next));
+    };
+
+    // Coalesce to one measurement per frame — scroll fires far more often
+    // than the screen repaints, and each measurement reads layout.
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [prefersReducedMotion]);
 
   return (
     <section className="border-border bg-surface py-section relative isolate overflow-hidden border-b">
@@ -83,7 +151,12 @@ export function ProcessTimeline() {
             {PROCESS_STEPS.map((step, i) => (
               <li key={step.id} id={step.id}>
                 <Reveal>
-                  <TimelineStep step={step} index={i + 1} />
+                  <TimelineStep
+                    step={step}
+                    index={i + 1}
+                    active={i === activeIndex}
+                    nodeRef={registerNode(i)}
+                  />
                 </Reveal>
               </li>
             ))}
