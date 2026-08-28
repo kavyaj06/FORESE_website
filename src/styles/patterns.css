@@ -1,0 +1,42 @@
+/* ============================================================================
+ * FORESE — DECORATIVE BACKGROUNDS & MASKS
+ * ----------------------------------------------------------------------------
+ * A black-and-white site has no colour to build depth with, so depth has to
+ * come from texture, layering and contrast instead. These utilities are that
+ * texture.
+ *
+ * Every colour here references a token from theme.css. The only literal
+ * colours are inside mask-image, where `black`/`transparent` are alpha stops
+ * rather than design colours — a mask does not care what hue it is.
+ * ==========================================================================*/
+
+/* Fine dot field. The default background for page heroes: it registers as
+   texture at a glance without competing with the headline. */
+@utility bg-dot-grid {
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
+
+/* Engineering-paper ruling. Heavier than the dots — for a band that should
+   read as a surface rather than as page background. */
+@utility bg-line-grid {
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+/* Fades a pattern out towards the edges so it never collides with the layout's
+   own borders. Without this, a full-bleed pattern ends on a hard rectangle and
+   immediately looks like a mistake. */
+@utility mask-radial-fade {
+  -webkit-mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 35%, #000 30%, transparent 100%);
+}
+
+/* Fades a pattern out downwards — for bands that hand off to the next section. */
+@utility mask-fade-b {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
+}

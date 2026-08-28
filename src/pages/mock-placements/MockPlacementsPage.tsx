@@ -1,5 +1,6 @@
 import { PageHero } from '@/components/sections/PageHero';
 import { ProcessTimeline } from './sections/ProcessTimeline';
+import { DriveCallout } from './sections/DriveCallout';
 
 /**
  * Mock Placements.
@@ -16,6 +17,7 @@ export default function MockPlacementsPage() {
         description="A full placement rehearsal — aptitude, group discussion and interviews with HRs from real companies, so the first time you sit in front of a recruiter is not the first time that matters."
       />
       <ProcessTimeline />
+      <DriveCallout />
     </>
   );
 }

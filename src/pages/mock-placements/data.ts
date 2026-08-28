@@ -23,6 +23,21 @@ export const MOCK_PLACEMENTS_INTRO = {
     'The drive runs in six stages. The first two are the work the team does before a single student registers — finding the professionals who will sit on the panels. The rest is the process students go through.',
 } as const;
 
+/**
+ * Closing band at the foot of the page.
+ * TODO: replace with the real registration route once the drive dates and the
+ * registration channel are confirmed.
+ */
+export const MOCK_PLACEMENTS_CALLOUT = {
+  title: 'Dates for the next drive are announced through FORESE channels.',
+  description:
+    'Registration opens to eligible students shortly before the aptitude round. Watch the events page, or reach the team directly.',
+  actions: {
+    primary: { label: 'See upcoming events', to: '/events' },
+    secondary: { label: 'Meet the team', to: '/team' },
+  },
+} as const;
+
 export interface ProcessStep {
   /** Stable id, also used as the anchor target. */
   id: string;

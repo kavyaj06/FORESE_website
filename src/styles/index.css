@@ -3,11 +3,12 @@
  * ----------------------------------------------------------------------------
  * The only stylesheet imported by the app (see src/main.tsx).
  * Order matters: Tailwind first, then tokens, then element defaults, then
- * motion.
+ * decorative patterns, then motion.
  * ==========================================================================*/
 
 @import 'tailwindcss';
 
 @import './theme.css';
 @import './base.css';
+@import './patterns.css';
 @import './animations.css';

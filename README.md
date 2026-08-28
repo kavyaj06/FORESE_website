@@ -32,10 +32,13 @@ src/
                           it. Adding a page means editing this one file.
 
   styles/
-    index.css           entry point — imports the three below
-    theme.css           ← ALL design tokens. The only file allowed to contain
-                          a raw colour, font, or magic number.
+    index.css           entry point — imports the four below
+    theme.css           ← ALL design tokens, plus the [data-theme="inverse"]
+                          block. The only file allowed to contain a raw
+                          colour, font, or magic number.
     base.css            element defaults, focus rings, scrollbar
+    patterns.css        dot/line fields and mask fades — the texture that
+                          carries depth in a palette with no colour in it
     animations.css      keyframes + the global reduced-motion guard
 
   components/
@@ -69,7 +72,9 @@ src/
    `data.ts`; sections take props. This is what lets other club members update
    the site without touching layout code.
 4. Only `styles/theme.css` contains raw colour values — including anything
-   lifted from a template reference.
+   lifted from a template reference. The one exception is the `mask-image`
+   stops in `styles/patterns.css`: a mask reads only the alpha channel, so
+   `#000` there is "opaque", not a colour choice.
 5. A page component past ~120 lines has a section that wants extracting.
 
 ## Design sources
@@ -86,8 +91,13 @@ into a patchwork of other people's design systems.
 
 ## Status
 
-Design tokens in `theme.css` are **provisional neutral placeholders** pending the
-anchor template. Nothing outside that file changes when they are replaced.
+The design language is decided: **black and white**, refined-minimal character,
+Plus Jakarta Sans over Inter. Adding a brand colour later means editing the four
+`--color-accent-*` values in `theme.css` and nothing else.
+
+Depth comes from layering rather than colour — a section on `surface` with cards
+on `surface-raised`, the `[data-theme="inverse"]` band, and the dot/line fields
+in `patterns.css`. Shadows confirm elevation; they are not what creates it.
 
 Page content is placeholder throughout — see the `TODO` markers in
 `src/data/site.ts` and the `PhasePlaceholder` blocks on each route.
