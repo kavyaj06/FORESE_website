@@ -5,7 +5,7 @@ import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { PageTransition } from '@/components/motion/PageTransition';
 import { ScrollProgress } from '@/components/motion/ScrollProgress';
-import { findRoute } from '@/app/routes';
+import { resolveRouteMeta } from '@/app/routes';
 import { applyPageMeta } from '@/lib/seo';
 import { SITE } from '@/data/site';
 
@@ -18,7 +18,7 @@ import { SITE } from '@/data/site';
  */
 export function RootLayout() {
   const location = useLocation();
-  const route = findRoute(location.pathname);
+  const meta = resolveRouteMeta(location.pathname);
 
   // Reset scroll on navigation. Without this the new page inherits the old
   // page's scroll offset, which reads as a broken link.
@@ -28,8 +28,8 @@ export function RootLayout() {
 
   // Title and meta tags, driven by the route table.
   useEffect(() => {
-    applyPageMeta(route?.title ?? 'Page not found', route?.description ?? SITE.description);
-  }, [route]);
+    applyPageMeta(meta.title ?? 'Page not found', meta.description ?? SITE.description);
+  }, [meta.title, meta.description]);
 
   return (
     <div className="flex min-h-screen flex-col">

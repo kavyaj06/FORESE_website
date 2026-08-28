@@ -89,3 +89,13 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
   },
   { eventId: 'orientation-2025', photos: placeholderPhotos('orientation-2025', 5) },
 ];
+
+/** The album for an event id, if it has one. */
+export function albumFor(eventId: string): GalleryAlbum | undefined {
+  return GALLERY_ALBUMS.find((album) => album.eventId === eventId);
+}
+
+/** The photograph that represents an event in the index. */
+export function coverPhoto(eventId: string): GalleryPhoto | undefined {
+  return albumFor(eventId)?.photos[0];
+}

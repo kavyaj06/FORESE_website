@@ -1,14 +1,15 @@
 import { PageHero } from '@/components/sections/PageHero';
-import { EventwiseGallery } from './sections/EventwiseGallery';
+import { EventArchive } from './sections/EventArchive';
 import { GALLERY_ALBUMS, GALLERY_INTRO } from './data';
 
 /**
- * Gallery.
+ * Gallery index.
  *
  * The photographs are the only colour anywhere on this site — every other
- * surface is black and white. That is the reason nothing here is tinted,
- * filtered or desaturated: the pictures are meant to be the thing that has
- * colour in it.
+ * surface is black and white. That is why nothing here is tinted or
+ * desaturated, and why the index can afford to be typography: the pictures
+ * still arrive, on hover, and they are the only thing on screen with colour
+ * in it when they do.
  */
 export default function GalleryPage() {
   return (
@@ -23,7 +24,7 @@ export default function GalleryPage() {
           `${GALLERY_ALBUMS.reduce((total, album) => total + album.photos.length, 0)} photographs`,
         ]}
       />
-      <EventwiseGallery />
+      <EventArchive />
     </>
   );
 }

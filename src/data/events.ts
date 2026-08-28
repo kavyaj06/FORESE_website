@@ -62,6 +62,10 @@ export function findEvent(id: string): ForeseEvent | undefined {
   return EVENTS.find((event) => event.id === id);
 }
 
+export function findEventBySlug(slug: string): ForeseEvent | undefined {
+  return EVENTS.find((event) => event.slug === slug);
+}
+
 /**
  * Formats an event date for display.
  *

@@ -1,10 +1,13 @@
 import type { ComponentType } from 'react';
+import { matchPath, type Params } from 'react-router-dom';
 
 import HomePage from '@/pages/home/HomePage';
 import MockPlacementsPage from '@/pages/mock-placements/MockPlacementsPage';
 import EventsPage from '@/pages/events/EventsPage';
 import TeamPage from '@/pages/team/TeamPage';
 import GalleryPage from '@/pages/gallery/GalleryPage';
+import AlbumPage from '@/pages/gallery/AlbumPage';
+import { findEventBySlug } from '@/data/events';
 import NewsPage from '@/pages/news/NewsPage';
 import CodersPage from '@/pages/coders/CodersPage';
 import StyleguidePage from '@/pages/styleguide/StyleguidePage';
@@ -26,6 +29,18 @@ import StyleguidePage from '@/pages/styleguide/StyleguidePage';
 /** Footer column a route appears under. Omit to keep it out of the footer. */
 export type FooterGroup = 'quickLinks';
 
+/**
+ * Page metadata that can depend on the URL.
+ *
+ * A function for routes whose title comes from their content — the gallery
+ * album page is "Mock Placement Drive 2025", not "Album". Keeping this in the
+ * route table rather than letting the page set its own title preserves the
+ * single source of truth: React runs child effects before parent effects, so
+ * a page setting its own document title would be overwritten by the layout
+ * moments later.
+ */
+export type RouteMeta = string | ((params: Params<string>) => string);
+
 export interface AppRoute {
   /** URL path. */
   path: string;
@@ -34,9 +49,9 @@ export interface AppRoute {
   /** The page component. */
   Component: ComponentType;
   /** Document title. The site name is appended automatically. */
-  title: string;
+  title: RouteMeta;
   /** Meta description for this page. */
-  description: string;
+  description: RouteMeta;
   /** Show in the primary navbar and mobile drawer. */
   inPrimaryNav: boolean;
   /**
@@ -98,6 +113,19 @@ const ALL_ROUTES: AppRoute[] = [
     footerGroup: 'quickLinks',
   },
   {
+    // One album. Not in any navigation — it is reached from the gallery index,
+    // but it is a real URL so a single event's photographs can be shared.
+    path: '/gallery/:slug',
+    label: 'Album',
+    Component: AlbumPage,
+    title: (params) => (params.slug ? (findEventBySlug(params.slug)?.name ?? 'Album') : 'Album'),
+    description: (params) =>
+      params.slug
+        ? `Photographs from ${findEventBySlug(params.slug)?.name ?? 'a FORESE event'}.`
+        : 'Photographs from a FORESE event.',
+    inPrimaryNav: false,
+  },
+  {
     path: '/news',
     label: 'News',
     Component: NewsPage,
@@ -150,7 +178,35 @@ export function footerRoutes(group: FooterGroup): AppRoute[] {
   return ROUTES.filter((route) => route.footerGroup === group);
 }
 
-/** Look up a route by exact path. Used to resolve page metadata. */
-export function findRoute(pathname: string): AppRoute | undefined {
-  return ROUTES.find((route) => route.path === pathname);
+/**
+ * Resolve a pathname to its route and URL parameters.
+ *
+ * Uses the router's own matcher rather than string equality, so parameterised
+ * paths like `/gallery/:slug` resolve. Static routes are checked first: a
+ * literal path must never be captured by a pattern that happens to also match.
+ */
+export function findRoute(
+  pathname: string,
+): { route: AppRoute; params: Params<string> } | undefined {
+  const isDynamic = (route: AppRoute) => route.path.includes(':');
+
+  for (const route of [...ROUTES.filter((r) => !isDynamic(r)), ...ROUTES.filter(isDynamic)]) {
+    const match = matchPath(route.path, pathname);
+    if (match) return { route, params: match.params };
+  }
+
+  return undefined;
+}
+
+/** Title and description for a pathname, with any parameters applied. */
+export function resolveRouteMeta(pathname: string): { title?: string; description?: string } {
+  const found = findRoute(pathname);
+  if (!found) return {};
+
+  const resolve = (value: RouteMeta) => (typeof value === 'function' ? value(found.params) : value);
+
+  return {
+    title: resolve(found.route.title),
+    description: resolve(found.route.description),
+  };
 }
