@@ -11,12 +11,14 @@
  *   --spacing-section     ->  py-section  mt-section
  *   --radius-lg           ->  rounded-lg
  *
- * PALETTE: black and white, decided. Colour is not "missing" here — it is a
- * choice, and the token structure is built so that adding a brand colour later
- * means editing the four `--color-accent-*` values in this file and nothing
- * else anywhere in the codebase.
+ * DESIGN LANGUAGE — decided, Phase 0b.
  *
- * ⚠️ TYPEFACES are still a provisional system stack, pending a decision.
+ *   Palette    black and white. Not an omission, a choice. Adding a brand
+ *              colour later means editing the four `--color-accent-*` values
+ *              below and nothing else anywhere in the codebase.
+ *   Character  refined minimal — hairline borders, soft radii, restrained
+ *              shadows, generous whitespace.
+ *   Type       Plus Jakarta Sans headings, Inter body.
  * ==========================================================================*/
 
 @theme {
@@ -34,11 +36,13 @@
   --color-surface-inverse: #000000;
 
   /* Borders + dividers.
-     `border` is the quiet hairline used on cards and dividers. `border-strong`
-     is near-black, for when a box is meant to assert itself the way the boxes
-     in the outline do. */
+     Refined-minimal character: hairlines, not boxes. `border` is the resting
+     state, `border-strong` the hover/emphasis step — one shade darker, not a
+     jump to black. Card's `hover:border-border-strong` is why: going hairline
+     to near-black on hover reads as a glitch, not as emphasis. Where a genuine
+     black rule is wanted, that is `border-text`. */
   --color-border: #e4e4e4;
-  --color-border-strong: #171717;
+  --color-border-strong: #c4c4c4;
 
   /* Text. Every value below passes AA on white:
      text 21:1, muted 7.7:1, subtle 5.2:1. */
@@ -79,14 +83,22 @@
    * between a mobile floor and a desktop ceiling instead of snapping at
    * breakpoints.
    *
-   * ⚠️ Fonts are a provisional system stack. Phase 0b swaps in the real
-   * typefaces (or their closest Google Fonts equivalents).
+   * Plus Jakarta Sans sets headings — geometric, a little wider than Inter,
+   * with enough personality to carry a page that has no colour on it.
+   * Inter sets body and UI, where legibility at 14–16px matters more than
+   * character. Both are loaded in index.html.
+   *
+   * The fallback stacks are real, not decoration: `display=swap` means the
+   * first paint uses them, so they are what visitors on a slow connection
+   * actually read.
    * ------------------------------------------------------------------*/
 
   --font-display:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 
   /* Display — hero headlines only, one per page at most */
