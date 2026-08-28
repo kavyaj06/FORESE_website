@@ -1,21 +1,21 @@
 import { PageHero } from '@/components/sections/PageHero';
-import { PhasePlaceholder } from '@/components/dev/PhasePlaceholder';
+import { ProcessTimeline } from './sections/ProcessTimeline';
 
 /**
- * Mock Placements — Phase 1, the first page to be built.
+ * Mock Placements.
  *
- * When built, this component stays a readable table of contents: it composes
- * sections from `./sections/` and passes them content from `./data.ts`. No
- * copy or layout detail lives inline here.
+ * Stays a readable table of contents: it composes sections, and every word on
+ * the page comes from `./data.ts`.
  */
 export default function MockPlacementsPage() {
   return (
     <>
-      <PageHero title="Mock Placement" />
-      <PhasePlaceholder
-        phase="Phase 1"
-        awaiting="Structure confirmed from the outline: a hero, then a six-step vertical timeline — Contact collection, HR calling, Aptitude, Group Discussion, Allocation, Mock placements. Awaiting the anchor template and a timeline reference."
+      <PageHero
+        eyebrow="FORESE"
+        title="Mock Placement"
+        description="A full placement rehearsal — aptitude, group discussion and interviews with HRs from real companies, so the first time you sit in front of a recruiter is not the first time that matters."
       />
+      <ProcessTimeline />
     </>
   );
 }
