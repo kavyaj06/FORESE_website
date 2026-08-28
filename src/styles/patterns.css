@@ -40,3 +40,26 @@
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
 }
+
+/* Feathers a rectangle's edges away instead of cutting them off. Used by the
+   gallery's cursor preview: a hard-edged rectangle floating over text reads as
+   pasted on, where a feathered one sits in the page.
+
+   Two linear masks intersected, not one radial. A radial mask inscribed in a
+   rectangle either leaves the corners fully transparent, or — if widened to
+   avoid that — puts its falloff outside the box, where it does nothing at all.
+   Intersecting a horizontal and a vertical gradient feathers all four edges
+   evenly and leaves the middle of the picture crisp.
+
+   An element using this should not also cast a shadow — the shadow follows the
+   box, not the mask, and would redraw the hard edge the mask just removed. */
+@utility mask-feather {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 9%, #000 91%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 7%, #000 93%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}

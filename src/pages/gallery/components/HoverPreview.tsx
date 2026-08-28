@@ -1,5 +1,6 @@
-import { AnimatePresence, motion, useSpring, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useMotionTemplate, useSpring, useTransform } from 'framer-motion';
 import type { MotionValue } from 'framer-motion';
+import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import type { GalleryPhoto } from '../data';
 
 interface HoverPreviewProps {
@@ -11,47 +12,77 @@ interface HoverPreviewProps {
 /**
  * The photograph that trails the cursor across the archive list.
  *
- * This is the whole reason the index can be a list of text rather than a wall
- * of cards: the pictures are still there, they just arrive on demand. It keeps
- * sixty events browsable in a few screens while the gallery still reads as a
- * gallery.
+ * This is what lets the index be a list of text rather than a wall of cards:
+ * the pictures are still there, they just arrive on demand.
  *
- * The lag is the point. The preview is spring-bound to the pointer rather than
- * pinned to it, and the tilt is derived from horizontal velocity — so it
- * banks into the movement and settles, instead of moving like a cursor.
+ * Three things keep it from reading as a rectangle stuck to the cursor:
  *
- * Rendered only where a real pointer exists; see EventArchive.
+ *  - It stays mounted for as long as any row is hovered, and only the image
+ *    inside it cross-fades. Moving between two rows fires the first row's
+ *    mouseleave before the second row's mouseenter, so a preview that keyed
+ *    its whole existence on "is a row hovered" would unmount and remount
+ *    between every row — a flicker, not a transition.
+ *  - Its edges are feathered rather than cut, and it carries no shadow, so it
+ *    sits in the page instead of on top of it.
+ *  - It is spring-bound to the pointer rather than pinned, and tilts from its
+ *    own lag, so it banks into the movement and settles. It also sits beside
+ *    the cursor, not under it, so it never covers the name being read.
  */
 export function HoverPreview({ photo, pointerX, pointerY }: HoverPreviewProps) {
-  const x = useSpring(pointerX, { stiffness: 260, damping: 26, mass: 0.6 });
-  const y = useSpring(pointerY, { stiffness: 260, damping: 26, mass: 0.6 });
+  // Softer than a cursor: it should feel towed, not attached.
+  const x = useSpring(pointerX, { stiffness: 150, damping: 24, mass: 0.9 });
+  const y = useSpring(pointerY, { stiffness: 150, damping: 24, mass: 0.9 });
 
-  // Difference between the pointer and where the preview has caught up to.
+  // How far behind the pointer the preview currently is.
   const lag = useTransform(
     [pointerX, x],
     ([target, current]) => (target as number) - (current as number),
   );
-  const rotate = useTransform(lag, [-140, 140], [-9, 9], { clamp: true });
+  const rotate = useTransform(lag, [-200, 200], [-5, 5], { clamp: true });
+
+  // Composed into one string rather than handed to framer as separate `x`/`y`
+  // style values. Driving them separately left the y translation out of the
+  // rendered transform entirely: `x` was read by the `lag` transform above and
+  // so stayed live, while `y` — read only by `style` — never ran. A template
+  // reads both explicitly.
+  const transform = useMotionTemplate`translate3d(${x}px, ${y}px, 0) rotate(${rotate}deg)`;
 
   return (
     <AnimatePresence>
       {photo && (
+        /* Two elements on purpose. The outer one is position only — its
+           transform belongs entirely to the pointer springs. The inner one
+           owns the entrance. Combining them meant `animate` and the
+           style-driven transform fought over the same property, and the
+           y translation was silently dropped from the rendered transform. */
         <motion.div
           aria-hidden="true"
-          style={{ x, y, rotate }}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-          className="desktop:block pointer-events-none fixed top-0 left-0 z-40 -mt-28 -ml-22 hidden"
+          style={{ transform }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.42, ease: EASE_OUT_BRAND }}
+          className="desktop:block pointer-events-none fixed top-0 left-0 z-40 -mt-24 ml-8 hidden"
         >
-          <img
-            src={photo.src}
-            alt=""
-            width={photo.width}
-            height={photo.height}
-            className="h-56 w-44 rounded-lg object-cover shadow-lg"
-          />
+          <motion.div
+            initial={{ scale: 0.92, filter: 'blur(10px)' }}
+            animate={{ scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 0.42, ease: EASE_OUT_BRAND }}
+            className="mask-feather relative h-48 w-36 overflow-hidden"
+          >
+            <AnimatePresence initial={false}>
+              <motion.img
+                key={photo.id}
+                src={photo.src}
+                alt=""
+                initial={{ opacity: 0, scale: 1.06 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.34, ease: EASE_OUT_BRAND }}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+            </AnimatePresence>
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

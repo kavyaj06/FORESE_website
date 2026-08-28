@@ -9,8 +9,12 @@ interface ArchiveRowProps {
   photoCount: number;
   /** Position across the whole archive, not within the year. */
   index: number;
+  /**
+   * Fired on mouse-enter only. There is deliberately no leave handler: the
+   * list clears the preview when the pointer leaves it entirely, so moving
+   * between rows never passes through an unhovered state.
+   */
   onHoverStart: () => void;
-  onHoverEnd: () => void;
 }
 
 /**
@@ -28,21 +32,11 @@ interface ArchiveRowProps {
  * The `<li>` is supplied by the parent, which wraps each row in its reveal
  * animation — a motion `div` between `ul` and `li` would be invalid markup.
  */
-export function ArchiveRow({
-  event,
-  cover,
-  photoCount,
-  index,
-  onHoverStart,
-  onHoverEnd,
-}: ArchiveRowProps) {
+export function ArchiveRow({ event, cover, photoCount, index, onHoverStart }: ArchiveRowProps) {
   return (
     <Link
       to={`/gallery/${event.slug}`}
       onMouseEnter={onHoverStart}
-      onMouseLeave={onHoverEnd}
-      onFocus={onHoverStart}
-      onBlur={onHoverEnd}
       className="group border-border gap-md tablet:gap-lg relative grid grid-cols-[auto_1fr_auto] items-center border-b py-5"
     >
       <span className="text-caption text-text-subtle w-7 shrink-0 tabular-nums">

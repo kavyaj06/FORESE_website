@@ -74,6 +74,10 @@ export function EventArchive() {
         pointerX.set(event.clientX);
         pointerY.set(event.clientY);
       }}
+      // Cleared here rather than per row: a row's mouseleave fires before the
+      // next row's mouseenter, so clearing per row would tear the preview down
+      // and rebuild it between every entry.
+      onPointerLeave={() => setHoveredId(null)}
     >
       <Container>
         {years.map(([year, entries]) => (
@@ -94,7 +98,6 @@ export function EventArchive() {
                       photoCount={entry.photoCount}
                       index={position}
                       onHoverStart={() => setHoveredId(entry.event.id)}
-                      onHoverEnd={() => setHoveredId(null)}
                     />
                   </Reveal>
                 );
