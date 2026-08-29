@@ -1,19 +1,25 @@
-import { PageHero } from '@/components/sections/PageHero';
-import { PhasePlaceholder } from '@/components/dev/PhasePlaceholder';
+import { HomeHero } from './sections/HomeHero';
+import { StatBand } from './sections/StatBand';
+import { ConvergeSection } from './sections/ConvergeSection';
+import { UpcomingEvents } from './sections/UpcomingEvents';
+import { Announcements } from './sections/Announcements';
 
 /**
- * Landing page.
+ * Home.
  *
- * Built after Mock Placements and Gallery, per the agreed phase order.
+ * Follows the outline's order — hero, then Upcoming Events and Announcements —
+ * with two bands added between them: the figures, and the scroll-scrubbed
+ * section that says what the club is actually for. The outline's two panels
+ * alone would have left the page a header and two lists.
  */
 export default function HomePage() {
   return (
     <>
-      <PageHero title="Forese" />
-      <PhasePlaceholder
-        phase="Phase 3+"
-        awaiting="Structure confirmed from the outline: a hero, then a two-column split of Upcoming Events and Announcements. Awaiting the visual reference."
-      />
+      <HomeHero />
+      <StatBand />
+      <ConvergeSection />
+      <UpcomingEvents />
+      <Announcements />
     </>
   );
 }

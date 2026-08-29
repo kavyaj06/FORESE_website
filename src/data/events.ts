@@ -23,6 +23,23 @@ export interface ForeseEvent {
 }
 
 export const EVENTS: ForeseEvent[] = [
+  // DUMMY upcoming entries. Every real event we have is in the past, so the
+  // home page's "Upcoming" panel would otherwise be permanently empty and
+  // impossible to design against.
+  {
+    id: 'mock-placement-drive-2026',
+    slug: 'mock-placement-drive-2026',
+    name: 'Mock Placement Drive 2026',
+    date: '2026-09-19',
+    blurb: 'The full rehearsal — aptitude, group discussion and interview panels.',
+  },
+  {
+    id: 'corporate-connect-2026',
+    slug: 'corporate-connect-2026',
+    name: 'Corporate Connect 2026',
+    date: '2026-10-10',
+    blurb: 'Recruiters and alumni on what they actually look for in a candidate.',
+  },
   {
     id: 'mock-placement-drive-2025',
     slug: 'mock-placement-drive-2025',
@@ -57,6 +74,18 @@ export const EVENTS: ForeseEvent[] = [
 export const EVENTS_BY_RECENCY: ForeseEvent[] = [...EVENTS].sort((a, b) =>
   b.date.localeCompare(a.date),
 );
+
+/**
+ * Events still to come, soonest first.
+ *
+ * Compared against the current date at render rather than a hardcoded flag, so
+ * an event moves from Upcoming to Completed on its own and nobody has to
+ * remember to edit anything the morning after.
+ */
+export function upcomingEvents(now: Date = new Date()): ForeseEvent[] {
+  const today = now.toISOString().slice(0, 10);
+  return EVENTS.filter((event) => event.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+}
 
 export function findEvent(id: string): ForeseEvent | undefined {
   return EVENTS.find((event) => event.id === id);

@@ -86,3 +86,26 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ----------------------------------------------------------------------------
+ * MARQUEE
+ * Translates by exactly half the track, which holds two identical copies of
+ * the list — so the reset lands on a frame identical to the one before it and
+ * the loop has no visible seam.
+ *
+ * The global reduced-motion guard above collapses this to near-instant, which
+ * for an infinite animation would read as a flicker. The component therefore
+ * checks the preference itself and renders a static list instead.
+ * --------------------------------------------------------------------------*/
+@keyframes forese-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility marquee-track {
+  animation: forese-marquee 42s linear infinite;
+}
