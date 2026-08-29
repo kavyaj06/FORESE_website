@@ -3,6 +3,7 @@ import { footerRoutes } from '@/app/routes';
 import { CONTACT, LOCATION, SITE, SOCIAL_LINKS } from '@/data/site';
 import { SocialIcon } from '@/components/ui/SocialIcon';
 import { Container } from './Container';
+import { Logo } from './Logo';
 
 /**
  * Site footer.
@@ -11,13 +12,21 @@ import { Container } from './Container';
  * Location. The Quick links column is derived from the route table, so a new
  * page appears here automatically once it declares a footer group.
  *
- * Columns whose content has not been supplied yet render a visible
- * "to be added" note rather than collapsing silently — an empty column that
- * looks intentional is how placeholder content survives to production.
+ * The brand column is given twice the width of the link columns. Equal
+ * quarters look tidy in a wireframe and wrong in practice — a paragraph and a
+ * four-item list do not want the same measure.
+ *
+ * Columns whose content is missing still render a visible "to be added" note
+ * rather than collapsing silently. An empty column that looks intentional is
+ * exactly how placeholder content survives to production.
  */
 
 const COLUMN_HEADING = 'text-eyebrow text-text-subtle uppercase';
-const COLUMN_LINK = 'text-small text-text-muted hover:text-text transition-colors duration-fast';
+
+/** Links shift on hover rather than changing colour: in a monochrome palette
+    there is no second colour to move to, so movement carries the feedback. */
+const COLUMN_LINK =
+  'text-small text-text-muted hover:text-text duration-fast ease-out-brand inline-block transition-[color,transform] hover:translate-x-0.5';
 
 function Pending({ what }: { what: string }) {
   return <p className="text-small text-text-subtle italic">{what} to be added</p>;
@@ -29,10 +38,10 @@ export function Footer() {
   return (
     <footer className="border-border bg-surface mt-auto border-t">
       <Container className="py-section">
-        <div className="gap-xl tablet:grid-cols-2 desktop:grid-cols-4 grid">
+        <div className="gap-xl tablet:grid-cols-2 desktop:grid-cols-12 grid">
           {/* Brand */}
-          <div className="gap-sm flex flex-col">
-            <p className="text-h3">{SITE.name}</p>
+          <div className="gap-md desktop:col-span-5 flex flex-col">
+            <Logo />
             <p className="text-small text-text-muted">{SITE.description}</p>
 
             {SOCIAL_LINKS.length > 0 && (
@@ -44,7 +53,7 @@ export function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={social.label}
-                      className="text-text-muted hover:text-text hover:bg-surface-raised duration-fast flex size-11 items-center justify-center rounded-md transition-colors"
+                      className="text-text-muted hover:text-text hover:border-border-strong hover:bg-surface-raised border-border duration-base ease-out-brand flex size-11 items-center justify-center rounded-lg border transition-colors"
                     >
                       <SocialIcon name={social.icon} />
                     </a>
@@ -55,7 +64,7 @@ export function Footer() {
           </div>
 
           {/* Quick links */}
-          <nav aria-label="Quick links" className="gap-sm flex flex-col">
+          <nav aria-label="Quick links" className="gap-sm desktop:col-span-2 flex flex-col">
             <h2 className={COLUMN_HEADING}>Quick links</h2>
             <ul className="gap-xs flex flex-col">
               {quickLinks.map((route) => (
@@ -69,7 +78,7 @@ export function Footer() {
           </nav>
 
           {/* Contact Us */}
-          <div className="gap-sm flex flex-col">
+          <div className="gap-sm desktop:col-span-2 flex flex-col">
             <h2 className={COLUMN_HEADING}>Contact Us</h2>
             {CONTACT.email || CONTACT.phone ? (
               <ul className="gap-xs flex flex-col">
@@ -94,7 +103,7 @@ export function Footer() {
           </div>
 
           {/* Location */}
-          <div className="gap-sm flex flex-col">
+          <div className="gap-sm desktop:col-span-3 flex flex-col">
             <h2 className={COLUMN_HEADING}>Location</h2>
             {LOCATION.length > 0 ? (
               <address className="text-small text-text-muted not-italic">
@@ -110,9 +119,12 @@ export function Footer() {
           </div>
         </div>
 
-        <p className="text-caption text-text-subtle border-border mt-2xl pt-lg border-t">
-          © {new Date().getFullYear()} {SITE.name}. All rights reserved.
-        </p>
+        <div className="border-border mt-2xl pt-lg gap-sm flex flex-wrap items-center justify-between border-t">
+          <p className="text-caption text-text-subtle">
+            © {new Date().getFullYear()} {SITE.name}. All rights reserved.
+          </p>
+          <p className="text-caption text-text-subtle">{SITE.fullName}</p>
+        </div>
       </Container>
     </footer>
   );

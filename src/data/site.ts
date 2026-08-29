@@ -3,10 +3,22 @@ import type { SocialIconName } from '@/components/ui/SocialIcon';
 /**
  * Site-wide content.
  *
- * ⚠️ PLACEHOLDER — every value marked TODO needs the real thing from the club.
- * It is deliberately obvious that these are unfilled so they cannot ship by
- * accident.
- */
+ * ============================================================================
+ * ⚠️  EVERY VALUE BELOW IS DUMMY CONTENT.
+ * ----------------------------------------------------------------------------
+ * It exists so the header and footer can be designed and reviewed against
+ * realistic text rather than empty columns. None of it has been confirmed with
+ * the club. Before this site goes anywhere public, replace:
+ *
+ *   • SITE.fullName, SITE.description   — the club's own wording
+ *   • CONTACT.email, CONTACT.phone      — real, monitored addresses
+ *   • LOCATION                          — the real address
+ *   • SOCIAL_LINKS hrefs                — real profile URLs
+ *   • SITE.logoSrc                      — the logo file, if there is one
+ *
+ * The phone number is the standard Indian placeholder and the profile URLs are
+ * guesses. Shipping them would publish contact details that do not work.
+ * ==========================================================================*/
 
 export interface SocialLink {
   label: string;
@@ -18,35 +30,44 @@ export const SITE = {
   /** Wordmark. The outline writes this as "Forese". */
   name: 'Forese',
 
-  /** TODO: confirm the official expansion of the acronym. */
-  fullName: 'Forese',
+  /** DUMMY — the expansion is unconfirmed. */
+  fullName: 'Forum for Economic Studies by Engineers',
 
-  /** TODO: replace with the club's real one-line description. */
-  description: 'Club description to be confirmed.',
+  /** DUMMY — needs the club's own description. */
+  description:
+    'The placement and industry-interaction forum of College of Engineering, Guindy — running mock drives, corporate sessions and the student newsletter.',
+
+  /**
+   * Path to the logo under `public/`, or null for the text wordmark.
+   * DUMMY — no logo file has been supplied, so the wordmark is used.
+   */
+  logoSrc: null as string | null,
 } as const;
 
-/** Footer "Contact Us" column. TODO: real details. */
 export interface ContactDetails {
   email: string;
   phone: string;
 }
 
-// Not `as const`: these are empty placeholders today, and literal `''` types
-// would narrow the footer's truthiness checks to `never`.
+/** DUMMY — not real, monitored contact details. */
 export const CONTACT: ContactDetails = {
-  email: '',
-  phone: '',
+  email: 'contact@forese.in',
+  phone: '+91 98765 43210',
 };
 
 /**
- * Footer "Location" column. TODO: real address.
+ * Footer "Location" column. DUMMY — unconfirmed address.
  * Kept as lines so the footer does not have to parse a single string.
  */
-export const LOCATION: string[] = [];
+export const LOCATION: string[] = [
+  'College of Engineering, Guindy',
+  'Anna University, Sardar Patel Road',
+  'Chennai 600025, Tamil Nadu',
+];
 
-/** TODO: replace every href with the club's real profile URLs. */
+/** DUMMY — every href is a guess, not a verified profile. */
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: 'Instagram', href: '#', icon: 'instagram' },
-  { label: 'LinkedIn', href: '#', icon: 'linkedin' },
-  { label: 'YouTube', href: '#', icon: 'youtube' },
+  { label: 'Instagram', href: 'https://instagram.com/forese_ceg', icon: 'instagram' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/company/forese-ceg', icon: 'linkedin' },
+  { label: 'YouTube', href: 'https://youtube.com/@forese', icon: 'youtube' },
 ];

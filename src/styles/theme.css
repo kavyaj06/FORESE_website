@@ -161,6 +161,13 @@
    * These named steps exist for the rhythm that must stay identical across
    * every page — above all `section`, the vertical gap between sections.
    * ------------------------------------------------------------------*/
+  /* ⚠️ These names collide with Tailwind's sizing scale. Because `sm`, `lg`,
+     `3xl` and friends exist here, `max-w-sm` resolves to 0.75rem (12px) and
+     `max-w-3xl` to 4.5rem (72px) — the spacing value, not a container width.
+     Both have already shipped as bugs once.
+
+     For widths, use `max-w-content` / `max-w-content-narrow`, an explicit
+     `max-w-[42rem]`, or let the grid column do it. Never `max-w-<t-shirt>`. */
   --spacing-xs: 0.5rem; /*  8px */
   --spacing-sm: 0.75rem; /* 12px */
   --spacing-md: 1rem; /* 16px */

@@ -91,7 +91,7 @@ export function Lightbox({ photos, index, eventName, onClose, onIndexChange }: L
               />
             ) : (
               <span
-                className="bg-surface text-text-subtle flex max-h-[70vh] w-full max-w-3xl flex-col items-center justify-center gap-3 rounded-lg"
+                className="bg-surface text-text-subtle flex max-h-[70vh] w-full max-w-[48rem] flex-col items-center justify-center gap-3 rounded-lg"
                 style={{ aspectRatio: `${photo.width} / ${photo.height}` }}
               >
                 <ImageIcon size={28} strokeWidth={1.5} aria-hidden="true" />
