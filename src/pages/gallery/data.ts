@@ -17,6 +17,19 @@
  * arrive — the single biggest cause of layout shift on a gallery page.
  */
 
+import { EVENTS_BY_RECENCY, type ForeseEvent } from '@/data/events';
+
+/**
+ * How many of the newest events get the large image-led treatment before the
+ * rest fall back to the compact archive list.
+ *
+ * The index has to work at both ends: with four events a bare list is an
+ * almost empty page, and with sixty a wall of cover cards is unnavigable.
+ * Three featured plus an archive is good at four events and still good at
+ * sixty.
+ */
+export const FEATURED_COUNT = 3;
+
 export const GALLERY_INTRO = {
   eyebrow: 'Gallery',
   title: 'Every event, as it happened',
@@ -89,6 +102,30 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
   },
   { eventId: 'orientation-2025', photos: placeholderPhotos('orientation-2025', 5) },
 ];
+
+/**
+ * One event as the index presents it. Computed once here rather than
+ * assembled independently by the featured grid and the archive list, so the
+ * two can never disagree about an event's cover or photo count.
+ */
+export interface GalleryIndexEntry {
+  event: ForeseEvent;
+  cover?: GalleryPhoto;
+  photoCount: number;
+}
+
+/**
+ * Every event that actually has photographs, newest first.
+ *
+ * An event with an empty album is dropped rather than shown as an empty card:
+ * a gallery entry that leads nowhere is worse than no entry.
+ */
+export function galleryIndexEntries(): GalleryIndexEntry[] {
+  return EVENTS_BY_RECENCY.map((event) => {
+    const photos = albumFor(event.id)?.photos ?? [];
+    return { event, cover: photos[0], photoCount: photos.length };
+  }).filter((entry) => entry.photoCount > 0);
+}
 
 /** The album for an event id, if it has one. */
 export function albumFor(eventId: string): GalleryAlbum | undefined {

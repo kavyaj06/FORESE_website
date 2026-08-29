@@ -32,7 +32,13 @@
   }
 
   /* Headings inherit the display face; size comes from an explicit text-*
-     utility at the call site, so nothing is styled by tag name alone. */
+     utility at the call site, so nothing is styled by tag name alone.
+
+     Deliberately no `color` here. `body` already sets it and headings inherit,
+     so declaring it again changed nothing on a normal page — but it broke
+     every heading placed on a photograph or a coloured surface, because an
+     ancestor's `text-white` could no longer reach it. The album cards shipped
+     with black titles on dark images for exactly this reason. */
   h1,
   h2,
   h3,
@@ -41,7 +47,6 @@
   h6 {
     margin: 0;
     font-family: var(--font-display);
-    color: var(--color-text);
     text-wrap: balance;
   }
 

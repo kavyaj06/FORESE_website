@@ -1,5 +1,5 @@
 import { PageHero } from '@/components/sections/PageHero';
-import { EventArchive } from './sections/EventArchive';
+import { GalleryIndex } from './sections/GalleryIndex';
 import { GALLERY_ALBUMS, GALLERY_INTRO } from './data';
 
 /**
@@ -24,7 +24,7 @@ export default function GalleryPage() {
           `${GALLERY_ALBUMS.reduce((total, album) => total + album.photos.length, 0)} photographs`,
         ]}
       />
-      <EventArchive />
+      <GalleryIndex />
     </>
   );
 }
