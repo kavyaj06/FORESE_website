@@ -7,24 +7,17 @@ interface ArchiveRowProps {
   event: ForeseEvent;
   cover?: GalleryPhoto;
   photoCount: number;
-  /** Position across the whole archive, not within the year. */
+  /** Position across the whole index, not within the year. */
   index: number;
-  /**
-   * Fired on mouse-enter only. There is deliberately no leave handler: the
-   * list clears the preview when the pointer leaves it entirely, so moving
-   * between rows never passes through an unhovered state.
-   */
-  onHoverStart: () => void;
 }
 
 /**
- * One event in the archive index.
+ * One earlier event in the archive list.
  *
- * A row rather than a card, which is what lets sixty events stay browsable:
- * a card grid of sixty is a wall, a list of sixty is four screens you can scan
- * by name. The photograph is not lost — it arrives in the cursor preview on
- * desktop, and as an inline thumbnail on touch, where there is no hover to
- * trigger anything.
+ * The cover thumbnail is always visible, at every breakpoint. An earlier
+ * version revealed the picture only on hover, which meant the page showed no
+ * photographs until you moved the mouse and showed none at all on a phone.
+ * A gallery should not hide its pictures behind an interaction.
  *
  * A `Link`, not a click handler: middle-click, open-in-new-tab and the browser
  * back button all have to work on something this navigational.
@@ -32,31 +25,31 @@ interface ArchiveRowProps {
  * The `<li>` is supplied by the parent, which wraps each row in its reveal
  * animation — a motion `div` between `ul` and `li` would be invalid markup.
  */
-export function ArchiveRow({ event, cover, photoCount, index, onHoverStart }: ArchiveRowProps) {
+export function ArchiveRow({ event, cover, photoCount, index }: ArchiveRowProps) {
   return (
     <Link
       to={`/gallery/${event.slug}`}
-      onMouseEnter={onHoverStart}
-      className="group border-border gap-md tablet:gap-lg relative grid grid-cols-[auto_1fr_auto] items-center border-b py-5"
+      className="group border-border gap-md tablet:gap-lg relative flex items-center border-b py-4"
     >
       <span className="text-caption text-text-subtle w-7 shrink-0 tabular-nums">
         {String(index).padStart(2, '0')}
       </span>
 
-      {/* Touch devices get the picture inline, since nothing there can hover. */}
       {cover?.src && (
-        <img
-          src={cover.src}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          decoding="async"
-          className="desktop:hidden size-12 shrink-0 rounded-md object-cover"
-        />
+        <span className="border-border size-14 shrink-0 overflow-hidden rounded-md border">
+          <img
+            src={cover.src}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            className="duration-base ease-out-brand h-full w-full object-cover transition-transform group-hover:scale-105"
+          />
+        </span>
       )}
 
-      <span className="min-w-0">
-        <span className="text-h3 tablet:text-h2 duration-base ease-out-brand block truncate transition-transform group-hover:translate-x-2">
+      <span className="min-w-0 flex-1">
+        <span className="text-h3 duration-base ease-out-brand block truncate transition-transform group-hover:translate-x-1">
           {event.name}
         </span>
       </span>

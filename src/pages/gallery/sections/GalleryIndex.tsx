@@ -1,13 +1,10 @@
-import { useMemo, useState } from 'react';
-import { useMotionValue } from 'framer-motion';
+import { useMemo } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/sections/SectionHeading';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { AlbumCard } from '../components/AlbumCard';
 import { ArchiveRow } from '../components/ArchiveRow';
-import { HoverPreview } from '../components/HoverPreview';
-import { FEATURED_COUNT, coverPhoto, galleryIndexEntries } from '../data';
+import { FEATURED_COUNT, galleryIndexEntries } from '../data';
 
 /**
  * The gallery index.
@@ -25,14 +22,6 @@ import { FEATURED_COUNT, coverPhoto, galleryIndexEntries } from '../data';
  * all, so a club with three events never sees an empty heading.
  */
 export function GalleryIndex() {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const pointerX = useMotionValue(0);
-  const pointerY = useMotionValue(0);
-
-  // A cursor preview is meaningless without a cursor. Touch devices get the
-  // inline thumbnail on each row instead.
-  const hasPointer = useMediaQuery('(hover: hover) and (pointer: fine)');
-
   const entries = useMemo(() => galleryIndexEntries(), []);
   const featured = entries.slice(0, FEATURED_COUNT);
   const archived = entries.slice(FEATURED_COUNT);
@@ -45,8 +34,6 @@ export function GalleryIndex() {
     }
     return [...grouped.entries()].sort((a, b) => b[0] - a[0]);
   }, [archived]);
-
-  const hoveredPhoto = hoveredId ? (coverPhoto(hoveredId) ?? null) : null;
 
   if (entries.length === 0) {
     return (
@@ -61,18 +48,7 @@ export function GalleryIndex() {
   let position = featured.length;
 
   return (
-    <section
-      className="py-section"
-      onPointerMove={(event) => {
-        if (!hasPointer) return;
-        pointerX.set(event.clientX);
-        pointerY.set(event.clientY);
-      }}
-      // Cleared here rather than per row: a row's mouseleave fires before the
-      // next row's mouseenter, so clearing per row would tear the preview down
-      // and rebuild it between every entry.
-      onPointerLeave={() => setHoveredId(null)}
-    >
+    <section className="py-section">
       <Container>
         {/* Featured — the leading event runs full width, the next two pair up
             beneath it. An even grid of three would give the most recent event
@@ -119,7 +95,6 @@ export function GalleryIndex() {
                             cover={entry.cover}
                             photoCount={entry.photoCount}
                             index={position}
-                            onHoverStart={() => setHoveredId(entry.event.id)}
                           />
                         </Reveal>
                       );
@@ -131,8 +106,6 @@ export function GalleryIndex() {
           </div>
         )}
       </Container>
-
-      {hasPointer && <HoverPreview photo={hoveredPhoto} pointerX={pointerX} pointerY={pointerY} />}
     </section>
   );
 }
