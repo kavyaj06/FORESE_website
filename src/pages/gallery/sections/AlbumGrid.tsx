@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
+import { AlbumAccordion } from '../components/AlbumAccordion';
 import { PhotoTile } from '../components/PhotoTile';
 import { Lightbox } from '../components/Lightbox';
 import type { GalleryPhoto } from '../data';
@@ -13,13 +14,16 @@ interface AlbumGridProps {
 /**
  * One album's photographs.
  *
- * Multi-column rather than a row grid: event photographs come in whatever
- * shape the camera was held, and a row grid forces one aspect ratio — either
- * cropping faces out or leaving gaps. Columns let every picture keep its own
- * proportions and still tile without holes.
+ * Two layouts for two input devices, not a layout and a fallback:
  *
- * Owns the lightbox because which photograph is open is a property of the
- * album, not of any one tile.
+ *  - Desktop gets the accordion strip. It is a hover interaction, so it only
+ *    exists where there is a pointer to hover with.
+ *  - Narrow screens get the multi-column masonry. Event photographs come in
+ *    whatever shape the camera was held, and columns let each keep its own
+ *    proportions and still tile without holes.
+ *
+ * Both open the same Lightbox, and this component owns it — which photograph
+ * is open is a property of the album, not of any one tile.
  */
 export function AlbumGrid({ photos, eventName }: AlbumGridProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -27,16 +31,20 @@ export function AlbumGrid({ photos, eventName }: AlbumGridProps) {
   return (
     <section className="py-section">
       <Container>
-        <div className="gap-lg tablet:columns-2 desktop:columns-3 [&>*]:mb-lg columns-1 [&>*]:break-inside-avoid">
+        <Reveal>
+          <AlbumAccordion photos={photos} eventName={eventName} onOpen={setOpenIndex} />
+        </Reveal>
+
+        <div className="gap-lg desktop:hidden tablet:columns-2 [&>*]:mb-lg columns-1 [&>*]:break-inside-avoid">
           {photos.map((photo, index) => (
-            <Reveal key={photo.id} delay={(index % 3) * 0.07} motionStyle="scale">
+            <Reveal key={photo.id} delay={(index % 2) * 0.07} motionStyle="scale">
               <PhotoTile
                 photo={photo}
                 position={index + 1}
                 total={photos.length}
                 eventName={eventName}
                 onOpen={() => setOpenIndex(index)}
-                eager={index < 3}
+                eager={index < 2}
               />
             </Reveal>
           ))}
