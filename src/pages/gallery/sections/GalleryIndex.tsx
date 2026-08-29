@@ -29,6 +29,10 @@ export function GalleryIndex() {
   const years = useMemo(() => {
     const grouped = new Map<number, typeof archived>();
     for (const entry of archived) {
+      // An undated event has not happened, so it has no photographs to file
+      // under a year. It cannot reach here, and is skipped rather than
+      // given an invented date.
+      if (!entry.event.date) continue;
       const year = new Date(entry.event.date).getFullYear();
       grouped.set(year, [...(grouped.get(year) ?? []), entry]);
     }

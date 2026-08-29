@@ -16,16 +16,128 @@ export interface ForeseEvent {
   /** URL-safe name. Used for anchors and image folder names. */
   slug: string;
   name: string;
-  /** ISO 8601 date. Sorted and formatted from this, never from a display string. */
-  date: string;
-  /** One line of context, shown under the name in the gallery. */
+  /**
+   * ISO 8601 start date, or `null` when the date has not been announced yet.
+   *
+   * Null is a real state, not missing data: the club announces an event long
+   * before it fixes a date, and those still belong on the events page. Making
+   * it nullable forces every consumer to decide what to show, which is why
+   * nothing renders an empty date cell.
+   */
+  date: string | null;
+  /** ISO end date for events that run over several days. Omit for single-day. */
+  endDate?: string;
+  /** One line of context. */
   blurb?: string;
 }
 
+/**
+ * Where an event sits in time.
+ *
+ * Derived from the dates at render, never stored. A status field would have to
+ * be changed by hand on the right morning, and it would be wrong the first
+ * time somebody forgot.
+ */
+export type EventStatus = 'upcoming' | 'ongoing' | 'completed';
+
+export function eventStatus(event: ForeseEvent, now: Date = new Date()): EventStatus {
+  // Announced but undated events are still ahead of us.
+  if (!event.date) return 'upcoming';
+
+  const today = now.toISOString().slice(0, 10);
+  const end = event.endDate ?? event.date;
+
+  if (today < event.date) return 'upcoming';
+  if (today <= end) return 'ongoing';
+  return 'completed';
+}
+
+/** Every event split by status: upcoming soonest first, completed newest first. */
+export function groupEventsByStatus(now: Date = new Date()): Record<EventStatus, ForeseEvent[]> {
+  const groups: Record<EventStatus, ForeseEvent[]> = {
+    ongoing: [],
+    upcoming: [],
+    completed: [],
+  };
+
+  for (const event of EVENTS) {
+    groups[eventStatus(event, now)].push(event);
+  }
+
+  // Undated events sort last within Upcoming — a confirmed date is more useful
+  // to a student than one that is still being arranged.
+  groups.upcoming.sort((a, b) => {
+    if (!a.date) return 1;
+    if (!b.date) return -1;
+    return a.date.localeCompare(b.date);
+  });
+  groups.ongoing.sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''));
+  groups.completed.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
+
+  return groups;
+}
+
+/**
+ * How the date reads on screen, including the two cases a plain formatter
+ * cannot express: no date at all, and an event spanning several days.
+ */
+export function formatEventWhen(event: ForeseEvent): string {
+  if (!event.date) return 'Date to be announced';
+  if (!event.endDate || event.endDate === event.date) return formatEventDate(event.date);
+
+  const start = new Date(event.date);
+  const end = new Date(event.endDate);
+  const sameMonth =
+    start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth();
+
+  // "19–21 September 2026" rather than repeating the month and year twice.
+  if (sameMonth) {
+    return `${start.getDate()}\u2013${formatEventDate(event.endDate)}`;
+  }
+  return `${formatEventDate(event.date)} \u2013 ${formatEventDate(event.endDate)}`;
+}
+
+/**
+ * "in 3 weeks", "tomorrow". Null when there is no date to count towards.
+ *
+ * Chooses its unit by distance: days are meaningless at six months out, and
+ * months are useless the day before.
+ */
+export function relativeWhen(event: ForeseEvent, now: Date = new Date()): string | null {
+  if (!event.date) return null;
+
+  const startOfDay = (d: Date) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate());
+  const days = Math.round(
+    (new Date(event.date + 'T00:00:00Z').getTime() - startOfDay(now)) / 86_400_000,
+  );
+  if (days < 0) return null;
+
+  const format = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  if (days < 14) return format.format(days, 'day');
+  if (days < 60) return format.format(Math.round(days / 7), 'week');
+  return format.format(Math.round(days / 30), 'month');
+}
+
 export const EVENTS: ForeseEvent[] = [
-  // DUMMY upcoming entries. Every real event we have is in the past, so the
-  // home page's "Upcoming" panel would otherwise be permanently empty and
-  // impossible to design against.
+  // DUMMY entries covering every state the events page has to render: one
+  // running now, one dated and ahead, and one announced without a date. The
+  // real list is all in the past, so none of these states could be designed
+  // against otherwise.
+  {
+    id: 'resume-clinic-2026',
+    slug: 'resume-clinic-2026',
+    name: 'Resume Clinic',
+    date: '2026-08-27',
+    endDate: '2026-08-31',
+    blurb: 'Drop-in sessions where seniors and alumni review your CV line by line.',
+  },
+  {
+    id: 'alumni-interaction-2026',
+    slug: 'alumni-interaction-2026',
+    name: 'Alumni Interaction',
+    date: null,
+    blurb: 'A panel of recent graduates on their first year in industry. Date being confirmed.',
+  },
   {
     id: 'mock-placement-drive-2026',
     slug: 'mock-placement-drive-2026',
@@ -70,9 +182,12 @@ export const EVENTS: ForeseEvent[] = [
   },
 ];
 
-/** Events newest first — the order the gallery and events page both present. */
+/**
+ * Events newest first — the order the gallery presents.
+ * Undated events sort last; they have no place on a chronological list.
+ */
 export const EVENTS_BY_RECENCY: ForeseEvent[] = [...EVENTS].sort((a, b) =>
-  b.date.localeCompare(a.date),
+  (b.date ?? '').localeCompare(a.date ?? ''),
 );
 
 /**
@@ -83,8 +198,8 @@ export const EVENTS_BY_RECENCY: ForeseEvent[] = [...EVENTS].sort((a, b) =>
  * remember to edit anything the morning after.
  */
 export function upcomingEvents(now: Date = new Date()): ForeseEvent[] {
-  const today = now.toISOString().slice(0, 10);
-  return EVENTS.filter((event) => event.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  const groups = groupEventsByStatus(now);
+  return [...groups.ongoing, ...groups.upcoming];
 }
 
 export function findEvent(id: string): ForeseEvent | undefined {

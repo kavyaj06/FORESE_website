@@ -1,20 +1,32 @@
 import { PageHero } from '@/components/sections/PageHero';
-import { PhasePlaceholder } from '@/components/dev/PhasePlaceholder';
+import { groupEventsByStatus } from '@/data/events';
+import { EventsBoard } from './sections/EventsBoard';
+import { EVENTS_INTRO } from './data';
 
 /**
- * Events — outline: hero → "Upcoming Events" → "Completed Events".
+ * Events.
  *
- * The Upcoming Events band also appears on the home page, so it becomes a
- * shared section rather than living here.
+ * Three states — running now, coming, done — each derived from the dates at
+ * render. Nothing here is flagged by hand, so an event moves between the
+ * sections on its own.
  */
 export default function EventsPage() {
+  const groups = groupEventsByStatus();
+
   return (
     <>
-      <PageHero title="Events" />
-      <PhasePlaceholder
-        phase="Phase 3+"
-        awaiting="Structure confirmed from the outline: Upcoming Events, then Completed Events. Awaiting the visual reference for the event card and section band."
+      <PageHero
+        eyebrow={EVENTS_INTRO.eyebrow}
+        title={EVENTS_INTRO.title}
+        description={EVENTS_INTRO.description}
+        size="compact"
+        meta={[
+          `${groups.ongoing.length} running now`,
+          `${groups.upcoming.length} upcoming`,
+          `${groups.completed.length} completed`,
+        ]}
       />
+      <EventsBoard />
     </>
   );
 }

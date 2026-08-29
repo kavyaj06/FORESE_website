@@ -3,7 +3,7 @@ import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Card } from '@/components/ui';
-import { formatEventDate, upcomingEvents } from '@/data/events';
+import { formatEventWhen, upcomingEvents } from '@/data/events';
 import { HOME_EVENTS } from '../data';
 
 /**
@@ -36,7 +36,7 @@ export function UpcomingEvents() {
                 <Card padding="lg" className="group h-full">
                   <p className="text-small text-text-muted gap-xs flex items-center">
                     <CalendarDays size={15} strokeWidth={1.75} aria-hidden="true" />
-                    {formatEventDate(event.date)}
+                    {formatEventWhen(event)}
                   </p>
 
                   <h3 className="text-h3 mt-sm gap-sm flex items-start justify-between">

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import { formatEventDate, type ForeseEvent } from '@/data/events';
+import { formatEventWhen, type ForeseEvent } from '@/data/events';
 import type { GalleryPhoto } from '../data';
 
 interface ArchiveRowProps {
@@ -55,7 +55,7 @@ export function ArchiveRow({ event, cover, photoCount, index }: ArchiveRowProps)
       </span>
 
       <span className="text-small text-text-muted gap-lg flex shrink-0 items-center">
-        <span className="tablet:inline hidden">{formatEventDate(event.date)}</span>
+        <span className="tablet:inline hidden">{formatEventWhen(event)}</span>
         <span className="tabular-nums">{photoCount}</span>
         <ArrowUpRight
           size={18}

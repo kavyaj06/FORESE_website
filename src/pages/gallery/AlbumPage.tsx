@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { PageHero } from '@/components/sections/PageHero';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui';
-import { EVENTS_BY_RECENCY, findEventBySlug, formatEventDate } from '@/data/events';
+import { EVENTS_BY_RECENCY, findEventBySlug, formatEventWhen } from '@/data/events';
 import { AlbumGrid } from './sections/AlbumGrid';
 import { albumFor } from './data';
 
@@ -49,7 +49,7 @@ export default function AlbumPage() {
   return (
     <>
       <PageHero
-        eyebrow={formatEventDate(event.date)}
+        eyebrow={formatEventWhen(event)}
         title={event.name}
         description={event.blurb}
         size="compact"

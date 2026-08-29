@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import { formatEventDate } from '@/data/events';
+import { formatEventWhen } from '@/data/events';
 import { cn } from '@/lib/cn';
 import type { GalleryIndexEntry } from '../data';
 
@@ -62,7 +62,7 @@ export function AlbumCard({ entry, size, eager = false }: AlbumCardProps) {
 
         <div className="p-lg gap-xs absolute inset-x-0 bottom-0 flex flex-col text-white">
           <p className="text-eyebrow gap-xs flex items-center uppercase opacity-80">
-            {formatEventDate(event.date)}
+            {formatEventWhen(event)}
             <span aria-hidden="true">·</span>
             {photoCount} {photoCount === 1 ? 'photo' : 'photos'}
           </p>
