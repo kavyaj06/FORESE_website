@@ -1,4 +1,5 @@
 import { Container } from '@/components/layout/Container';
+import { CountUp } from '@/components/motion/CountUp';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { HOME_STATS } from '../data';
 
@@ -7,6 +8,10 @@ import { HOME_STATS } from '../data';
  *
  * Kept to three. A row of six numbers is a dashboard, and nobody reads the
  * fourth one on a home page.
+ *
+ * The figures count up the first time the band is reached. The motion is the
+ * point of the section — a number that arrives rather than one that was
+ * always sitting there.
  */
 export function StatBand() {
   return (
@@ -17,7 +22,7 @@ export function StatBand() {
         <Reveal staggerChildren className="gap-xl desktop:grid-cols-3 grid">
           {HOME_STATS.map((stat) => (
             <RevealItem key={stat.label} className="gap-xs flex flex-col">
-              <p className="text-display leading-none">{stat.value}</p>
+              <CountUp value={stat.value} className="text-display leading-none" />
               <p className="text-body-lg">{stat.label}</p>
               <p className="text-small text-text-muted">{stat.note}</p>
             </RevealItem>
