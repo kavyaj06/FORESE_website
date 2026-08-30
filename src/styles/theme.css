@@ -215,6 +215,12 @@
    * MOTION — see animations.css. Durations stay short; the easing curve is
    * shared so every transition on the site feels like the same hand.
    * ------------------------------------------------------------------*/
+  /* For colour and fill changes. `ease-out-brand` is a strong decelerating
+     curve — it covers most of its distance in the first fifth of the duration,
+     which is right for something arriving on screen and wrong for a colour
+     fade, where it reads as an instant switch. This one moves evenly. */
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
   --ease-out-brand: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-brand: cubic-bezier(0.65, 0, 0.35, 1);
 

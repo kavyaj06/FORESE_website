@@ -40,9 +40,12 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
     <article
       className={cn(
         'group border-border bg-surface-raised relative flex h-full flex-col rounded-lg border p-2',
-        'duration-base ease-out-brand transition-[background-color,border-color,box-shadow]',
-        'hover:border-accent hover:bg-accent hover:shadow-lg',
-        'focus-within:border-accent focus-within:bg-accent',
+        // 400ms on an even curve: the fill should be seen happening. Movement
+        // and colour together are what make the hovered card feel picked up
+        // rather than simply repainted.
+        'ease-smooth transition-[background-color,border-color,box-shadow,translate] duration-[400ms]',
+        'hover:border-accent hover:bg-accent hover:-translate-y-1.5 hover:shadow-lg',
+        'focus-within:border-accent focus-within:bg-accent focus-within:-translate-y-1.5',
       )}
     >
       <div
@@ -58,7 +61,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
         {/* Vertical pill on the photograph's right edge, as in the reference. */}
         <ul
           className={cn(
-            'bg-accent-fg rounded-pill absolute top-1/2 right-2 flex -translate-y-1/2 flex-col gap-1 p-1 shadow-md',
+            'bg-accent-fg absolute top-1/2 right-2 flex -translate-y-1/2 flex-col gap-1.5 rounded-xl p-1.5 shadow-md',
             'duration-base ease-out-brand translate-x-3 opacity-0 transition-[opacity,transform]',
             'group-hover:translate-x-0 group-hover:opacity-100',
             'group-focus-within:translate-x-0 group-focus-within:opacity-100',
@@ -80,20 +83,20 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
       <div className="pt-md flex flex-1 flex-col gap-0.5 px-1.5 pb-1">
         <h3
           className={cn(
-            'duration-base group-hover:text-accent-fg group-focus-within:text-accent-fg transition-colors',
+            'ease-smooth group-hover:text-accent-fg group-focus-within:text-accent-fg transition-colors duration-[400ms]',
             size === 'lead' ? 'text-h3' : 'text-body font-semibold',
           )}
         >
           {member.name}
         </h3>
 
-        <p className="text-small text-text-muted duration-base group-hover:text-accent-fg/75 group-focus-within:text-accent-fg/75 transition-colors">
+        <p className="text-small text-text-muted ease-smooth group-hover:text-accent-fg/75 group-focus-within:text-accent-fg/75 transition-colors duration-[400ms]">
           {position}
           {member.batch && <span> · {member.batch}</span>}
         </p>
 
         {member.quote && (
-          <p className="text-caption text-text-muted border-border mt-sm duration-base group-hover:border-accent-fg/25 group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 border-l pl-3 italic transition-colors">
+          <p className="text-caption text-text-muted border-border mt-sm ease-smooth group-hover:border-accent-fg/25 group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 border-l pl-3 italic transition-colors duration-[400ms]">
             “{member.quote}”
           </p>
         )}
@@ -119,7 +122,7 @@ function SocialPill({
         href={href}
         aria-label={label}
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        className="text-accent hover:bg-surface duration-fast rounded-pill flex size-8 items-center justify-center transition-colors"
+        className="bg-accent text-accent-fg hover:bg-primary-hover duration-fast rounded-pill flex size-8 items-center justify-center transition-colors"
       >
         {children}
       </a>
