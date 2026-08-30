@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, CalendarDays, MapPin } from 'lucide-react';
 import { EASE_OUT_BRAND } from '@/components/motion/variants';
+import { Tilt3D } from '@/components/motion/Tilt3D';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { eventStatus, formatEventWhen, type ForeseEvent } from '@/data/events';
 import { cn } from '@/lib/cn';
@@ -28,7 +29,12 @@ const STATUS_LABEL = {
  * Slides move in the direction you asked for: pressing next brings the new
  * slide in from the right, previous from the left. A carousel that always
  * animates the same way regardless of direction feels broken without anyone
- * being able to say why.
+ * being able to say why. They rotate as they go rather than sliding flat, so
+ * the outgoing slide turns away instead of being wiped off.
+ *
+ * The whole frame tilts towards the pointer, and the text sits 45px forward of
+ * the photograph in Z — which is what gives the tilt somewhere to go. Without
+ * that separation a 3D rotation on a flat card is just a skew.
  */
 export function FeaturedCarousel({ events }: FeaturedCarouselProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -70,71 +76,86 @@ export function FeaturedCarousel({ events }: FeaturedCarouselProps) {
       onKeyDown={onKeyDown}
       className="focus-visible:outline-focus relative"
     >
-      <div className="border-border bg-surface tablet:aspect-[21/9] relative aspect-[4/3] overflow-hidden rounded-lg border">
-        <AnimatePresence initial={false} custom={direction} mode="popLayout">
-          <motion.div
-            key={event.id}
-            custom={direction}
-            initial={{ opacity: 0, x: direction >= 0 ? offset : -offset }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction >= 0 ? -offset : offset }}
-            transition={{ duration: 0.5, ease: EASE_OUT_BRAND }}
-            className="absolute inset-0"
-          >
-            {event.cover && (
-              <img
-                src={event.cover}
-                alt=""
-                width={1280}
-                height={720}
-                className="h-full w-full object-cover"
-              />
-            )}
+      <Tilt3D max={4} perspective={1400} liftZ={20}>
+        <div className="border-border bg-surface tablet:aspect-[21/9] relative aspect-[4/3] overflow-hidden rounded-lg border">
+          <AnimatePresence initial={false} custom={direction} mode="popLayout">
+            <motion.div
+              key={event.id}
+              custom={direction}
+              initial={{
+                opacity: 0,
+                x: direction >= 0 ? offset : -offset,
+                rotateY: direction >= 0 ? 12 : -12,
+                scale: 0.94,
+              }}
+              animate={{ opacity: 1, x: 0, rotateY: 0, scale: 1 }}
+              exit={{
+                opacity: 0,
+                x: direction >= 0 ? -offset : offset,
+                rotateY: direction >= 0 ? -12 : 12,
+                scale: 0.94,
+              }}
+              transition={{ duration: 0.6, ease: EASE_OUT_BRAND }}
+              className="absolute inset-0 [transform-origin:50%_50%] [backface-visibility:hidden]"
+            >
+              {event.cover && (
+                <img
+                  src={event.cover}
+                  alt=""
+                  width={1280}
+                  height={720}
+                  className="h-full w-full object-cover"
+                />
+              )}
 
-            {/* Scrim is literal black: it darkens a photograph, so it stays
+              {/* Scrim is literal black: it darkens a photograph, so it stays
                 dark whatever the surrounding theme does. */}
-            <span
-              aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10"
-            />
-
-            <div className="p-lg tablet:p-2xl gap-sm absolute inset-0 flex flex-col justify-between text-white">
               <span
-                className={cn(
-                  'text-eyebrow rounded-pill gap-xs w-fit border px-3 py-1.5 uppercase backdrop-blur-sm',
-                  status === 'ongoing'
-                    ? 'flex items-center border-white/30 bg-white/15'
-                    : 'border-white/25 bg-black/30',
-                )}
-              >
-                {status === 'ongoing' && (
-                  <span aria-hidden="true" className="relative flex size-2">
-                    <span className="rounded-pill absolute inline-flex h-full w-full bg-white opacity-60 motion-safe:animate-ping" />
-                    <span className="rounded-pill relative inline-flex size-2 bg-white" />
-                  </span>
-                )}
-                {STATUS_LABEL[status]}
-              </span>
+                aria-hidden="true"
+                className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/10"
+              />
 
-              <div className="gap-sm flex flex-col">
-                <span className="text-eyebrow rounded-pill gap-xs flex w-fit items-center border border-white/25 bg-black/30 px-3 py-1.5 uppercase backdrop-blur-sm">
-                  <CalendarDays size={14} strokeWidth={2} aria-hidden="true" />
-                  {formatEventWhen(event)}
+              <div
+                style={{ transform: 'translateZ(45px)' }}
+                className="p-lg tablet:p-2xl gap-sm absolute inset-0 flex flex-col justify-between text-white"
+              >
+                <span
+                  className={cn(
+                    'text-eyebrow rounded-pill gap-xs w-fit border px-3 py-1.5 uppercase backdrop-blur-sm',
+                    status === 'ongoing'
+                      ? 'flex items-center border-white/30 bg-white/15'
+                      : 'border-white/25 bg-black/30',
+                  )}
+                >
+                  {status === 'ongoing' && (
+                    <span aria-hidden="true" className="relative flex size-2">
+                      <span className="rounded-pill absolute inline-flex h-full w-full bg-white opacity-60 motion-safe:animate-ping" />
+                      <span className="rounded-pill relative inline-flex size-2 bg-white" />
+                    </span>
+                  )}
+                  {STATUS_LABEL[status]}
                 </span>
 
-                <h2 className="text-h1 max-w-[22ch]">{event.name}</h2>
+                <div className="gap-sm flex flex-col">
+                  <span className="text-eyebrow rounded-pill gap-xs flex w-fit items-center border border-white/25 bg-black/30 px-3 py-1.5 uppercase backdrop-blur-sm">
+                    <CalendarDays size={14} strokeWidth={2} aria-hidden="true" />
+                    {formatEventWhen(event)}
+                  </span>
 
-                {event.venue && (
-                  <p className="text-small gap-xs flex items-center opacity-85">
-                    <MapPin size={15} strokeWidth={1.75} aria-hidden="true" />
-                    {event.venue}
-                  </p>
-                )}
+                  <h2 className="text-h1 max-w-[22ch]">{event.name}</h2>
+
+                  {event.venue && (
+                    <p className="text-small gap-xs flex items-center opacity-85">
+                      <MapPin size={15} strokeWidth={1.75} aria-hidden="true" />
+                      {event.venue}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </Tilt3D>
 
       {events.length > 1 && (
         <div className="mt-lg gap-md flex items-center justify-between">

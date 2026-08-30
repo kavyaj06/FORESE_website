@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
+import { Tilt3D } from '@/components/motion/Tilt3D';
 import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { eventStatus, groupEventsByStatus, type ForeseEvent } from '@/data/events';
@@ -25,6 +26,11 @@ const PAGE_SIZE = 5;
  *
  * Anything current — running now or still to come — leads the page in the
  * carousel. That is the part of this page somebody might act on.
+ *
+ * The perspective sits on the list rather than on each row. Sharing one
+ * vanishing point is what makes the rows read as cards on a single surface;
+ * per-row perspective gives each its own private camera, and the effect falls
+ * apart the moment two are on screen together.
  */
 export function EventsBoard() {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -83,18 +89,41 @@ export function EventsBoard() {
             {filter === 'completed' ? EVENT_GROUPS.completed.empty : EVENT_GROUPS.upcoming.empty}
           </p>
         ) : (
-          <motion.ul layout={!prefersReducedMotion} className="mt-2xl gap-md flex flex-col">
+          <motion.ul
+            layout={!prefersReducedMotion}
+            style={{ perspective: 1200 }}
+            className="mt-2xl gap-md flex flex-col"
+          >
             <AnimatePresence mode="popLayout" initial={false}>
-              {visible.map((event) => (
+              {visible.map((event, index) => (
                 <motion.li
                   key={event.id}
                   layout={!prefersReducedMotion}
-                  initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 18 }}
-                  animate={prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                  exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -12 }}
-                  transition={{ duration: 0.35, ease: EASE_OUT_BRAND }}
+                  custom={index}
+                  // Rows arrive by standing up: tipped back and slightly below,
+                  // rotating flat as they settle. A plain fade-and-rise reads
+                  // as content appearing; this reads as content arriving.
+                  initial={
+                    prefersReducedMotion
+                      ? { opacity: 0 }
+                      : { opacity: 0, y: 26, rotateX: -14, transformPerspective: 1200 }
+                  }
+                  animate={
+                    prefersReducedMotion
+                      ? { opacity: 1 }
+                      : { opacity: 1, y: 0, rotateX: 0, transformPerspective: 1200 }
+                  }
+                  exit={
+                    prefersReducedMotion
+                      ? { opacity: 0 }
+                      : { opacity: 0, y: -14, rotateX: 8, transformPerspective: 1200 }
+                  }
+                  transition={{ duration: 0.45, ease: EASE_OUT_BRAND, delay: index * 0.06 }}
+                  className="[transform-origin:50%_100%]"
                 >
-                  <EventRow event={event} photoCount={albumFor(event.id)?.photos.length ?? 0} />
+                  <Tilt3D max={3} perspective={1600} liftZ={14}>
+                    <EventRow event={event} photoCount={albumFor(event.id)?.photos.length ?? 0} />
+                  </Tilt3D>
                 </motion.li>
               ))}
             </AnimatePresence>
