@@ -14,9 +14,9 @@ export const HOME_HERO = {
   accent: 'hire',
   titleAfter: 'them.',
   description:
-    'FORESE runs the mock placement drive at College of Engineering, Guindy — aptitude, group discussions and interviews with HRs from real companies, before the interviews that count.',
+    'FORESE runs mock placements at College of Engineering, Guindy — aptitude, group discussions and interviews with HRs from real companies, conducted for every pre-final year student before the interviews that count.',
   actions: {
-    primary: { label: 'How the drive works', to: '/mocks' },
+    primary: { label: 'How it works', to: '/mocks' },
     secondary: { label: 'See the gallery', to: '/gallery' },
   },
 } as const;
@@ -37,7 +37,7 @@ export const RECRUITERS: string[] = [
 
 /** DUMMY — none of these figures are real. */
 export const HOME_STATS = [
-  { value: '500+', label: 'Students through the drive', note: 'Across the last three years' },
+  { value: '500+', label: 'Students put through it', note: 'Across the last three years' },
   { value: '40+', label: 'Companies on the panels', note: 'HRs interviewing in person' },
   { value: '6', label: 'Stages, start to finish', note: 'Contact collection to interview' },
 ];
@@ -48,14 +48,14 @@ export const HOME_CONVERGE = {
   accent: 'first',
   titleAfter: 'that counts.',
   description:
-    'A mock drive puts the whole process — the test, the group discussion, the panel — in front of you once, with feedback, before any of it is on your record.',
+    'Mock placements put the whole process — the test, the group discussion, the panel — in front of you once, with feedback, before any of it is on your record.',
 } as const;
 
 export const HOME_EVENTS = {
   eyebrow: 'Upcoming',
   title: 'What is next',
-  description: 'Registration opens to eligible students shortly before each drive.',
-  emptyMessage: 'Nothing scheduled right now. The next drive is announced here first.',
+  description: 'Conducted for every pre-final year student — no sign-up needed.',
+  emptyMessage: 'Nothing scheduled right now. The next mock placements are announced here first.',
 } as const;
 
 export interface Announcement {
@@ -78,8 +78,8 @@ export const ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'aptitude-window',
     date: '2026-09-05',
-    title: 'Aptitude round opens for the 2026 drive',
-    body: 'Registered students take the aptitude round through the college portal ahead of the Mock Placement Drive on 19 September.',
+    title: 'Aptitude round opens for Mock Placements 2026',
+    body: 'All pre-final year students take the aptitude round through the college portal ahead of Mock Placements on 19 September.',
   },
   {
     id: 'reg-closes',
@@ -97,6 +97,6 @@ export const ANNOUNCEMENTS: Announcement[] = [
     id: 'newsletter-july',
     date: '2026-07-17',
     title: 'July newsletter is out',
-    body: 'A look back at the last drive, and what changed for this one.',
+    body: 'A look back at the last round of mock placements, and what changed for this one.',
   },
 ];

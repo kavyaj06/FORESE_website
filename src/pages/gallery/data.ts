@@ -34,7 +34,7 @@ export const GALLERY_INTRO = {
   eyebrow: 'Gallery',
   title: 'Every event, as it happened',
   description:
-    'Photographs from the drives, lectures and sessions the club has run, grouped by event and newest first.',
+    'Photographs from the mock placements, lectures and sessions the club has run, grouped by event and newest first.',
 } as const;
 
 export interface GalleryPhoto {

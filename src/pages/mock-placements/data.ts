@@ -20,18 +20,17 @@ export const MOCK_PLACEMENTS_INTRO = {
   eyebrow: 'How it works',
   title: 'From first call to final interview',
   description:
-    'The drive runs in six stages. The first two are the work the team does before a single student registers — finding the professionals who will sit on the panels. The rest is the process students go through.',
+    'Mock placements run in six stages. The first two are the work the team does before any student sits down — finding the professionals who will sit on the panels. The rest is the process students go through.',
 } as const;
 
 /**
  * Closing band at the foot of the page.
- * TODO: replace with the real registration route once the drive dates and the
- * registration channel are confirmed.
+ * TODO: confirm the announcement channel once mock placement dates are fixed.
  */
 export const MOCK_PLACEMENTS_CALLOUT = {
-  title: 'Dates for the next drive are announced through FORESE channels.',
+  title: 'Dates for the next mock placements are announced through FORESE channels.',
   description:
-    'Registration opens to eligible students shortly before the aptitude round. Watch the events page, or reach the team directly.',
+    'Mock placements are conducted for every pre-final year student — there is nothing to sign up for. Watch the events page for dates, or reach the team directly.',
   actions: {
     primary: { label: 'See upcoming events', to: '/events' },
     secondary: { label: 'Meet the team', to: '/team' },
@@ -63,21 +62,21 @@ export const PROCESS_STEPS: ProcessStep[] = [
     id: 'contact-collection',
     title: 'Contact collection',
     description:
-      'The team builds the list the whole drive depends on — HR and talent-acquisition contacts across companies, gathered through alumni, past recruiters and industry connections.',
+      'The team builds the list the whole process depends on — HR and talent-acquisition contacts across companies, gathered through alumni, past recruiters and industry connections.',
     icon: Contact,
   },
   {
     id: 'hr-calling',
     title: 'HR calling',
     description:
-      'Members reach out to every contact on that list, explain what the mock drive is for, and confirm which professionals are able to take a panel.',
+      'Members reach out to every contact on that list, explain what the mock placements are for, and confirm which professionals are able to take a panel.',
     icon: PhoneCall,
   },
   {
     id: 'aptitude',
     title: 'Aptitude',
     description:
-      'An aptitude test conducted by the college. Registered students write it on the college portal, and the scores carry forward into allocation.',
+      'An aptitude test conducted by the college. Every pre-final year student writes it on the college portal, and the scores carry forward into allocation.',
     icon: PencilRuler,
     // TODO: replace with the real portal URL when the college publishes it.
     // Until then this points at a placeholder so the layout is built and

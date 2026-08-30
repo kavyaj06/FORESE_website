@@ -35,7 +35,7 @@ export const SITE = {
 
   /** DUMMY — needs the club's own description. */
   description:
-    'The placement and industry-interaction forum of College of Engineering, Guindy — running mock drives, corporate sessions and the student newsletter.',
+    'The placement and industry-interaction forum of College of Engineering, Guindy — running mock placements, corporate sessions and the student newsletter.',
 
   /**
    * Path to the logo under `public/`, or null for the text wordmark.

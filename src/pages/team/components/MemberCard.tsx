@@ -101,12 +101,12 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
               className={cn(
                 'pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent',
                 'duration-base ease-out-brand opacity-0 transition-opacity',
-                'group-hover:opacity-100 group-focus-within:opacity-100',
+                'group-focus-within:opacity-100 group-hover:opacity-100',
               )}
             />
             <p
               className={cn(
-                'p-3 tablet:p-4 pointer-events-none absolute inset-x-0 bottom-0 text-white italic',
+                'tablet:p-4 pointer-events-none absolute inset-x-0 bottom-0 p-3 text-white italic',
                 size === 'lead' ? 'text-body' : 'text-small',
                 'duration-base ease-out-brand translate-y-2 opacity-0 transition-[opacity,transform]',
                 'group-hover:translate-y-0 group-hover:opacity-100',

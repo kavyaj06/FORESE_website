@@ -17,7 +17,7 @@ export const CLUB_TEAMS: ClubTeam[] = [
   {
     id: 'development',
     name: 'Development',
-    description: 'The website, registration tooling and the report generation for mock drives.',
+    description: 'The website, internal tooling and the report generation for mock placements.',
   },
   {
     id: 'content',

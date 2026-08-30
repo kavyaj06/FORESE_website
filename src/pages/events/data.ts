@@ -10,7 +10,7 @@ export const EVENTS_INTRO = {
   eyebrow: 'Events',
   title: 'Everything the club runs',
   description:
-    'Drives, corporate sessions and workshops — what is running now, what is coming, and everything already done.',
+    'Mock placements, corporate sessions and workshops — what is running now, what is coming, and everything already done.',
 } as const;
 
 export const EVENT_GROUPS = {

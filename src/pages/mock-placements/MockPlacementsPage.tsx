@@ -19,7 +19,7 @@ export default function MockPlacementsPage() {
         meta={[
           `${PROCESS_STEPS.length} stages`,
           'Run every academic year',
-          'Open to eligible students',
+          'For all pre-final years',
         ]}
       />
       <ProcessTimeline />

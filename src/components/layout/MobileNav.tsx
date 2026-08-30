@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { NavLink } from 'react-router-dom';
 import { MOBILE_NAV } from '@/app/routes';
 import { useScrollLock } from '@/hooks/useScrollLock';
@@ -17,6 +18,16 @@ interface MobileNavProps {
  * Sits below the header rather than covering it, so the close button stays
  * exactly where the open button was — the menu toggles in place instead of
  * the control moving under the user's thumb.
+ *
+ * Rendered through a portal, like `Modal`, and that is load-bearing rather
+ * than tidiness. `<Navbar>` carries `backdrop-blur-md`, and per spec any
+ * element with a `backdrop-filter` becomes the containing block for its
+ * `position: fixed` descendants. Left inside the header, this drawer was
+ * therefore not fixed to the viewport at all — it was fixed to the 64px
+ * header box, so `inset-x-0 bottom-0` resolved against that instead of the
+ * screen and the panel failed to cover the page behind it. Portalling to
+ * `document.body` puts it outside the blurred ancestor, which is the only
+ * reliable fix; adding a background colour only masks it.
  */
 export function MobileNav({ open, onClose, returnFocusRef }: MobileNavProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -46,7 +57,7 @@ export function MobileNav({ open, onClose, returnFocusRef }: MobileNavProps) {
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
       ref={panelRef}
       id="mobile-navigation"
@@ -85,6 +96,7 @@ export function MobileNav({ open, onClose, returnFocusRef }: MobileNavProps) {
           ))}
         </ul>
       </nav>
-    </div>
+    </div>,
+    document.body,
   );
 }
