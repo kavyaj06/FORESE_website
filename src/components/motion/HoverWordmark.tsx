@@ -49,7 +49,7 @@ export function HoverWordmark({
       viewBox="0 0 1000 300"
       preserveAspectRatio="xMidYMax meet"
       xmlns="http://www.w3.org/2000/svg"
-      className={`select-none overflow-visible ${className ?? ''}`}
+      className={`select-none overflow-visible uppercase ${className ?? ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onMouseMove={(event) => {
@@ -85,7 +85,7 @@ export function HoverWordmark({
         <motion.radialGradient
           id="foreseRevealGradient"
           gradientUnits="userSpaceOnUse"
-          r="115"
+          r="260"
           initial={{
             cx: '50%',
             cy: '50%',
