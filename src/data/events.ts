@@ -29,6 +29,13 @@ export interface ForeseEvent {
   endDate?: string;
   /** One line of context. */
   blurb?: string;
+  /**
+   * Cover image under `public/`, used by the events page cards and carousel.
+   * ⚠️ DUMMY files today — generated abstracts, not photographs.
+   */
+  cover?: string;
+  /** Where it happens. Shown on the cards. */
+  venue?: string;
 }
 
 /**
@@ -126,6 +133,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'resume-clinic-2026',
     slug: 'resume-clinic-2026',
+    cover: '/events/resume-clinic-2026.jpg',
+    venue: 'CEG Placement Cell',
     name: 'Resume Clinic',
     date: '2026-08-27',
     endDate: '2026-08-31',
@@ -134,6 +143,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'alumni-interaction-2026',
     slug: 'alumni-interaction-2026',
+    cover: '/events/alumni-interaction-2026.jpg',
+    venue: 'To be confirmed',
     name: 'Alumni Interaction',
     date: null,
     blurb: 'A panel of recent graduates on their first year in industry. Date being confirmed.',
@@ -141,6 +152,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'mock-placement-drive-2026',
     slug: 'mock-placement-drive-2026',
+    cover: '/events/mock-placement-drive-2026.jpg',
+    venue: 'Vivekananda Auditorium, CEG',
     name: 'Mock Placement Drive 2026',
     date: '2026-09-19',
     blurb: 'The full rehearsal — aptitude, group discussion and interview panels.',
@@ -148,6 +161,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'corporate-connect-2026',
     slug: 'corporate-connect-2026',
+    cover: '/events/corporate-connect-2026.jpg',
+    venue: 'Red Building Seminar Hall, CEG',
     name: 'Corporate Connect 2026',
     date: '2026-10-10',
     blurb: 'Recruiters and alumni on what they actually look for in a candidate.',
@@ -155,6 +170,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'mock-placement-drive-2025',
     slug: 'mock-placement-drive-2025',
+    cover: '/events/mock-placement-drive-2025.jpg',
+    venue: 'Vivekananda Auditorium, CEG',
     name: 'Mock Placement Drive 2025',
     date: '2025-09-20',
     blurb: 'Aptitude, group discussions and interview panels run across a single weekend.',
@@ -162,6 +179,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'corporate-connect-2025',
     slug: 'corporate-connect-2025',
+    cover: '/events/corporate-connect-2025.jpg',
+    venue: 'Red Building Seminar Hall, CEG',
     name: 'Corporate Connect',
     date: '2025-08-02',
     blurb: 'Recruiters and alumni on what they actually look for in a candidate.',
@@ -169,6 +188,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'guest-lecture-series-2025',
     slug: 'guest-lecture-series-2025',
+    cover: '/events/guest-lecture-series-2025.jpg',
+    venue: 'CEG Campus',
     name: 'Guest Lecture Series',
     date: '2025-04-12',
     blurb: 'Industry speakers hosted through the term.',
@@ -176,6 +197,8 @@ export const EVENTS: ForeseEvent[] = [
   {
     id: 'orientation-2025',
     slug: 'orientation-2025',
+    cover: '/events/orientation-2025.jpg',
+    venue: 'Tag Auditorium, CEG',
     name: 'Freshers Orientation',
     date: '2025-02-08',
     blurb: 'Introducing the club and the year ahead to the incoming batch.',

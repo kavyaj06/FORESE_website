@@ -6,9 +6,9 @@ import { EVENTS_INTRO } from './data';
 /**
  * Events.
  *
- * Three states — running now, coming, done — each derived from the dates at
- * render. Nothing here is flagged by hand, so an event moves between the
- * sections on its own.
+ * Three states — running now, coming, done — all derived from the dates at
+ * render. Nothing here is flagged by hand, so an event moves between them on
+ * its own.
  */
 export default function EventsPage() {
   const groups = groupEventsByStatus();
