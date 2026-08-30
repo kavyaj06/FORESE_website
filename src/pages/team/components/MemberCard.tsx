@@ -31,10 +31,20 @@ interface MemberCardProps {
  * so keyboard users reach them and screen readers read them even though
  * sighted users only see them on hover. Focus reveals the strip too, since
  * keyboard users never fire a group hover.
+ *
+ * Core members' quotes surface a different way from everyone else's. Senior
+ * and junior core get their line as a hover reveal over the photograph
+ * itself — scrim fading up, quote rising into it — rather than as permanent
+ * text in the card footer. The distinction is tied to `member.rank`, not to
+ * which section is rendering the card, so a core member reads the same way
+ * wherever their card appears. General members keep the plain, always-visible
+ * footer quote: with ninety of them the hover reveal would mean most quotes
+ * are never seen at all, since nobody hovers ninety cards.
  */
 export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
   const team = member.team ? findTeam(member.team) : undefined;
   const position = member.role ?? team?.name ?? 'Member';
+  const isCore = member.rank !== 'member';
 
   return (
     <article
@@ -78,6 +88,35 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
             </SocialPill>
           )}
         </ul>
+
+        {isCore && member.quote && (
+          <>
+            {/* Scrim first, quote on top — the same layering PhotoTile and
+                AlbumCard already use elsewhere on the site, so a hovered
+                photograph reads the same way everywhere it appears. Literal
+                black: it is darkening a photograph, and has to stay dark
+                whatever the surrounding theme is doing. */}
+            <span
+              aria-hidden="true"
+              className={cn(
+                'pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent',
+                'duration-base ease-out-brand opacity-0 transition-opacity',
+                'group-hover:opacity-100 group-focus-within:opacity-100',
+              )}
+            />
+            <p
+              className={cn(
+                'p-3 tablet:p-4 pointer-events-none absolute inset-x-0 bottom-0 text-white italic',
+                size === 'lead' ? 'text-body' : 'text-small',
+                'duration-base ease-out-brand translate-y-2 opacity-0 transition-[opacity,transform]',
+                'group-hover:translate-y-0 group-hover:opacity-100',
+                'group-focus-within:translate-y-0 group-focus-within:opacity-100',
+              )}
+            >
+              “{member.quote}”
+            </p>
+          </>
+        )}
       </div>
 
       <div className="pt-md flex flex-1 flex-col gap-0.5 px-1.5 pb-1">
@@ -94,7 +133,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
           {position}
         </p>
 
-        {member.quote && (
+        {!isCore && member.quote && (
           <p className="text-caption text-text-muted border-border mt-sm ease-smooth group-hover:border-accent-fg/25 group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 border-l pl-3 italic transition-colors duration-[400ms]">
             “{member.quote}”
           </p>
