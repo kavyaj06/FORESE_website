@@ -65,24 +65,38 @@ export interface Announcement {
   body: string;
 }
 
-/** DUMMY — invented announcements. */
+/**
+ * DUMMY — invented dates and copy.
+ *
+ * Two kinds of entry only, deliberately: newsletter issue dates, and dates in
+ * the mock placement process itself (registration windows, round dates,
+ * results). Not events — an event already has its own card in Upcoming
+ * Events above, so repeating it here would show the same thing twice under
+ * two different names.
+ */
 export const ANNOUNCEMENTS: Announcement[] = [
   {
-    id: 'reg-open',
-    date: '2026-08-14',
-    title: 'Registrations open for the 2026 drive',
-    body: 'Third and fourth year students can register through the college portal until the aptitude round.',
+    id: 'aptitude-window',
+    date: '2026-09-05',
+    title: 'Aptitude round opens for the 2026 drive',
+    body: 'Registered students take the aptitude round through the college portal ahead of the Mock Placement Drive on 19 September.',
   },
   {
-    id: 'newsletter',
-    date: '2026-07-28',
+    id: 'reg-closes',
+    date: '2026-08-29',
+    title: 'Registrations close for the Resume Clinic',
+    body: 'Sign-ups for one-on-one CV review slots close at the end of this week.',
+  },
+  {
+    id: 'newsletter-august',
+    date: '2026-08-14',
     title: 'August newsletter is out',
     body: 'Placement statistics, alumni interviews and the term ahead.',
   },
   {
-    id: 'recruit',
-    date: '2026-07-02',
-    title: 'Junior member recruitment',
-    body: 'Applications are open for second year students joining the team this term.',
+    id: 'newsletter-july',
+    date: '2026-07-17',
+    title: 'July newsletter is out',
+    body: 'A look back at the last drive, and what changed for this one.',
   },
 ];

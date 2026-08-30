@@ -213,18 +213,6 @@ export const EVENTS_BY_RECENCY: ForeseEvent[] = [...EVENTS].sort((a, b) =>
   (b.date ?? '').localeCompare(a.date ?? ''),
 );
 
-/**
- * Events still to come, soonest first.
- *
- * Compared against the current date at render rather than a hardcoded flag, so
- * an event moves from Upcoming to Completed on its own and nobody has to
- * remember to edit anything the morning after.
- */
-export function upcomingEvents(now: Date = new Date()): ForeseEvent[] {
-  const groups = groupEventsByStatus(now);
-  return [...groups.ongoing, ...groups.upcoming];
-}
-
 export function findEvent(id: string): ForeseEvent | undefined {
   return EVENTS.find((event) => event.id === id);
 }

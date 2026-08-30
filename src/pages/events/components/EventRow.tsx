@@ -57,7 +57,7 @@ export function EventRow({ event, photoCount }: EventRowProps) {
             {formatEventWhen(event)}
           </span>
 
-          {status === 'ongoing' && <Badge tone="accent">Happening now</Badge>}
+          {status === 'ongoing' && <Badge tone="accent">Ongoing</Badge>}
           {status === 'upcoming' && countdown && (
             <span className="text-caption text-text-subtle first-letter:uppercase">
               {countdown}

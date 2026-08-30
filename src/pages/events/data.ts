@@ -15,8 +15,8 @@ export const EVENTS_INTRO = {
 
 export const EVENT_GROUPS = {
   ongoing: {
-    eyebrow: 'Happening now',
-    title: 'Running this week',
+    eyebrow: 'Ongoing',
+    title: 'Ongoing events',
   },
   upcoming: {
     eyebrow: 'Upcoming',

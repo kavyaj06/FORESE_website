@@ -92,7 +92,6 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
 
         <p className="text-small text-text-muted ease-smooth group-hover:text-accent-fg/75 group-focus-within:text-accent-fg/75 transition-colors duration-[400ms]">
           {position}
-          {member.batch && <span> · {member.batch}</span>}
         </p>
 
         {member.quote && (

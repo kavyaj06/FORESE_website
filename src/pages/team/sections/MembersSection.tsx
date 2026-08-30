@@ -65,11 +65,7 @@ export function MembersSection() {
     <section className="py-section">
       <Container>
         <Reveal>
-          <SectionHeading
-            eyebrow={TEAM_SECTIONS.members.eyebrow}
-            title={TEAM_SECTIONS.members.title}
-            description={TEAM_SECTIONS.members.description}
-          />
+          <SectionHeading title={TEAM_SECTIONS.members.title} />
         </Reveal>
 
         <Reveal className="mt-xl">

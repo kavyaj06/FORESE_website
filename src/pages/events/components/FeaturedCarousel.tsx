@@ -12,7 +12,7 @@ interface FeaturedCarouselProps {
 }
 
 const STATUS_LABEL = {
-  ongoing: 'Happening now',
+  ongoing: 'Ongoing',
   upcoming: 'Upcoming event',
   completed: 'Completed',
 } as const;

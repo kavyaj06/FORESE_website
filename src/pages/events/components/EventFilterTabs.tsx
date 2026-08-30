@@ -11,7 +11,7 @@ interface EventFilterTabsProps {
 
 const TABS: { id: EventFilter; label: string }[] = [
   { id: 'all', label: 'All' },
-  { id: 'ongoing', label: 'Happening now' },
+  { id: 'ongoing', label: 'Ongoing' },
   { id: 'upcoming', label: 'Upcoming' },
   { id: 'completed', label: 'Completed' },
 ];

@@ -22,11 +22,7 @@ export function CoreSection() {
       <section className="py-section">
         <Container>
           <Reveal>
-            <SectionHeading
-              eyebrow={TEAM_SECTIONS.seniorCore.eyebrow}
-              title={TEAM_SECTIONS.seniorCore.title}
-              description={TEAM_SECTIONS.seniorCore.description}
-            />
+            <SectionHeading title={TEAM_SECTIONS.seniorCore.title} />
           </Reveal>
 
           <div className="mt-2xl gap-lg tablet:grid-cols-3 desktop:grid-cols-4 grid grid-cols-2">
@@ -42,11 +38,7 @@ export function CoreSection() {
       <section className="border-border bg-surface py-section border-t">
         <Container>
           <Reveal>
-            <SectionHeading
-              eyebrow={TEAM_SECTIONS.juniorCore.eyebrow}
-              title={TEAM_SECTIONS.juniorCore.title}
-              description={TEAM_SECTIONS.juniorCore.description}
-            />
+            <SectionHeading title={TEAM_SECTIONS.juniorCore.title} />
           </Reveal>
 
           <div className="mt-2xl gap-lg tablet:grid-cols-4 desktop:grid-cols-5 grid grid-cols-2">

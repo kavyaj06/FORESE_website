@@ -19,7 +19,6 @@ export default function TeamPage() {
       <PageHero
         eyebrow={TEAM_INTRO.eyebrow}
         title={TEAM_INTRO.title}
-        description={TEAM_INTRO.description}
         size="compact"
         meta={[
           `${membersByRank('senior-core').length} senior core`,

@@ -34,7 +34,7 @@ export function OngoingEventCard({ event, albumSlug }: OngoingEventCardProps) {
               <span className="bg-accent rounded-pill absolute inline-flex h-full w-full opacity-60 motion-safe:animate-ping" />
               <span className="bg-accent rounded-pill relative inline-flex size-2" />
             </span>
-            Happening now
+            Ongoing
           </p>
 
           {/* h2, not h3: this is the first section under the page h1, and its

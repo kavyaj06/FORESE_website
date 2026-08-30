@@ -4,26 +4,22 @@
 
 export const TEAM_INTRO = {
   eyebrow: 'Team',
-  title: 'The people who run it',
-  description:
-    'A senior core that sets the year, junior core who manage the working teams, and the members who make the drives happen.',
+  title: 'The people behind FORESE',
 } as const;
 
+/**
+ * Section titles only — no eyebrow, no description. The rank names are the
+ * title, so the section says what it is without a kicker line repeating it or
+ * a sentence explaining it underneath.
+ */
 export const TEAM_SECTIONS = {
   seniorCore: {
-    eyebrow: 'Senior core',
-    title: 'Who leads the club',
-    description: 'Office bearers and heads for the current term.',
+    title: 'Senior Core',
   },
   juniorCore: {
-    eyebrow: 'Junior core',
-    title: 'Who runs the teams',
-    description:
-      'The junior core manage the design, development and content teams between them rather than each owning one.',
+    title: 'Junior Core',
   },
   members: {
-    eyebrow: 'Members',
-    title: 'Everyone else who makes it happen',
-    description: 'Members join one of three tech teams. Filter to see a team on its own.',
+    title: 'Members',
   },
 } as const;

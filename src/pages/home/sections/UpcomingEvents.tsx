@@ -3,18 +3,20 @@ import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Card } from '@/components/ui';
-import { formatEventWhen, upcomingEvents } from '@/data/events';
+import { formatEventWhen, groupEventsByStatus } from '@/data/events';
 import { HOME_EVENTS } from '../data';
 
 /**
  * The outline's "Upcoming Events" panel.
  *
- * Derived from the shared event list by comparing dates at render, so an event
- * leaves this panel by itself the day after it happens. There is no "upcoming"
- * flag for anyone to forget to switch off.
+ * Strictly `status === 'upcoming'` — an event already running belongs to the
+ * Events page's ongoing band, not here, so this panel and that one never show
+ * the same event as two different things. Derived from the shared event list
+ * by comparing dates at render and sorted soonest-first, so an event moves
+ * between sections on its own and this list never needs hand-sorting.
  */
 export function UpcomingEvents() {
-  const events = upcomingEvents();
+  const events = groupEventsByStatus().upcoming;
 
   return (
     <section className="py-section">
