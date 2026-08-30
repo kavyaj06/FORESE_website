@@ -189,9 +189,25 @@
   --spacing-gutter: clamp(1.25rem, 0.75rem + 2vw, 2.5rem);
 
   /* Content widths. These live in the `--container-*` namespace because that
-     is what Tailwind's `max-w-*` utilities read from. */
-  --container-content: 75rem; /* 1200px — standard content column */
-  --container-content-narrow: 48rem; /* 768px — prose line length */
+     is what Tailwind's `max-w-*` utilities read from.
+     `<Container>` is the only thing that reads these — see Container.tsx —
+     so this one value governs the content column on every section of every
+     page site-wide.
+
+     `content` is fluid rather than a flat cap. A fixed 1200px leaves equal,
+     symmetric margins on any screen wider than that — which is correct
+     behaviour, not a bug — but the margins get uncomfortably large on a
+     genuinely wide display, and every laptop and monitor a visitor might
+     open this on is fair game. The clamp is tuned so ordinary laptop widths
+     (roughly 1920px and under — which covers nearly everything, including
+     every common scaled retina width) see no change at all: 60vw stays
+     below the 75rem floor until the viewport passes ~2000px. Only past that
+     does the column start widening, capping at 90rem (1440px) so it never
+     grows into the same "uncomfortably wide" problem it exists to avoid. */
+  --container-content: clamp(75rem, 60vw, 90rem); /* 1200px, fluid to 1440px */
+  --container-content-narrow: 48rem; /* 768px — prose line length, deliberately fixed:
+     a comfortable reading measure doesn't get more comfortable on a bigger
+     monitor, so this one never grows. */
 
   /* --------------------------------------------------------------------
    * RADIUS — deliberately overrides Tailwind's defaults so `rounded-lg`
