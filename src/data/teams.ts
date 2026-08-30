@@ -1,4 +1,5 @@
 import type { TeamId } from './teamIds';
+import { CLUB_MEMBERS, type ClubMember, type MemberRank } from './team';
 
 export interface ClubTeam {
   id: TeamId;
@@ -11,57 +12,31 @@ export const CLUB_TEAMS: ClubTeam[] = [
   {
     id: 'design',
     name: 'Design',
-    description:
-      'Everything the club looks like — posters, decks, the newsletter layout and this site.',
+    description: 'Posters, decks, the newsletter layout and this site.',
+  },
+  {
+    id: 'development',
+    name: 'Development',
+    description: 'The website, registration tooling and the report generation for mock drives.',
   },
   {
     id: 'content',
     name: 'Content',
-    description: 'Newsletter writing, event copy, social posts and the interview write-ups.',
-  },
-  {
-    id: 'corporate',
-    name: 'Corporate Relations',
-    description: 'Finding HR contacts, calling companies and confirming interview panels.',
-  },
-  {
-    id: 'events',
-    name: 'Events',
-    description: 'Running the drives on the day: venues, scheduling, registration and logistics.',
-  },
-  {
-    id: 'technical',
-    name: 'Technical',
-    description: 'The website, the registration tooling and the report generation for mock drives.',
+    description: 'Newsletter writing, event copy, social posts and interview write-ups.',
   },
 ];
 
-import { CLUB_MEMBERS, type ClubMember } from './team';
-
 /**
- * Selectors over the roster.
- *
- * Every one of these derives from `CLUB_MEMBERS`. Nothing about a team is
- * stored twice, so a person added to the roster appears in their team without
- * anyone editing a second list.
+ * Selectors over the roster. Everything derives from `CLUB_MEMBERS`, so
+ * nothing about a person or a team is stored twice.
  */
 
-export function membersByRank(rank: ClubMember['rank']): ClubMember[] {
+export function membersByRank(rank: MemberRank): ClubMember[] {
   return CLUB_MEMBERS.filter((member) => member.rank === rank);
 }
 
-export function teamLeads(teamId: TeamId): ClubMember[] {
-  return CLUB_MEMBERS.filter((member) => member.leadsTeam === teamId);
-}
-
-/** Everyone on a team who is not one of its leads. */
-export function teamMembers(teamId: TeamId): ClubMember[] {
-  return CLUB_MEMBERS.filter((member) => member.team === teamId && !member.leadsTeam);
-}
-
-/** Members belonging to no team at all — rendered so nobody is left off. */
-export function unassignedMembers(): ClubMember[] {
-  return CLUB_MEMBERS.filter((member) => member.rank === 'member' && !member.team);
+export function membersInTeam(teamId: TeamId): ClubMember[] {
+  return CLUB_MEMBERS.filter((member) => member.team === teamId);
 }
 
 export function findTeam(id: TeamId): ClubTeam | undefined {

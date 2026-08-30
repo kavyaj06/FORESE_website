@@ -1,7 +1,7 @@
 import { PageHero } from '@/components/sections/PageHero';
 import { membersByRank, ROSTER_TOTAL } from '@/data/teams';
 import { CoreSection } from './sections/CoreSection';
-import { TeamsSection } from './sections/TeamsSection';
+import { MembersSection } from './sections/MembersSection';
 import { TEAM_INTRO } from './data';
 
 /**
@@ -28,7 +28,7 @@ export default function TeamPage() {
         ]}
       />
       <CoreSection />
-      <TeamsSection />
+      <MembersSection />
     </>
   );
 }

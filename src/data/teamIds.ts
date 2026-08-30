@@ -1,1 +1,1 @@
-export type TeamId = 'design' | 'content' | 'corporate' | 'events' | 'technical';
+export type TeamId = 'design' | 'development' | 'content';
