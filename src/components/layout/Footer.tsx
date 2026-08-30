@@ -4,6 +4,7 @@ import { CONTACT, LOCATION, SITE, SOCIAL_LINKS } from '@/data/site';
 import { SocialIcon } from '@/components/ui/SocialIcon';
 import { Container } from './Container';
 import { Logo } from './Logo';
+import { HoverWordmark } from '@/components/motion/HoverWordmark';
 
 /**
  * Site footer.
@@ -126,6 +127,13 @@ export function Footer() {
           <p className="text-caption text-text-subtle">{SITE.fullName}</p>
         </div>
       </Container>
+
+      {/* The wordmark echo. Desktop only — it needs real width to read, and a
+          cursor to reveal it; a phone has neither. Decorative, hence outside
+          the Container's max-width so it can run the full bleed of the band. */}
+      <div data-theme="inverse" className="desktop:block bg-bg hidden">
+        <HoverWordmark text={SITE.name} className="h-56 w-full" />
+      </div>
     </footer>
   );
 }
