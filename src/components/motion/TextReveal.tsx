@@ -10,6 +10,12 @@ interface TextRevealProps {
   className?: string;
   /** Seconds before the first word starts. */
   delay?: number;
+  /**
+   * Hold the words down until this is true. The opening curtain uses it: a
+   * headline that reveals itself behind an overlay has already finished by
+   * the time anyone can see it.
+   */
+  play?: boolean;
 }
 
 /**
@@ -24,7 +30,13 @@ interface TextRevealProps {
  * disconnected words. Under reduced motion it renders as plain text with no
  * wrappers at all.
  */
-export function TextReveal({ text, as: Tag = 'span', className, delay = 0 }: TextRevealProps) {
+export function TextReveal({
+  text,
+  as: Tag = 'span',
+  className,
+  delay = 0,
+  play = true,
+}: TextRevealProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const words = text.split(' ');
 
@@ -42,7 +54,7 @@ export function TextReveal({ text, as: Tag = 'span', className, delay = 0 }: Tex
             <motion.span
               className="inline-block"
               initial={{ y: '115%' }}
-              animate={{ y: '0%' }}
+              animate={{ y: play ? '0%' : '115%' }}
               transition={{ duration: 0.85, ease: EASE_OUT_BRAND, delay: delay + index * 0.075 }}
             >
               {word}

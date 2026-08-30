@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { TextReveal } from '@/components/motion/TextReveal';
 import { fadeInOnly, riseIn, stagger } from '@/components/motion/variants';
+import { useIntroDone } from '@/components/motion/IntroContext';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
 
@@ -54,6 +55,7 @@ export function PageHero({
   className,
 }: PageHeroProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const introDone = useIntroDone();
   const centred = align === 'center';
 
   const { scrollY } = useScroll();
@@ -80,7 +82,7 @@ export function PageHero({
       <Container>
         <motion.div
           initial="hidden"
-          animate="visible"
+          animate={introDone ? 'visible' : 'hidden'}
           variants={prefersReducedMotion ? fadeInOnly : stagger}
           style={{ opacity: prefersReducedMotion ? 1 : contentOpacity }}
           className={cn('gap-lg flex flex-col', centred && 'items-center text-center')}
@@ -99,6 +101,7 @@ export function PageHero({
             as="h1"
             text={title}
             delay={0.12}
+            play={introDone}
             className={cn(
               size === 'display' ? 'text-display' : 'text-h1',
               centred && 'max-w-content-narrow',

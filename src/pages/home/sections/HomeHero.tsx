@@ -4,6 +4,7 @@ import { Container } from '@/components/layout/Container';
 import { AccentWord } from '@/components/motion/AccentWord';
 import { TextReveal } from '@/components/motion/TextReveal';
 import { fadeInOnly, riseIn, stagger } from '@/components/motion/variants';
+import { useIntroDone } from '@/components/motion/IntroContext';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { Button } from '@/components/ui';
 import { HOME_HERO } from '../data';
@@ -23,6 +24,7 @@ import { RecruiterMarquee } from '../components/RecruiterMarquee';
  */
 export function HomeHero() {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const introDone = useIntroDone();
   const { scrollY } = useScroll();
   const patternY = useTransform(scrollY, [0, 800], [0, 110]);
   const contentOpacity = useTransform(scrollY, [0, 520], [1, 0.15]);
@@ -42,7 +44,7 @@ export function HomeHero() {
       <Container>
         <motion.div
           initial="hidden"
-          animate="visible"
+          animate={introDone ? 'visible' : 'hidden'}
           variants={prefersReducedMotion ? fadeInOnly : stagger}
           style={prefersReducedMotion ? undefined : { opacity: contentOpacity, y: contentY }}
           className="gap-lg flex flex-col items-center text-center"
@@ -58,12 +60,13 @@ export function HomeHero() {
           {/* Two reveals rather than one, so the accent word keeps its own face
               while every word still rises in sequence. */}
           <h1 className="text-display max-w-[18ch]">
-            <TextReveal as="span" text={HOME_HERO.titleBefore} delay={0.1} />{' '}
+            <TextReveal as="span" text={HOME_HERO.titleBefore} delay={0.1} play={introDone} />{' '}
             <AccentWord>{HOME_HERO.accent}</AccentWord>{' '}
             <TextReveal
               as="span"
               text={HOME_HERO.titleAfter}
               delay={0.1 + HOME_HERO.titleBefore.split(' ').length * 0.075}
+              play={introDone}
             />
           </h1>
 
