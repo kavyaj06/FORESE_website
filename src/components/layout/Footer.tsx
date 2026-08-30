@@ -144,9 +144,15 @@ export function Footer() {
           cursor to reveal it; a phone has neither. Decorative, hence outside
           the Container's max-width so it can run the full bleed of the band.
           No theme wrapper needed here any more — it inherits the footer's own
-          inverse context. */}
-      <div className="desktop:block relative hidden">
-        <HoverWordmark text={SITE.name} className="h-56 w-full" />
+          inverse context.
+
+          `pb-3xl` matters: this is the last thing in the footer, so its own
+          box would otherwise end exactly at the page's bottom edge with zero
+          margin — the glyphs read as glued to that boundary rather than
+          sitting inside a band. The padding is what turns it back into a
+          band. */}
+      <div className="desktop:block pt-lg pb-3xl relative hidden">
+        <HoverWordmark text={SITE.name} className="h-48 w-full" />
       </div>
     </footer>
   );
