@@ -20,6 +20,13 @@ import { HoverWordmark } from '@/components/motion/HoverWordmark';
  * Columns whose content is missing still render a visible "to be added" note
  * rather than collapsing silently. An empty column that looks intentional is
  * exactly how placeholder content survives to production.
+ *
+ * The whole footer runs on `data-theme="inverse"`, not just the wordmark band
+ * at its foot — the same mechanism the hero, the stat band and the drive
+ * callout already use, so nothing here needed a dark variant written by hand.
+ * Every class below is a semantic token (`bg-surface`, `text-text-muted`,
+ * `border-border`…) and simply resolves to its dark value for the whole
+ * section once the attribute is set on the root element.
  */
 
 const COLUMN_HEADING = 'text-eyebrow text-text-subtle uppercase';
@@ -37,8 +44,13 @@ export function Footer() {
   const quickLinks = footerRoutes('quickLinks');
 
   return (
-    <footer className="border-border bg-surface mt-auto border-t">
-      <Container className="py-section">
+    <footer
+      data-theme="inverse"
+      className="border-border bg-bg relative isolate mt-auto overflow-hidden border-t"
+    >
+      <div aria-hidden="true" className="bg-radial-glow pointer-events-none absolute inset-0" />
+
+      <Container className="py-section relative">
         <div className="gap-xl tablet:grid-cols-2 desktop:grid-cols-12 grid">
           {/* Brand */}
           <div className="gap-md desktop:col-span-5 flex flex-col">
@@ -130,8 +142,10 @@ export function Footer() {
 
       {/* The wordmark echo. Desktop only — it needs real width to read, and a
           cursor to reveal it; a phone has neither. Decorative, hence outside
-          the Container's max-width so it can run the full bleed of the band. */}
-      <div data-theme="inverse" className="desktop:block bg-bg hidden">
+          the Container's max-width so it can run the full bleed of the band.
+          No theme wrapper needed here any more — it inherits the footer's own
+          inverse context. */}
+      <div className="desktop:block relative hidden">
         <HoverWordmark text={SITE.name} className="h-56 w-full" />
       </div>
     </footer>

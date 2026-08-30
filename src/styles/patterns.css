@@ -40,3 +40,16 @@
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 45%, transparent 100%);
 }
+
+/* A soft ambient highlight, for a section that wants depth without inventing a
+   colour. `color-mix` blends the theme's own text token into the background at
+   low strength, so it reads as a glow rather than a colour choice — on the
+   footer's black band that resolves to a faint white wash from the top; on a
+   light surface it would just as correctly resolve to a faint dark one. */
+@utility bg-radial-glow {
+  background-image: radial-gradient(
+    125% 125% at 50% 0%,
+    color-mix(in srgb, var(--color-text) 12%, transparent) 0%,
+    transparent 60%
+  );
+}

@@ -36,7 +36,10 @@ export function HoverWordmark({ text, className }: HoverWordmarkProps) {
   const drawRef = useRef<SVGTextElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
   const hasPointer = useMediaQuery('(hover: hover) and (pointer: fine)');
-  const drawIn = useInView(drawRef, { once: true, amount: 0.6 });
+  // A lower threshold than most scroll reveals on this site: the wordmark
+  // sits at the very foot of the page, and requiring most of it on screen
+  // meant the draw could sit un-played until the visitor was almost past it.
+  const drawIn = useInView(drawRef, { once: true, amount: 0.25, margin: '0px 0px -80px 0px' });
 
   // Percentage strings, as the radialGradient's cx/cy expect. Held as motion
   // values so pointer movement never touches React state.
