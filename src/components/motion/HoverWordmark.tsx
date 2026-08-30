@@ -8,10 +8,7 @@ type HoverWordmarkProps = {
   className?: string;
 };
 
-export function HoverWordmark({
-  text,
-  className,
-}: HoverWordmarkProps) {
+export function HoverWordmark({ text, className }: HoverWordmarkProps) {
   const svgRef = useRef<SVGSVGElement>(null);
 
   const [cursor, setCursor] = useState({
@@ -49,7 +46,7 @@ export function HoverWordmark({
       viewBox="0 0 1000 300"
       preserveAspectRatio="xMidYMax meet"
       xmlns="http://www.w3.org/2000/svg"
-      className={`select-none overflow-visible uppercase ${className ?? ''}`}
+      className={`overflow-visible uppercase select-none ${className ?? ''}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onMouseMove={(event) => {
@@ -102,13 +99,7 @@ export function HoverWordmark({
         </motion.radialGradient>
 
         <mask id="foreseTextMask">
-          <rect
-            x="0"
-            y="0"
-            width="1000"
-            height="300"
-            fill="url(#foreseRevealGradient)"
-          />
+          <rect x="0" y="0" width="1000" height="300" fill="url(#foreseRevealGradient)" />
         </mask>
       </defs>
 

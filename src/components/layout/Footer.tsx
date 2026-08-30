@@ -146,12 +146,18 @@ export function Footer() {
           No theme wrapper needed here any more — it inherits the footer's own
           inverse context.
 
-          `pb-3xl` matters: this is the last thing in the footer, so its own
-          box would otherwise end exactly at the page's bottom edge with zero
-          margin — the glyphs read as glued to that boundary rather than
-          sitting inside a band. The padding is what turns it back into a
-          band. */}
-      <div className="desktop:block pt-lg pb-3xl relative hidden">
+          The reference this was built from pulls its wordmark up with a
+          negative top margin (-mt-52) so the giant text sits close under the
+          content above it instead of floating in its own dead space — the
+          section's own bottom padding (py-section on the Container, ~112px
+          here) was never meant to double as a gap in front of something else.
+          `-mt-20` cancels most of that padding back out, landing on a small,
+          deliberate gap rather than the ~136px that padding alone produced.
+
+          `pb-3xl` is a different fix, kept from before: this is the last
+          thing in the footer, so without it the glyphs sit flush against the
+          literal bottom edge of the page. */}
+      <div className="desktop:block pb-3xl relative -mt-20 hidden">
         <HoverWordmark text={SITE.name} className="h-48 w-full" />
       </div>
     </footer>
