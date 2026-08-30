@@ -146,18 +146,25 @@ export function Footer() {
           No theme wrapper needed here any more — it inherits the footer's own
           inverse context.
 
-          The reference this was built from pulls its wordmark up with a
-          negative top margin (-mt-52) so the giant text sits close under the
-          content above it instead of floating in its own dead space — the
-          section's own bottom padding (py-section on the Container, ~112px
-          here) was never meant to double as a gap in front of something else.
-          `-mt-20` cancels most of that padding back out, landing on a small,
-          deliberate gap rather than the ~136px that padding alone produced.
+          This now uses the reference's actual technique, not an avoidance of
+          it. Its wordmark box is far taller than the letters it holds, so
+          pulling the whole box up with a negative margin only ever eats into
+          blank space inside that box — the overlap never touches a glyph.
+          `h-72` against `h-48` of visible letters leaves 96px of headroom;
+          `-mt-32` (128px) pulls slightly more than that headroom back into
+          the section padding above, so the letters land close under the
+          copyright row without ever reaching it. Anything that still pokes
+          past the footer's own edge is caught by the `overflow-hidden`
+          already on <footer> — the same thing doing the work of the
+          reference's rounded, clipped card, without us needing to adopt that
+          card treatment ourselves.
 
-          `pb-3xl` is a different fix, kept from before: this is the last
-          thing in the footer, so without it the glyphs sit flush against the
-          literal bottom edge of the page. */}
-      <div className="desktop:block pb-3xl relative -mt-20 hidden">
+          The SVG is bottom-anchored inside the tall box (`items-end`) so it
+          is the *top* of the box — empty space — doing the overlapping, and
+          `pb-3xl` still guards the bottom edge: this is the last thing in the
+          footer, and without it the glyphs would sit flush against the
+          literal bottom of the page. */}
+      <div className="desktop:flex pb-3xl relative -mt-32 hidden h-72 items-end justify-center">
         <HoverWordmark text={SITE.name} className="h-48 w-full" />
       </div>
     </footer>
