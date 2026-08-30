@@ -6,90 +6,94 @@ import { MemberPortrait } from './MemberPortrait';
 
 interface MemberCardProps {
   member: ClubMember;
-  /** `lead` is the larger senior-core treatment. */
+  /** `lead` is the taller senior-core treatment. */
   size?: 'lead' | 'standard';
 }
 
 /**
- * One person: portrait, name, role, their line, and how to reach them.
+ * One person, in one card: portrait, name, position, their line — and their
+ * links on hover.
  *
- * Portraits are greyscale at rest and come to full colour on hover. That is
- * not a stylistic tic — a roster of a hundred photographs taken by different
- * people in different light looks like a jumble in colour, and greyscale is
- * what makes the grid read as one deliberate set. It also fits a site that has
- * no colour anywhere else, and gives the hover something to do.
+ * On hover the whole card takes the theme colour, exactly as the reference
+ * does in green. Ours is black, so the card fills black and its text flips to
+ * white: the hovered person is lifted out of the grid and everyone around them
+ * recedes. That single fill is doing what a coloured brand would do elsewhere.
  *
- * The social strip slides in over the portrait rather than sitting under the
- * name. Two links per card across a hundred cards would be two hundred small
- * targets competing with the names; on hover they belong to one person and
- * nothing else is asking to be clicked.
+ * The portrait sits inset inside the card rather than bleeding to its edge.
+ * That inset is what makes the fill read as a frame around the person instead
+ * of the card simply changing colour behind them.
  *
- * The links are real anchors, present in the DOM at all times and revealed by
- * opacity — so they are reachable by keyboard and readable by a screen reader
- * even though sighted users only see them on hover.
+ * Portraits are greyscale at rest and full colour on hover — a hundred
+ * photographs taken by different people in different light look like a jumble
+ * in colour, and greyscale is what makes the grid read as one deliberate set.
+ *
+ * The links are real anchors, in the DOM at all times and revealed by opacity,
+ * so keyboard users reach them and screen readers read them even though
+ * sighted users only see them on hover. Focus reveals the strip too, since
+ * keyboard users never fire a group hover.
  */
 export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
   const team = member.team ? findTeam(member.team) : undefined;
+  const position = member.role ?? team?.name ?? 'Member';
 
   return (
-    <article className="group flex flex-col">
+    <article
+      className={cn(
+        'group border-border bg-surface-raised relative flex h-full flex-col rounded-lg border p-2',
+        'duration-base ease-out-brand transition-[background-color,border-color,box-shadow]',
+        'hover:border-accent hover:bg-accent hover:shadow-lg',
+        'focus-within:border-accent focus-within:bg-accent',
+      )}
+    >
       <div
         className={cn(
-          'border-border bg-surface-raised relative overflow-hidden rounded-lg border',
-          'duration-base ease-out-brand transition-[border-color,box-shadow]',
-          'group-hover:border-border-strong group-hover:shadow-lg',
+          'relative overflow-hidden rounded-md',
           size === 'lead' ? 'aspect-[4/5]' : 'aspect-square',
         )}
       >
-        <div
-          className={cn(
-            'duration-slow ease-out-brand h-full w-full transition-[transform,filter]',
-            'grayscale group-hover:scale-[1.04] group-hover:grayscale-0',
-          )}
-        >
+        <div className="duration-slow ease-out-brand h-full w-full grayscale transition-[transform,filter] group-focus-within:grayscale-0 group-hover:scale-[1.04] group-hover:grayscale-0">
           <MemberPortrait member={member} />
         </div>
 
-        {/* Scrim only under the strip, so the portrait stays clean. */}
-        <span
-          aria-hidden="true"
-          className="duration-base ease-out-brand pointer-events-none absolute inset-0 bg-gradient-to-l from-black/45 to-transparent opacity-0 group-hover:opacity-100"
-        />
-
-        <ul className="gap-xs absolute top-3 right-3 flex flex-col">
+        {/* Vertical pill on the photograph's right edge, as in the reference. */}
+        <ul
+          className={cn(
+            'bg-accent-fg rounded-pill absolute top-1/2 right-2 flex -translate-y-1/2 flex-col gap-1 p-1 shadow-md',
+            'duration-base ease-out-brand translate-x-3 opacity-0 transition-[opacity,transform]',
+            'group-hover:translate-x-0 group-hover:opacity-100',
+            'group-focus-within:translate-x-0 group-focus-within:opacity-100',
+          )}
+        >
           {member.linkedin && (
-            <SocialLink
-              href={member.linkedin}
-              label={`${member.name} on LinkedIn`}
-              delay="delay-[40ms]"
-            >
-              <SocialIcon name="linkedin" size={16} />
-            </SocialLink>
+            <SocialPill href={member.linkedin} label={`${member.name} on LinkedIn`}>
+              <SocialIcon name="linkedin" size={15} />
+            </SocialPill>
           )}
           {member.email && (
-            <SocialLink
-              href={`mailto:${member.email}`}
-              label={`Email ${member.name}`}
-              delay="delay-[90ms]"
-            >
-              <SocialIcon name="mail" size={16} />
-            </SocialLink>
+            <SocialPill href={`mailto:${member.email}`} label={`Email ${member.name}`}>
+              <SocialIcon name="mail" size={15} />
+            </SocialPill>
           )}
         </ul>
       </div>
 
-      <div className="mt-md flex flex-col gap-0.5">
-        <h3 className={cn(size === 'lead' ? 'text-h3' : 'text-body font-semibold')}>
+      <div className="pt-md flex flex-1 flex-col gap-0.5 px-1.5 pb-1">
+        <h3
+          className={cn(
+            'duration-base group-hover:text-accent-fg group-focus-within:text-accent-fg transition-colors',
+            size === 'lead' ? 'text-h3' : 'text-body font-semibold',
+          )}
+        >
           {member.name}
         </h3>
 
-        <p className="text-small text-text-muted">
-          {member.role ?? team?.name ?? 'Member'}
-          {member.batch && <span className="text-text-subtle"> · {member.batch}</span>}
+        <p className="text-small text-text-muted duration-base group-hover:text-accent-fg/75 group-focus-within:text-accent-fg/75 transition-colors">
+          {position}
+          {member.batch && <span> · {member.batch}</span>}
         </p>
 
         {member.quote && (
-          <p className="text-caption text-text-muted mt-sm border-border border-l pl-3 italic">
+          <p className="text-caption text-text-muted border-border mt-sm duration-base group-hover:border-accent-fg/25 group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 border-l pl-3 italic transition-colors">
             “{member.quote}”
           </p>
         )}
@@ -98,15 +102,13 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
   );
 }
 
-function SocialLink({
+function SocialPill({
   href,
   label,
-  delay,
   children,
 }: {
   href: string;
   label: string;
-  delay: string;
   children: React.ReactNode;
 }) {
   const external = href.startsWith('http');
@@ -117,15 +119,7 @@ function SocialLink({
         href={href}
         aria-label={label}
         {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        className={cn(
-          'flex size-9 items-center justify-center rounded-md bg-white/15 text-white backdrop-blur-sm',
-          'duration-base ease-out-brand translate-x-2 opacity-0 transition-[opacity,transform,background-color]',
-          'hover:bg-white/30',
-          'group-hover:translate-x-0 group-hover:opacity-100',
-          // Keyboard users never trigger the group hover, so focus reveals it too.
-          'focus-visible:translate-x-0 focus-visible:opacity-100',
-          delay,
-        )}
+        className="text-accent hover:bg-surface duration-fast rounded-pill flex size-8 items-center justify-center transition-colors"
       >
         {children}
       </a>
