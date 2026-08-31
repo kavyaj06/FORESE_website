@@ -26,7 +26,13 @@ import { ForeseMark } from './ForeseMark';
  *    text. `data-theme="inverse"` makes it actually dark and flips every
  *    token-driven child with it.
  *
- * The wordmark keeps the reference's own `-mt-52 -mb-36` on a tall box: the
+ * The reference floats its card inset from every page edge; this one is
+ * full-bleed horizontally and only its top corners are rounded, so it meets
+ * the viewport's sides and bottom and the page appears to slide under it. The
+ * inner container keeps `max-w-content`, so the columns stay on the same
+ * measure as every other section rather than spreading to the screen edge.
+ *
+ * The wordmark keeps the reference's own `-mt-52` on a tall box: the
  * overlap is absorbed by blank space inside that box, and the card's
  * `overflow-hidden` crops whatever still runs past the rounded edge.
  */
@@ -45,7 +51,7 @@ export function Footer() {
   return (
     <footer
       data-theme="inverse"
-      className="bg-bg relative isolate m-8 mt-auto h-fit overflow-hidden rounded-3xl"
+      className="bg-bg relative isolate mt-auto h-fit overflow-hidden rounded-t-3xl"
     >
       {/* Behind everything: the reference's radial wash. */}
       <div aria-hidden="true" className="bg-footer-glow absolute inset-0 z-0" />
