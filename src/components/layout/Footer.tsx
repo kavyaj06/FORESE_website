@@ -33,9 +33,15 @@ import { ForeseMark } from './ForeseMark';
  * inner container keeps `max-w-content`, so the columns stay on the same
  * measure as every other section rather than spreading to the screen edge.
  *
- * The wordmark keeps the reference's own `-mt-52` on a tall box: the
- * overlap is absorbed by blank space inside that box, and the card's
- * `overflow-hidden` crops whatever still runs past the rounded edge.
+ * The wordmark keeps the reference's own `-mt-52` on a tall box: the overlap
+ * is absorbed by blank space inside that box, and the card's `overflow-hidden`
+ * crops whatever still runs past the bottom edge.
+ *
+ * How much it crops is a legibility constraint, not a taste one. The negative
+ * bottom margin was deep enough to cut 40% off the letterforms, at which point
+ * both E's lost their lower arm and read as F's — the wordmark spelled
+ * something else. It is now a ~10% bleed: still clearly running off the edge,
+ * but every letter is identifiable.
  */
 
 const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
@@ -171,7 +177,7 @@ export function Footer() {
           hovered or clicked at all. Underneath, the overlap is inert and the
           letterforms, which sit at the bottom of the box, are still exposed to
           the cursor for their own reveal. */}
-      <div className="desktop:flex -mt-52 -mb-28 hidden h-[30rem]">
+      <div className="desktop:flex -mt-52 -mb-8 hidden h-[30rem]">
         <HoverWordmark text={SITE.name} className="z-0" />
       </div>
     </footer>
