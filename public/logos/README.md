@@ -25,6 +25,17 @@ deliberate side by side. One scale factor is applied to both axes, so nothing is
 ever stretched. **Do not** pre-scale the files to match each other.
 
 The one thing that does matter: **trim the artboard.** If an SVG's `viewBox`
-carries a wide transparent margin, that margin is measured as part of the logo
-and the mark inside it shrinks to compensate, so it will look smaller than its
-neighbours. Crop the `viewBox` to the visible mark.
+carries a transparent margin, that margin is measured as part of the logo and
+the mark shrinks to compensate. This is not hypothetical — HCLTech arrived with
+its ink filling only 51% of its artboard height and drew at 23px against
+Amazon's 44px. Cropping the `viewBox` to the ink fixed it without touching the
+artwork. To find the ink box, open the file in a browser and call `getBBox()` on
+the root `<svg>`.
+
+## Optical size
+
+Trimming gets every logo to a fair fit, but a fair fit is not the same apparent
+size: a 3.3:1 mark and a 5.6:1 mark both filling 150px of width end up 45px and
+27px tall. `logoScale` in `src/pages/mock-placements/data.ts` pulls them back
+towards equal optical area. It is never above 1 — 1 is already the edge of the
+slot — and it is set by eye after measuring.

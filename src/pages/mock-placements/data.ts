@@ -68,22 +68,66 @@ export interface MockPlacementCompany {
   name: string;
   /** Path under `public/`. Falls back to the name as text when absent. */
   logo?: string;
+  /**
+   * Optical size, 0–1, applied after the artwork is fitted to its slot.
+   *
+   * Fitting every logo to the same box does not make them look the same size.
+   * Measured in the browser: with the artboards trimmed to their ink, Amazon
+   * lands 45px tall and Cognizant 27px, because one is 3.3:1 and the other
+   * 5.6:1 — both correct, and 1.67x apart. These values pull them back towards
+   * equal optical area, which is the closest thing to equal weight a number
+   * can express. Set by eye from the measurement; never above 1, because 1 is
+   * already the edge of the slot.
+   */
+  logoScale?: number;
   /** Official site. Opened in a new tab from the carousel. */
   website: string;
 }
 
 export const MOCK_PLACEMENT_COMPANIES: MockPlacementCompany[] = [
-  { name: 'Cognizant', logo: '/logos/cognizant.svg', website: 'https://www.cognizant.com/in/en' },
+  {
+    name: 'Cognizant',
+    logo: '/logos/cognizant.svg',
+    logoScale: 1,
+    website: 'https://www.cognizant.com/in/en',
+  },
   { name: 'Zoho', logo: '/logos/zoho.svg', website: 'https://www.zoho.com/' },
-  { name: 'Amazon', logo: '/logos/amazon.svg', website: 'https://www.amazon.in/' },
+  { name: 'Amazon', logo: '/logos/amazon.svg', logoScale: 0.78, website: 'https://www.amazon.in/' },
   { name: 'L&T', logo: '/logos/lnt.svg', website: 'https://www.lnt.in/' },
-  { name: 'HCLTech', logo: '/logos/hcltech.svg', website: 'https://www.hcltech.com/' },
+  {
+    name: 'HCLTech',
+    logo: '/logos/hcltech.svg',
+    logoScale: 1,
+    website: 'https://www.hcltech.com/',
+  },
   { name: 'TCS', logo: '/logos/tcs.svg', website: 'https://www.tcs.com/' },
   { name: 'Wipro', logo: '/logos/wipro.svg', website: 'https://www.wipro.com/' },
   { name: 'Freshworks', logo: '/logos/freshworks.svg', website: 'https://www.freshworks.com/' },
-  { name: 'Capgemini', logo: '/logos/capgemini.svg', website: 'https://www.capgemini.com/' },
-  { name: 'Accenture', logo: '/logos/accenture.svg', website: 'https://www.accenture.com/in-en' },
+  {
+    name: 'Capgemini',
+    logo: '/logos/capgemini.svg',
+    logoScale: 0.9,
+    website: 'https://www.capgemini.com/',
+  },
+  {
+    name: 'Accenture',
+    logo: '/logos/accenture.svg',
+    logoScale: 0.83,
+    website: 'https://www.accenture.com/in-en',
+  },
 ];
+
+/**
+ * The shape the carousel wants, built once. Mapping inline in the JSX gave the
+ * array a new identity on every render, which tore down and re-ran both of the
+ * carousel's effects — including the one that owns the canvas.
+ */
+export const MOCK_PLACEMENT_CAROUSEL_LOGOS = MOCK_PLACEMENT_COMPANIES.map((company) => ({
+  name: company.name,
+  src: company.logo,
+  href: company.website,
+  scale: company.logoScale,
+}));
 
 export const MOCK_PLACEMENTS_COMPANIES_TITLE = 'Companies on the panels';
 

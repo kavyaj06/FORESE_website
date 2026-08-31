@@ -9,6 +9,12 @@ export interface CarouselLogo {
   src?: string;
   /** Official site. Clicking the logo opens it in a new tab. */
   href?: string;
+  /**
+   * Optical size, 0–1, applied after the fit. Fitting every logo to the same
+   * box does not make them look the same size; see the note in the mock
+   * placements data, where the values live.
+   */
+  scale?: number;
 }
 
 interface LogoCarousel3DProps {
@@ -258,13 +264,13 @@ export function LogoCarousel3D({
             // `object-fit: contain`, done by hand: one scale factor for both
             // axes, so a wordmark and a monogram both shrink until whichever
             // axis binds first fits, and neither is ever distorted.
-            const natural = tile.image.naturalWidth / tile.image.naturalHeight;
-            const fit = Math.min(
-              logoMaxWidth / tile.image.naturalWidth,
-              logoMaxHeight / tile.image.naturalHeight,
-            );
+            const fit =
+              Math.min(
+                logoMaxWidth / tile.image.naturalWidth,
+                logoMaxHeight / tile.image.naturalHeight,
+              ) * (tile.logo.scale ?? 1);
             const w = tile.image.naturalWidth * fit;
-            const h = w / natural;
+            const h = tile.image.naturalHeight * fit;
             ctx.drawImage(tile.image, -w / 2, -h / 2, w, h);
           } else {
             ctx.fillStyle = colour;

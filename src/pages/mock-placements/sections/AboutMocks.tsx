@@ -7,7 +7,7 @@ import { LogoCarousel3D } from '@/components/motion/LogoCarousel3D';
 import {
   MOCK_PLACEMENTS_ABOUT,
   MOCK_PLACEMENTS_COMPANIES_TITLE,
-  MOCK_PLACEMENT_COMPANIES,
+  MOCK_PLACEMENT_CAROUSEL_LOGOS,
 } from '../data';
 
 /**
@@ -83,14 +83,7 @@ export function AboutMocks() {
         <p className="text-eyebrow text-text-subtle px-gutter mb-lg text-center uppercase">
           {MOCK_PLACEMENTS_COMPANIES_TITLE}
         </p>
-        <LogoCarousel3D
-          logos={MOCK_PLACEMENT_COMPANIES.map((company) => ({
-            name: company.name,
-            src: company.logo,
-            href: company.website,
-          }))}
-          className="text-text-muted"
-        />
+        <LogoCarousel3D logos={MOCK_PLACEMENT_CAROUSEL_LOGOS} className="text-text-muted" />
       </div>
     </section>
   );
