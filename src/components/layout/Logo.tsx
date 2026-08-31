@@ -31,12 +31,19 @@ export function Logo({ className }: LogoProps) {
     <Link
       to="/"
       aria-label={`${SITE.name} — home`}
-      // `w-fit` and `self-start` matter: inside a flex column the link would
-      // otherwise stretch to the container's full width, leaving a click
-      // target hundreds of pixels wide that navigates home from empty space.
-      className="duration-fast ease-out-brand inline-flex w-fit shrink-0 items-center self-start transition-opacity hover:opacity-70"
+      // `w-fit` stops the link stretching to its container's full width inside
+      // the footer's flex column, which left a click target hundreds of pixels
+      // wide that navigated home from empty space. It has to be `w-fit` alone:
+      // `self-start` also fixes that, but it overrides the header row's
+      // `items-center` and pins the logo to the top of the bar instead.
+      className="duration-fast ease-out-brand inline-flex w-fit shrink-0 items-center transition-opacity hover:opacity-70"
     >
-      <ForeseMark className={cn('h-9 w-auto', className)} />
+      {/* h-12, not something smaller: only about a third of this artwork's
+          height is letterforms — the rest is the tall rule and its crossbars.
+          At 36px the word rendered at an 12px cap height, noticeably smaller
+          than the text wordmark it replaced. 48px puts the cap back at ~16px,
+          level with the `text-h3` lockup that was here before. */}
+      <ForeseMark className={cn('h-12 w-auto', className)} />
     </Link>
   );
 }
