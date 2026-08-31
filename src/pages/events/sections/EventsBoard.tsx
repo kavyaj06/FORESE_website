@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { Tilt3D } from '@/components/motion/Tilt3D';
-import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { eventStatus, groupEventsByStatus, type ForeseEvent } from '@/data/events';
 import { albumFor } from '@/pages/gallery/data';
@@ -21,15 +20,14 @@ const PAGE_SIZE = 5;
  *
  * It is no longer information, so it should be gone rather than performed —
  * a reversed stagger on the way out just makes every filter click feel slow.
- * The incoming list fades in behind it over a slightly longer beat, so the two
- * share the same grid cell without the reader ever seeing two sets of text
- * stacked on each other.
+ * The incoming rows hold back by the same 0.16s before they begin, so the two
+ * lists share the same grid cell without the reader ever seeing two sets of
+ * text stacked on each other.
  *
- * Note this is the *list's* animation, and the only one on a clock. Each row's
- * own reveal is bound to scroll position instead — see `ScrollRevealRow`.
+ * This is the only animation the list owns. Each row reveals itself — from its
+ * scroll position, and from having just mounted. See `ScrollRevealRow`.
  */
 const LIST_EXIT = { opacity: 0, y: -12, transition: { duration: 0.16, ease: 'easeIn' } } as const;
-const LIST_ENTER = { duration: 0.28, delay: 0.12, ease: EASE_OUT_BRAND } as const;
 
 /**
  * Hover carries its own transition. A spring is right here because it answers
@@ -135,16 +133,14 @@ export function EventsBoard() {
                 // position to its new one. Correct behaviour, wrong effect.
                 // Switching a filter is a replacement, not a rearrangement.
                 key={`${filter}-${safePage}`}
-                // The list animates only itself. Rows are revealed by scroll
-                // position, not by the list, so there is nothing here to
-                // orchestrate.
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={LIST_ENTER}
+                // Only the exit lives here. The incoming list is revealed by
+                // its rows, which stagger themselves — fading the whole list
+                // in on top of that would flatten the cascade back into the
+                // single blink it exists to remove.
                 exit={prefersReducedMotion ? { opacity: 0 } : LIST_EXIT}
                 className="gap-md flex flex-col [grid-area:1/1]"
               >
-                {visible.map((event) => (
+                {visible.map((event, index) => (
                   <motion.li
                     key={event.id}
                     // Hover lives on the row wrapper, outside both the scroll
@@ -152,7 +148,7 @@ export function EventsBoard() {
                     // fighting for the same transform.
                     whileHover={prefersReducedMotion ? undefined : HOVER}
                   >
-                    <ScrollRevealRow>
+                    <ScrollRevealRow index={index}>
                       <Tilt3D max={3} perspective={1600} liftZ={14}>
                         <EventRow
                           event={event}
