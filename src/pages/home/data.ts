@@ -16,7 +16,7 @@ export const HOME_HERO = {
   accent: 'hire',
   titleAfter: 'them.',
   description:
-    'FORESE runs the mock placements at Sri Venkateswara College of Engineering to connect students with HRs from leading companies through aptitude tests, group discussions and interviews — before the real ones that count.',
+    'FORESE runs the mock placements at Sri Venkateswara College of Engineering to connect students with HRs from leading companies through aptitude tests, group discussions and interviews, before the real ones that count.',
   actions: {
     primary: { label: 'How it works', to: '/mocks' },
     secondary: { label: 'See the gallery', to: '/gallery' },
@@ -104,7 +104,7 @@ export const HOME_PILLARS = [
 export const HOME_EVENTS = {
   eyebrow: 'Upcoming',
   title: 'What is next',
-  description: 'Conducted for every pre-final year student — no sign-up needed.',
+  description: 'Conducted for every pre-final year student. No sign-up needed.',
   emptyMessage: 'Nothing scheduled right now. The next mock placements are announced here first.',
 } as const;
 

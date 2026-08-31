@@ -30,7 +30,7 @@ export function Logo({ className }: LogoProps) {
   return (
     <Link
       to="/"
-      aria-label={`${SITE.name} — home`}
+      aria-label={`${SITE.name} home`}
       // `w-fit` stops the link stretching to its container's full width inside
       // the footer's flex column, which left a click target hundreds of pixels
       // wide that navigated home from empty space. It has to be `w-fit` alone:

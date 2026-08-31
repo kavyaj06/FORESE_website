@@ -12,7 +12,7 @@ import { SITE } from '@/data/site';
  * not a different runtime approach.
  */
 export function applyPageMeta(title: string, description: string): void {
-  document.title = title === SITE.name ? SITE.name : `${title} — ${SITE.name}`;
+  document.title = title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
 
   setMetaTag('name', 'description', description);
   setMetaTag('property', 'og:title', document.title);

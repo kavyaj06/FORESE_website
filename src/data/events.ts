@@ -156,7 +156,7 @@ export const EVENTS: ForeseEvent[] = [
     venue: 'Vivekananda Auditorium, CEG',
     name: 'Mock Placements 2026',
     date: '2026-09-19',
-    blurb: 'The full rehearsal — aptitude, group discussion and interview panels.',
+    blurb: 'The full rehearsal: aptitude, group discussion and interview panels.',
   },
   {
     id: 'corporate-connect-2026',

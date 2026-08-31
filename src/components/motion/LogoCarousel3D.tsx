@@ -5,16 +5,29 @@ import { cn } from '@/lib/cn';
 export interface CarouselLogo {
   /** Company name. Drawn as text when no artwork is supplied, and always the accessible label. */
   name: string;
-  /** Path under `public/`. Optional — see the note on the fallback below. */
+  /** Path under `public/`. Optional; see the note on the fallback below. */
   src?: string;
+  /** Official site. Clicking the logo opens it in a new tab. */
+  href?: string;
 }
 
 interface LogoCarousel3DProps {
   logos: CarouselLogo[];
   className?: string;
-  /** Height of a logo at full scale, in CSS px. */
-  maxHeight?: number;
-  /** Horizontal space between logos, in CSS px. */
+  /**
+   * The slot every logo is drawn into, and the box the artwork is fitted
+   * inside it. Identical for all ten, which is the whole point: these logos
+   * range from a near-square monogram to a wordmark five times wider than it
+   * is tall, and sizing each one independently would make the row read as a
+   * jumble. The slot is fixed; the artwork is scaled down to fit inside it on
+   * whichever axis binds first and centred in what is left. Nothing is ever
+   * stretched, because one scale factor is applied to both axes.
+   */
+  slotWidth?: number;
+  slotHeight?: number;
+  logoMaxWidth?: number;
+  logoMaxHeight?: number;
+  /** Horizontal space between slots, in CSS px. */
   gap?: number;
   /** Scale at the edge of the strip, and at its centre. The depth illusion. */
   minScale?: number;
@@ -82,8 +95,11 @@ interface Tile {
 export function LogoCarousel3D({
   logos,
   className,
-  maxHeight = 44,
-  gap = 72,
+  slotWidth = 180,
+  slotHeight = 80,
+  logoMaxWidth = 150,
+  logoMaxHeight = 55,
+  gap = 24,
   minScale = 0.55,
   maxScale = 1,
   maxBlur = 2,
@@ -161,7 +177,7 @@ export function LogoCarousel3D({
 
     const styles = getComputedStyle(canvas);
     const colour = styles.color;
-    const fontSize = Math.round(maxHeight * 0.52);
+    const fontSize = Math.round(logoMaxHeight * 0.42);
     const font = `600 ${fontSize}px ${styles.fontFamily}`;
 
     // A coarse pointer means a phone: no hover to pause on, and the tightest
@@ -177,7 +193,7 @@ export function LogoCarousel3D({
     const layout = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       width = wrap.clientWidth;
-      height = Math.ceil(maxHeight * maxScale + 8);
+      height = Math.ceil(slotHeight * maxScale + 8);
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       canvas.style.height = `${height}px`;
@@ -187,11 +203,10 @@ export function LogoCarousel3D({
       let x = 0;
       tilesRef.current = logos.map((logo) => {
         const image = (logo.src && imagesRef.current.get(logo.src)) || null;
-        const w = image
-          ? (image.naturalWidth / image.naturalHeight) * maxHeight
-          : ctx.measureText(logo.name).width;
-        const tile: Tile = { logo, image, width: w, offset: x };
-        x += w + gap;
+        // Every slot is the same width. The artwork inside it is not measured
+        // for layout at all — only for how far it has to shrink to fit.
+        const tile: Tile = { logo, image, width: slotWidth, offset: x };
+        x += slotWidth + gap;
         return tile;
       });
       totalRef.current = x;
@@ -240,7 +255,17 @@ export function LogoCarousel3D({
           ctx.scale(scale, scale);
 
           if (tile.image) {
-            ctx.drawImage(tile.image, -tile.width / 2, -maxHeight / 2, tile.width, maxHeight);
+            // `object-fit: contain`, done by hand: one scale factor for both
+            // axes, so a wordmark and a monogram both shrink until whichever
+            // axis binds first fits, and neither is ever distorted.
+            const natural = tile.image.naturalWidth / tile.image.naturalHeight;
+            const fit = Math.min(
+              logoMaxWidth / tile.image.naturalWidth,
+              logoMaxHeight / tile.image.naturalHeight,
+            );
+            const w = tile.image.naturalWidth * fit;
+            const h = w / natural;
+            ctx.drawImage(tile.image, -w / 2, -h / 2, w, h);
           } else {
             ctx.fillStyle = colour;
             ctx.textAlign = 'center';
@@ -281,7 +306,29 @@ export function LogoCarousel3D({
     const onEnter = () => pauseOnHover && !coarse && (pausedRef.current = true);
     const onLeave = () => (pausedRef.current = false);
 
+    /**
+     * Which logo sits under a given x on the canvas, or null.
+     *
+     * The strip is one element, so there is nothing for the browser to
+     * hit-test against. It is done here instead, against the same offsets the
+     * draw loop uses: take the pointer's x into the strip's own coordinates,
+     * wrap it into the loop's length, and find the slot containing it.
+     */
+    const logoAt = (clientX: number): CarouselLogo | null => {
+      const total = totalRef.current;
+      if (!total) return null;
+      const relX = clientX - canvas.getBoundingClientRect().left;
+      const worldX = (((offsetRef.current + relX) % total) + total) % total;
+      const tile = tilesRef.current.find((t) => worldX >= t.offset && worldX <= t.offset + t.width);
+      return tile?.logo ?? null;
+    };
+
+    let downX = 0;
+    let moved = 0;
+
     const onDown = (event: PointerEvent) => {
+      downX = event.clientX;
+      moved = 0;
       if (!enableDrag) return;
       draggingRef.current = true;
       velocityRef.current = 0;
@@ -289,16 +336,29 @@ export function LogoCarousel3D({
       canvas.setPointerCapture(event.pointerId);
     };
     const onMove = (event: PointerEvent) => {
-      if (!draggingRef.current) return;
+      if (!draggingRef.current) {
+        // The cursor answers only where there is something to open.
+        const over = logoAt(event.clientX);
+        canvas.style.cursor = over?.href ? 'pointer' : enableDrag ? 'grab' : 'default';
+        return;
+      }
+      moved = Math.max(moved, Math.abs(event.clientX - downX));
       const dx = event.clientX - lastXRef.current;
       lastXRef.current = event.clientX;
       offsetRef.current -= dx;
       velocityRef.current = dx;
     };
     const onUp = (event: PointerEvent) => {
-      if (!draggingRef.current) return;
-      draggingRef.current = false;
-      canvas.releasePointerCapture(event.pointerId);
+      if (draggingRef.current) {
+        draggingRef.current = false;
+        canvas.releasePointerCapture(event.pointerId);
+      }
+      // A drag that happens to end over a logo is not a click on it. Five
+      // pixels is the usual threshold, and it matters most on a touchscreen,
+      // where every swipe ends on something.
+      if (moved > 5) return;
+      const logo = logoAt(event.clientX);
+      if (logo?.href) window.open(logo.href, '_blank', 'noopener,noreferrer');
     };
 
     wrap.addEventListener('pointerenter', onEnter);
@@ -323,7 +383,10 @@ export function LogoCarousel3D({
     logos,
     ready,
     prefersReducedMotion,
-    maxHeight,
+    slotWidth,
+    slotHeight,
+    logoMaxWidth,
+    logoMaxHeight,
     gap,
     minScale,
     maxScale,
@@ -349,16 +412,24 @@ export function LogoCarousel3D({
 
   return (
     <div ref={wrapRef} className={cn('relative w-full', className)}>
-      <canvas
-        ref={canvasRef}
-        aria-hidden="true"
-        className={cn('block w-full', enableDrag && 'cursor-grab active:cursor-grabbing')}
-      />
-      {/* The canvas has no content assistive technology can reach, so the same
-          list is here as text, visually hidden. */}
-      <ul className="sr-only">
+      <canvas ref={canvasRef} aria-hidden="true" className="block w-full" />
+      {/* A canvas has no content assistive technology can reach and nothing a
+          keyboard can focus, so the same companies are here as real links.
+          `focus:not-sr-only` rather than plain `sr-only`: a focusable element
+          that stays invisible sends a keyboard user's focus somewhere they
+          cannot see. Same pattern as the skip link in RootLayout. */}
+      <ul className="gap-xs flex flex-wrap justify-center">
         {logos.map((logo) => (
-          <li key={logo.name}>{logo.name}</li>
+          <li key={logo.name}>
+            <a
+              href={logo.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-caption focus:ring-accent sr-only focus:not-sr-only focus:rounded-md focus:px-2 focus:py-1 focus:ring-2"
+            >
+              {logo.name}
+            </a>
+          </li>
         ))}
       </ul>
     </div>

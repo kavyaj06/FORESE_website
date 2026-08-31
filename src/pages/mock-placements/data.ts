@@ -20,7 +20,7 @@ export const MOCK_PLACEMENTS_INTRO = {
   eyebrow: 'How it works',
   title: 'From first call to final interview',
   description:
-    'Mock placements run in six stages. The first two are the work the team does before any student sits down — finding the professionals who will sit on the panels. The rest is the process students go through.',
+    'Mock placements run in six stages. The first two are the work the team does before any student sits down: finding the professionals who will sit on the panels. The rest is the process students go through.',
 } as const;
 
 /**
@@ -39,9 +39,9 @@ export const MOCK_PLACEMENTS_ABOUT = {
   eyebrow: 'What it is',
   title: 'Bridging talent with opportunity',
   paragraphs: [
-    "FORESE's Mock Placements is the flagship annual initiative of Sri Venkateswara College of Engineering, built to prepare pre-final year students from every discipline for the challenges of their placement journey. Run in both online and offline modes, it is a full simulation of the recruitment process — aptitude tests, group discussions and personal interviews — giving students an authentic taste of real placement dynamics in a competitive but supportive environment.",
+    "FORESE's Mock Placements is the flagship annual initiative of Sri Venkateswara College of Engineering, built to prepare pre-final year students from every discipline for the challenges of their placement journey. Run in both online and offline modes, it is a full simulation of the recruitment process: aptitude tests, group discussions and personal interviews, giving students an authentic taste of real placement dynamics in a competitive but supportive environment.",
     'In 2025 the programme reached new heights, with over 130 HR professionals and industry experts taking part. They did not only assess students. They mentored them, with insights and personal feedback that sharpened their skills, built their confidence and strengthened their readiness for what comes next.',
-    'Over the years Mock Placements has grown into a platform that equips students with the technical expertise, the interpersonal skill and the mindset to perform under pressure — and FORESE, alongside the college, keeps pushing it further each year.',
+    'Over the years Mock Placements has grown into a platform that equips students with the technical expertise, the interpersonal skill and the mindset to perform under pressure, and FORESE, alongside the college, keeps pushing it further each year.',
   ],
   /** Figures pulled out of the prose so they register without being read for. */
   figures: [
@@ -54,34 +54,35 @@ export const MOCK_PLACEMENTS_ABOUT = {
 /**
  * Companies whose HRs have sat on the mock placement panels.
  *
- * ⚠️ Taken from the existing FORESE site's own "Companies that have
- * participated" strip, so the names are the club's claim rather than mine —
- * but worth confirming before launch, because naming a company that has not
- * taken part is a claim about them, not just about us.
+ * ⚠️ Worth confirming before launch: naming a company that has not taken part
+ * is a claim about them, not just about us.
  *
- * `logo` is intentionally absent. These are trademarks: the artwork has to be
- * the real file, obtained deliberately, not something approximated. Until a
- * file is dropped into `public/logos/` and named here, the carousel sets the
- * company name in the page's own typeface and behaves identically otherwise —
- * so the strip is complete now and gets better one company at a time.
+ * `logo` points at a file that must be the company's own official artwork.
+ * These are trademarks; approximating one is worse than showing none, so the
+ * carousel sets the company name in the page's own typeface whenever a file is
+ * missing and behaves identically in every other respect. Drop the real files
+ * into `public/logos/` under the names below and they appear with no code
+ * change.
  */
 export interface MockPlacementCompany {
   name: string;
-  /** Path under `public/`, e.g. `/logos/zoho.svg`. */
+  /** Path under `public/`. Falls back to the name as text when absent. */
   logo?: string;
+  /** Official site. Opened in a new tab from the carousel. */
+  website: string;
 }
 
 export const MOCK_PLACEMENT_COMPANIES: MockPlacementCompany[] = [
-  { name: 'Zoho' },
-  { name: 'Amazon' },
-  { name: 'L&T' },
-  { name: 'HCL' },
-  { name: 'TCS' },
-  { name: 'Wipro' },
-  { name: 'Freshworks' },
-  { name: 'Capgemini' },
-  { name: 'Accenture' },
-  { name: 'Cognizant' },
+  { name: 'Cognizant', logo: '/logos/cognizant.svg', website: 'https://www.cognizant.com/in/en' },
+  { name: 'Zoho', logo: '/logos/zoho.svg', website: 'https://www.zoho.com/' },
+  { name: 'Amazon', logo: '/logos/amazon.svg', website: 'https://www.amazon.in/' },
+  { name: 'L&T', logo: '/logos/lnt.svg', website: 'https://www.lnt.in/' },
+  { name: 'HCLTech', logo: '/logos/hcltech.svg', website: 'https://www.hcltech.com/' },
+  { name: 'TCS', logo: '/logos/tcs.svg', website: 'https://www.tcs.com/' },
+  { name: 'Wipro', logo: '/logos/wipro.svg', website: 'https://www.wipro.com/' },
+  { name: 'Freshworks', logo: '/logos/freshworks.svg', website: 'https://www.freshworks.com/' },
+  { name: 'Capgemini', logo: '/logos/capgemini.svg', website: 'https://www.capgemini.com/' },
+  { name: 'Accenture', logo: '/logos/accenture.svg', website: 'https://www.accenture.com/in-en' },
 ];
 
 export const MOCK_PLACEMENTS_COMPANIES_TITLE = 'Companies on the panels';
@@ -111,7 +112,7 @@ export const PROCESS_STEPS: ProcessStep[] = [
     id: 'contact-collection',
     title: 'Contact collection',
     description:
-      'The team builds the list the whole process depends on — HR and talent-acquisition contacts across companies, gathered through alumni, past recruiters and industry connections.',
+      'The team builds the list the whole process depends on: HR and talent-acquisition contacts across companies, gathered through alumni, past recruiters and industry connections.',
     icon: Contact,
   },
   {

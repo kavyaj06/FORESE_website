@@ -20,7 +20,7 @@ export function PhasePlaceholder({ phase, awaiting }: PhasePlaceholderProps) {
   return (
     <Container className="py-section">
       <Card className="border-dashed">
-        <p className="text-eyebrow text-text-subtle uppercase">{phase} — not yet built</p>
+        <p className="text-eyebrow text-text-subtle uppercase">{phase} not yet built</p>
         <p className="text-body text-text-muted mt-sm">{awaiting}</p>
       </Card>
     </Container>

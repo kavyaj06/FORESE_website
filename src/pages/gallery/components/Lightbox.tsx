@@ -68,7 +68,7 @@ export function Lightbox({ photos, index, eventName, onClose, onIndexChange }: L
       open={open}
       onClose={onClose}
       variant="bare"
-      title={`${eventName} — photograph ${index + 1} of ${total}`}
+      title={`${eventName}: photograph ${index + 1} of ${total}`}
       className="max-w-content items-center gap-4"
     >
       <div className="relative flex w-full items-center justify-center">
