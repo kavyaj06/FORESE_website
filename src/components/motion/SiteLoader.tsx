@@ -6,9 +6,19 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { useScrollLock } from '@/hooks/useScrollLock';
 
 /** Never hold the page for longer than this, whatever is still loading. */
-const MAX_MS = 2200;
-/** Below this the curtain is a flash, which looks like a glitch. */
-const MIN_MS = 700;
+const MAX_MS = 2400;
+/** Seconds. How long the logo takes to wipe in from the left. */
+const REVEAL_S = 0.9;
+/**
+ * Below this the curtain is a flash, which looks like a glitch — and now also
+ * long enough for the logo wipe to actually finish plus a short beat on the
+ * finished mark. Without the floor covering the reveal, a warm cache lifts the
+ * curtain mid-wipe and the animation is never seen.
+ *
+ * This is the real cost of a preloader: every visitor waits this long even when
+ * nothing needs loading. Kept as tight as the animation allows.
+ */
+const MIN_MS = REVEAL_S * 1000 + 350;
 
 interface SiteLoaderProps {
   onDone: () => void;
@@ -101,7 +111,22 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
             }
             className="gap-2xl flex flex-col items-center"
           >
-            <Logo className="h-16" />
+            {/* The logo wipes in from the left rather than fading. Measured
+                the reference frame by frame to check which it was: its left
+                half brightened and settled while the right half stayed flat,
+                then the right followed — a directional reveal, not a fade.
+                `clip-path` gives exactly that and animates on the compositor.
+                Reduced motion gets a plain fade instead of a moving edge. */}
+            <motion.div
+              initial={prefersReducedMotion ? { opacity: 0 } : { clipPath: 'inset(0 100% 0 0)' }}
+              animate={prefersReducedMotion ? { opacity: 1 } : { clipPath: 'inset(0 0% 0 0)' }}
+              transition={{
+                duration: prefersReducedMotion ? 0.3 : REVEAL_S,
+                ease: EASE_OUT_BRAND,
+              }}
+            >
+              <Logo className="h-16" />
+            </motion.div>
 
             <div className="gap-sm flex w-56 flex-col">
               <div className="bg-border h-px w-full overflow-hidden">
