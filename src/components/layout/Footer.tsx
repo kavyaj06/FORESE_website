@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom';
+import { cn } from '@/lib/cn';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { footerRoutes } from '@/app/routes';
-import { CONTACT, LOCATION, SITE, SOCIAL_LINKS } from '@/data/site';
+import { CONTACT, LOCATION, LOCATION_URL, SITE, SOCIAL_LINKS } from '@/data/site';
 import { SocialLinkIcon } from './SocialLinkIcon';
 import { HoverWordmark } from '@/components/motion/HoverWordmark';
 import { ForeseMark } from './ForeseMark';
@@ -115,13 +116,22 @@ export function Footer() {
             {LOCATION.length > 0 ? (
               <address className="flex space-x-3 not-italic">
                 <MapPin size={18} className="text-accent-blue mt-1 shrink-0" aria-hidden="true" />
-                <span className="text-small text-text-muted">
+                {/* The whole address is the link, not a separate "view on
+                    map" line beneath it — an address on a site like this is
+                    only ever there to be found, so making the text itself the
+                    target saves a row and a redundant label. */}
+                <a
+                  href={LOCATION_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(COLUMN_LINK, 'text-small')}
+                >
                   {LOCATION.map((line) => (
                     <span key={line} className="block">
                       {line}
                     </span>
                   ))}
-                </span>
+                </a>
               </address>
             ) : (
               <Pending what="Address" />
