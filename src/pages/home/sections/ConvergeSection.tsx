@@ -5,6 +5,7 @@ import { AccentWord } from '@/components/motion/AccentWord';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { GALLERY_ALBUMS } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
+import { PillarCircles } from '../components/PillarCircles';
 
 /**
  * The scroll-scrubbed centrepiece.
@@ -55,6 +56,7 @@ export function ConvergeSection() {
       <section className="border-border bg-surface py-section border-y">
         <Container>
           <Heading />
+          <PillarCircles progress={progress} reduced />
         </Container>
       </section>
     );
@@ -101,6 +103,11 @@ export function ConvergeSection() {
           <motion.div style={{ scale: headingScale, opacity: headingOpacity }}>
             <Heading />
           </motion.div>
+
+          {/* Outside the scaling wrapper on purpose: the heading grows into
+              place as the section is scrubbed, and rings inherited that scale
+              would draw at a size that is still changing. */}
+          <PillarCircles progress={progress} reduced={false} />
         </Container>
       </section>
     </div>
@@ -114,13 +121,13 @@ export function ConvergeSection() {
  */
 function Heading() {
   return (
-    <div className="gap-lg mx-auto flex max-w-[44rem] flex-col items-center text-center">
+    <div className="gap-md mx-auto flex max-w-[52rem] flex-col items-center text-center">
       <p className="text-eyebrow text-text-subtle uppercase">{HOME_CONVERGE.eyebrow}</p>
       <h2 className="text-h1">
         {HOME_CONVERGE.titleBefore} <AccentWord>{HOME_CONVERGE.accent}</AccentWord>{' '}
         {HOME_CONVERGE.titleAfter}
       </h2>
-      <p className="text-body-lg text-text-muted max-w-[46ch]">{HOME_CONVERGE.description}</p>
+      <p className="text-body text-text-muted max-w-[68ch]">{HOME_CONVERGE.description}</p>
     </div>
   );
 }

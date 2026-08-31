@@ -1,3 +1,5 @@
+import { Briefcase, Compass, GraduationCap, Presentation, RadioTower } from 'lucide-react';
+
 /**
  * Home — page content.
  *
@@ -44,12 +46,53 @@ export const HOME_STATS = [
 
 export const HOME_CONVERGE = {
   eyebrow: 'Why it exists',
-  titleBefore: 'The first recruiter you face should not be the',
-  accent: 'first',
-  titleAfter: 'that counts.',
+  titleBefore: 'Shaping futures,',
+  accent: 'beyond',
+  titleAfter: 'the classroom.',
   description:
-    'Mock placements put the whole process — the test, the group discussion, the panel — in front of you once, with feedback, before any of it is on your record.',
+    'FORESE (Forum for Economic Studies by Engineers) is a student-run club that connects education with real-world opportunities. It helps students prepare for placements and higher studies through workshops, events, and practical learning. FORESE also focuses on building important skills like teamwork, communication, and problem-solving, creating a space where students can grow and move confidently towards their goals.',
 } as const;
+
+/**
+ * The five pillars beneath the Why-it-exists headline.
+ *
+ * ⚠️ Only "Gaining soft skills" is the club's own wording — it is the one card
+ * that was legible in the reference. The other four are written from the
+ * paragraph above them and need checking against whatever the original five
+ * actually said.
+ */
+export const HOME_PILLARS = [
+  {
+    id: 'opportunities',
+    icon: Compass,
+    title: 'Real opportunities',
+    body: 'Connecting what is taught in class to the work that happens outside it.',
+  },
+  {
+    id: 'placements',
+    icon: Briefcase,
+    title: 'Placement ready',
+    body: 'Preparing students for placements before the rounds that go on record.',
+  },
+  {
+    id: 'higher-studies',
+    icon: GraduationCap,
+    title: 'Higher studies',
+    body: 'Guidance for students taking the research and postgraduate route.',
+  },
+  {
+    id: 'soft-skills',
+    icon: RadioTower,
+    title: 'Gaining soft skills',
+    body: 'Students gain soft skills like teamwork, leadership, and communication.',
+  },
+  {
+    id: 'workshops',
+    icon: Presentation,
+    title: 'Workshops and events',
+    body: 'Practical learning run through the year, not saved for placement season.',
+  },
+] as const;
 
 export const HOME_EVENTS = {
   eyebrow: 'Upcoming',
