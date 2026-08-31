@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import { PageTransition } from '@/components/motion/PageTransition';
@@ -58,11 +57,12 @@ export function RootLayout() {
         <Navbar />
 
         <main id="main-content" tabIndex={-1} className="flex-1">
-          <AnimatePresence mode="wait">
-            <PageTransition key={location.pathname}>
-              <Outlet />
-            </PageTransition>
-          </AnimatePresence>
+          {/* No AnimatePresence. Keyed by pathname so React mounts a fresh
+              PageTransition per route; see the note in that file for why the
+              exit animation had to go. */}
+          <PageTransition key={location.pathname}>
+            <Outlet />
+          </PageTransition>
         </main>
 
         <Footer />
