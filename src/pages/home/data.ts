@@ -37,11 +37,18 @@ export const RECRUITERS: string[] = [
   'Hexaware',
 ];
 
-/** DUMMY — none of these figures are real. */
+/**
+ * The club's real figures, with their labels exactly as supplied.
+ *
+ * No third line. The previous version carried a note under each label — "Across
+ * the last three years", and so on — which qualified figures that no longer
+ * exist. Writing new ones would mean inventing qualifiers for numbers nobody
+ * has qualified, which is how an unverified claim ends up on a home page.
+ */
 export const HOME_STATS = [
-  { value: '500+', label: 'Students put through it', note: 'Across the last three years' },
-  { value: '40+', label: 'Companies on the panels', note: 'HRs interviewing in person' },
-  { value: '6', label: 'Stages, start to finish', note: 'Contact collection to interview' },
+  { value: '900+', label: 'Pre-final Year Students' },
+  { value: '120+', label: 'HR Professionals & Experts' },
+  { value: '100+', label: 'Prominent Companies' },
 ];
 
 export const HOME_CONVERGE = {
