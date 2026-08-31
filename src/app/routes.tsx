@@ -142,7 +142,11 @@ const ALL_ROUTES: AppRoute[] = [
     description: "The FORESE Coders' Forum.",
     inPrimaryNav: true,
     isNavAction: true,
-    footerGroup: 'quickLinks',
+    // Deliberately absent from the footer's Quick links. It is the one nav
+    // item styled as an action rather than a link, and the footer column has
+    // no way to carry that distinction — listed there it reads as just
+    // another page, which is the opposite of the emphasis it has in the bar.
+    footerGroup: undefined,
   },
   {
     // Renders every design token and component on one page so the system can

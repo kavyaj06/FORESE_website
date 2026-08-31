@@ -64,7 +64,7 @@ export function Footer() {
       <div aria-hidden="true" className="bg-footer-glow absolute inset-0 z-0" />
 
       <div className="max-w-content tablet:p-14 relative z-40 mx-auto p-8">
-        <div className="tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-4 desktop:gap-16 grid grid-cols-1 gap-12 pb-12">
+        <div className="tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-4 desktop:gap-16 grid grid-cols-1 gap-12 pb-6">
           {/* Brand */}
           <div className="flex flex-col space-y-4">
             {/* `self-start` matters: in a stretched flex column the SVG fills
@@ -177,7 +177,7 @@ export function Footer() {
           hovered or clicked at all. Underneath, the overlap is inert and the
           letterforms, which sit at the bottom of the box, are still exposed to
           the cursor for their own reveal. */}
-      <div className="desktop:flex -mt-52 -mb-16 hidden h-[30rem]">
+      <div className="desktop:flex -mt-52 -mb-24 hidden h-[30rem]">
         <HoverWordmark text={SITE.name} className="z-0" />
       </div>
     </footer>
