@@ -49,7 +49,7 @@ function Pillar({
       style={{ scale, opacity }}
       whileHover={{ scale: 1.06 }}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-      className="group relative flex aspect-square w-[clamp(8rem,15vw,10.5rem)] shrink-0 items-center justify-center"
+      className="group relative flex aspect-square w-[clamp(7rem,10vw,10.5rem)] shrink-0 items-center justify-center"
     >
       {/* The ring is an SVG stroke rather than a CSS border because a border
           can only appear, where a stroke can be drawn. `-rotate-90` puts the
@@ -74,7 +74,9 @@ function Pillar({
         />
       </svg>
 
-      <div className="px-5 text-center">
+      {/* Padding in `%` rather than a fixed step: the circle is fluid, and a
+          20px gutter that is comfortable at 168px crowds the text at 112px. */}
+      <div className="px-[14%] text-center">
         <Icon
           size={20}
           strokeWidth={1.5}

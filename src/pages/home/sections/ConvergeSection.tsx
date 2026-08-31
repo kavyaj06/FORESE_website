@@ -68,7 +68,7 @@ export function ConvergeSection() {
         <motion.div
           aria-hidden="true"
           style={{ x: leftX, opacity: columnsOpacity }}
-          className="gap-md desktop:flex absolute left-0 hidden w-[21vw] flex-col"
+          className="gap-md desktop:flex absolute left-0 hidden w-[15vw] flex-col"
         >
           {leftPhotos.map((photo) => (
             <img
@@ -85,7 +85,7 @@ export function ConvergeSection() {
         <motion.div
           aria-hidden="true"
           style={{ x: rightX, opacity: columnsOpacity }}
-          className="gap-md desktop:flex absolute right-0 hidden w-[21vw] flex-col"
+          className="gap-md desktop:flex absolute right-0 hidden w-[15vw] flex-col"
         >
           {rightPhotos.map((photo) => (
             <img
@@ -99,7 +99,13 @@ export function ConvergeSection() {
           ))}
         </motion.div>
 
-        <Container className="relative">
+        {/* Capped to the space the photograph columns leave, and only where
+            those columns exist. `max-w-content` has a 1200px floor, so on any
+            window narrower than about 2070px it was wider than the gap between
+            two 21vw columns and the headline and circles ran underneath them —
+            measured as an overlap at 1024 and 1280. Narrower columns plus this
+            cap keep the two apart at every desktop width. */}
+        <Container className="desktop:max-w-[66vw] relative">
           <motion.div style={{ scale: headingScale, opacity: headingOpacity }}>
             <Heading />
           </motion.div>
