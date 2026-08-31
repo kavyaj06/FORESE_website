@@ -23,7 +23,7 @@ import StyleguidePage from '@/pages/styleguide/StyleguidePage';
  * place to remember.
  *
  * Order matches the navigation order in the Canva outline:
- *   Forese | Mocks  Events  Team  Gallery  News | Coders
+ *   Forese | Mock Placements  Events  Team  Gallery  News | Coders
  * ==========================================================================*/
 
 /** Footer column a route appears under. Omit to keep it out of the footer. */
@@ -78,9 +78,9 @@ const ALL_ROUTES: AppRoute[] = [
   },
   {
     path: '/mocks',
-    label: 'Mocks',
+    label: 'Mock Placements',
     Component: MockPlacementsPage,
-    title: 'Mock Placement',
+    title: 'Mock Placements',
     description: 'The FORESE mock placement process, from contact collection to mock interviews.',
     inPrimaryNav: true,
     footerGroup: 'quickLinks',

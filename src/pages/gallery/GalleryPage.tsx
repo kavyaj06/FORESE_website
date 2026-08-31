@@ -21,7 +21,7 @@ export default function GalleryPage() {
         size="compact"
         meta={[
           `${GALLERY_ALBUMS.length} events`,
-          `${GALLERY_ALBUMS.reduce((total, album) => total + album.photos.length, 0)} photographs`,
+          `${GALLERY_ALBUMS.reduce((total, album) => total + album.photos.length, 0)} photos`,
         ]}
       />
       <GalleryIndex />

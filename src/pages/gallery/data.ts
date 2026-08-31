@@ -32,9 +32,9 @@ export const FEATURED_COUNT = 3;
 
 export const GALLERY_INTRO = {
   eyebrow: 'Gallery',
-  title: 'Every event, as it happened',
+  title: 'Every moment, captured.',
   description:
-    'Photographs from the mock placements, lectures and sessions the club has run, grouped by event and newest first.',
+    'From first steps to final celebrations \u2014 explore the moments, memories, and milestones that shaped our journey.',
 } as const;
 
 export interface GalleryPhoto {
