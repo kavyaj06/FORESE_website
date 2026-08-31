@@ -70,6 +70,12 @@
   --color-warning: #a16207;
   --color-danger: #b4232c;
 
+  /* The blue carried over from the footer reference design (Nur UI). It is
+     the one chromatic colour on an otherwise monochrome site, and it lives
+     here as a token rather than as raw hex scattered through the footer and
+     the wordmark, so retiring or re-tinting it is a one-line change. */
+  --color-accent-blue: #3ca2fa;
+
   /* Focus ring. Kept separate from accent so it stays high-contrast whatever
      accent becomes. Flipped to white inside `[data-theme='inverse']` (see
      base.css) — a black ring on a black section is no ring at all. */

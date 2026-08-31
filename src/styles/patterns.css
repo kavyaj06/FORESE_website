@@ -53,3 +53,15 @@
     transparent 60%
   );
 }
+
+/* The footer card's ambient wash, carried over from the reference design: a
+   wide radial that lifts the top-centre of the card and bleeds the accent
+   blue in towards the edges. Kept here rather than as an inline style on the
+   element so the colours stay in the stylesheet layer with the rest. */
+@utility bg-footer-glow {
+  background-image: radial-gradient(
+    125% 125% at 50% 10%,
+    color-mix(in srgb, var(--color-bg) 40%, transparent) 50%,
+    color-mix(in srgb, var(--color-accent-blue) 20%, transparent) 100%
+  );
+}

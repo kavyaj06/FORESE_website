@@ -1,40 +1,39 @@
 import { NavLink } from 'react-router-dom';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { footerRoutes } from '@/app/routes';
 import { CONTACT, LOCATION, SITE, SOCIAL_LINKS } from '@/data/site';
 import { SocialIcon } from '@/components/ui/SocialIcon';
-import { Container } from './Container';
-import { Logo } from './Logo';
 import { HoverWordmark } from '@/components/motion/HoverWordmark';
+import { ForeseMark } from './ForeseMark';
 
 /**
- * Site footer.
+ * Site footer, rebuilt on the Nur UI "hover footer" reference.
  *
- * Four columns, matching the outline: brand, Quick links, Contact Us,
- * Location. The Quick links column is derived from the route table, so a new
- * page appears here automatically once it declares a footer group.
+ * Structure is the reference's, one-for-one: a floating rounded card inset
+ * from the page edge, a four-column grid, a rule, a social + copyright row,
+ * and the oversized wordmark bleeding off the bottom, with an ambient radial
+ * wash behind everything.
  *
- * The brand column is given twice the width of the link columns. Equal
- * quarters look tidy in a wireframe and wrong in practice — a paragraph and a
- * four-item list do not want the same measure.
+ * Two things are ours rather than the reference's, deliberately:
  *
- * Columns whose content is missing still render a visible "to be added" note
- * rather than collapsing silently. An empty column that looks intentional is
- * exactly how placeholder content survives to production.
+ *  - The content. The reference ships another product's placeholder copy —
+ *    its name, its address in Sylhet, "Employee Handbook", "Careers". All of
+ *    it is replaced by the club's real data, and Quick links still derives
+ *    from the route table, so a new page appears here on its own.
+ *  - The card is genuinely dark. The reference sets a 10%-opacity background
+ *    and relies on the page behind it already being dark; on this site the
+ *    page is white, which would have left a washed-out grey card under white
+ *    text. `data-theme="inverse"` makes it actually dark and flips every
+ *    token-driven child with it.
  *
- * The whole footer runs on `data-theme="inverse"`, not just the wordmark band
- * at its foot — the same mechanism the hero, the stat band and the drive
- * callout already use, so nothing here needed a dark variant written by hand.
- * Every class below is a semantic token (`bg-surface`, `text-text-muted`,
- * `border-border`…) and simply resolves to its dark value for the whole
- * section once the attribute is set on the root element.
+ * The wordmark keeps the reference's own `-mt-52 -mb-36` on a tall box: the
+ * overlap is absorbed by blank space inside that box, and the card's
+ * `overflow-hidden` crops whatever still runs past the rounded edge.
  */
 
-const COLUMN_HEADING = 'text-eyebrow text-text-subtle uppercase';
-
-/** Links shift on hover rather than changing colour: in a monochrome palette
-    there is no second colour to move to, so movement carries the feedback. */
+const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
 const COLUMN_LINK =
-  'text-small text-text-muted hover:text-text duration-fast ease-out-brand inline-block transition-[color,transform] hover:translate-x-0.5';
+  'text-text-muted hover:text-accent-blue duration-fast ease-out-brand transition-colors';
 
 function Pending({ what }: { what: string }) {
   return <p className="text-small text-text-subtle italic">{what} to be added</p>;
@@ -46,40 +45,27 @@ export function Footer() {
   return (
     <footer
       data-theme="inverse"
-      className="border-border bg-bg relative isolate mt-auto overflow-hidden border-t"
+      className="bg-bg relative isolate m-8 mt-auto h-fit overflow-hidden rounded-3xl"
     >
-      <div aria-hidden="true" className="bg-radial-glow pointer-events-none absolute inset-0" />
+      {/* Behind everything: the reference's radial wash. */}
+      <div aria-hidden="true" className="bg-footer-glow absolute inset-0 z-0" />
 
-      <Container className="py-section relative">
-        <div className="gap-xl tablet:grid-cols-2 desktop:grid-cols-12 grid">
+      <div className="max-w-content tablet:p-14 relative z-40 mx-auto p-8">
+        <div className="tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-4 desktop:gap-16 grid grid-cols-1 gap-12 pb-12">
           {/* Brand */}
-          <div className="gap-md desktop:col-span-5 flex flex-col">
-            <Logo />
-            <p className="text-small text-text-muted">{SITE.description}</p>
-
-            {SOCIAL_LINKS.length > 0 && (
-              <ul className="mt-xs gap-xs flex items-center">
-                {SOCIAL_LINKS.map((social) => (
-                  <li key={social.label}>
-                    <a
-                      href={social.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={social.label}
-                      className="text-text-muted hover:text-text hover:border-border-strong hover:bg-surface-raised border-border duration-base ease-out-brand flex size-11 items-center justify-center rounded-lg border transition-colors"
-                    >
-                      <SocialIcon name={social.icon} />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <div className="flex flex-col space-y-4">
+            {/* `self-start` matters: in a stretched flex column the SVG fills
+                the column's width and `preserveAspectRatio` then centres the
+                artwork inside it, so the mark drifts to the middle of the
+                column instead of sitting at its left edge. */}
+            <ForeseMark className="h-10 w-auto self-start" />
+            <p className="text-small text-text-muted leading-relaxed">{SITE.description}</p>
           </div>
 
-          {/* Quick links */}
-          <nav aria-label="Quick links" className="gap-sm desktop:col-span-2 flex flex-col">
+          {/* Quick links — from the route table, not a hand-kept list. */}
+          <nav aria-label="Quick links">
             <h2 className={COLUMN_HEADING}>Quick links</h2>
-            <ul className="gap-xs flex flex-col">
+            <ul className="space-y-3">
               {quickLinks.map((route) => (
                 <li key={route.path}>
                   <NavLink to={route.path} className={COLUMN_LINK}>
@@ -90,20 +76,22 @@ export function Footer() {
             </ul>
           </nav>
 
-          {/* Contact Us */}
-          <div className="gap-sm desktop:col-span-2 flex flex-col">
+          {/* Contact */}
+          <div>
             <h2 className={COLUMN_HEADING}>Contact Us</h2>
             {CONTACT.email || CONTACT.phone ? (
-              <ul className="gap-xs flex flex-col">
+              <ul className="space-y-4">
                 {CONTACT.email && (
-                  <li>
+                  <li className="flex items-center space-x-3">
+                    <Mail size={18} className="text-accent-blue shrink-0" aria-hidden="true" />
                     <a href={`mailto:${CONTACT.email}`} className={COLUMN_LINK}>
                       {CONTACT.email}
                     </a>
                   </li>
                 )}
                 {CONTACT.phone && (
-                  <li>
+                  <li className="flex items-center space-x-3">
+                    <Phone size={18} className="text-accent-blue shrink-0" aria-hidden="true" />
                     <a href={`tel:${CONTACT.phone.replace(/\s/g, '')}`} className={COLUMN_LINK}>
                       {CONTACT.phone}
                     </a>
@@ -116,15 +104,18 @@ export function Footer() {
           </div>
 
           {/* Location */}
-          <div className="gap-sm desktop:col-span-3 flex flex-col">
+          <div>
             <h2 className={COLUMN_HEADING}>Location</h2>
             {LOCATION.length > 0 ? (
-              <address className="text-small text-text-muted not-italic">
-                {LOCATION.map((line) => (
-                  <span key={line} className="block">
-                    {line}
-                  </span>
-                ))}
+              <address className="flex space-x-3 not-italic">
+                <MapPin size={18} className="text-accent-blue mt-1 shrink-0" aria-hidden="true" />
+                <span className="text-small text-text-muted">
+                  {LOCATION.map((line) => (
+                    <span key={line} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </span>
               </address>
             ) : (
               <Pending what="Address" />
@@ -132,40 +123,37 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-border mt-2xl pt-lg gap-sm flex flex-wrap items-center justify-between border-t">
-          <p className="text-caption text-text-subtle">
+        <hr className="border-border my-8 border-t" />
+
+        <div className="text-small tablet:flex-row tablet:space-y-0 flex flex-col items-center justify-between space-y-4">
+          {SOCIAL_LINKS.length > 0 && (
+            <ul className="text-text-muted flex space-x-6">
+              {SOCIAL_LINKS.map((social) => (
+                <li key={social.label}>
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    className="hover:text-accent-blue duration-fast ease-out-brand block transition-colors"
+                  >
+                    <SocialIcon name={social.icon} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <p className="text-text-muted tablet:text-left text-center">
             © {new Date().getFullYear()} {SITE.name}. All rights reserved.
           </p>
-          <p className="text-caption text-text-subtle">{SITE.fullName}</p>
         </div>
-      </Container>
+      </div>
 
-      {/* The wordmark echo. Desktop only — it needs real width to read, and a
-          cursor to reveal it; a phone has neither. Decorative, hence outside
-          the Container's max-width so it can run the full bleed of the band.
-          No theme wrapper needed here any more — it inherits the footer's own
-          inverse context.
-
-          This now uses the reference's actual technique, not an avoidance of
-          it. Its wordmark box is far taller than the letters it holds, so
-          pulling the whole box up with a negative margin only ever eats into
-          blank space inside that box — the overlap never touches a glyph.
-          `h-72` against `h-48` of visible letters leaves 96px of headroom;
-          `-mt-32` (128px) pulls slightly more than that headroom back into
-          the section padding above, so the letters land close under the
-          copyright row without ever reaching it. Anything that still pokes
-          past the footer's own edge is caught by the `overflow-hidden`
-          already on <footer> — the same thing doing the work of the
-          reference's rounded, clipped card, without us needing to adopt that
-          card treatment ourselves.
-
-          The SVG is bottom-anchored inside the tall box (`items-end`) so it
-          is the *top* of the box — empty space — doing the overlapping, and
-          `pb-3xl` still guards the bottom edge: this is the last thing in the
-          footer, and without it the glyphs would sit flush against the
-          literal bottom of the page. */}
-      <div className="desktop:flex pb-3xl relative -mt-32 hidden h-72 items-end justify-center">
-        <HoverWordmark text={SITE.name} className="h-48 w-full" />
+      {/* The oversized wordmark, bleeding past the card's bottom edge. Desktop
+          only — it needs width to read and a cursor to reveal it. */}
+      <div className="desktop:flex -mt-52 -mb-28 hidden h-[30rem]">
+        <HoverWordmark text={SITE.name} className="z-50" />
       </div>
     </footer>
   );

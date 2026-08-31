@@ -14,7 +14,7 @@ export const HOME_HERO = {
   accent: 'hire',
   titleAfter: 'them.',
   description:
-    'FORESE runs mock placements at College of Engineering, Guindy — aptitude, group discussions and interviews with HRs from real companies, conducted for every pre-final year student before the interviews that count.',
+    'FORESE runs the mock placement drive at Sri Venkateswara College of Engineering to connect students with HRs from leading companies through aptitude tests, group discussions and interviews — before the real ones that count.',
   actions: {
     primary: { label: 'How it works', to: '/mocks' },
     secondary: { label: 'See the gallery', to: '/gallery' },
