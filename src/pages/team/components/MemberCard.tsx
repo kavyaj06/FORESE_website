@@ -1,6 +1,5 @@
 import { SocialIcon } from '@/components/ui/SocialIcon';
 import type { ClubMember } from '@/data/team';
-import { findTeam } from '@/data/teams';
 import { cn } from '@/lib/cn';
 import { MemberPortrait } from './MemberPortrait';
 
@@ -42,8 +41,6 @@ interface MemberCardProps {
  * are never seen at all, since nobody hovers ninety cards.
  */
 export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
-  const team = member.team ? findTeam(member.team) : undefined;
-  const position = member.role ?? team?.name ?? 'Member';
   const isCore = member.rank !== 'member';
 
   return (
@@ -134,9 +131,18 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
           {member.name}
         </h3>
 
-        <p className="text-small text-text-muted ease-smooth group-hover:text-accent-fg/75 group-focus-within:text-accent-fg/75 transition-colors duration-[400ms]">
-          {position}
-        </p>
+        {/* Only a real title. This used to fall back to the member's tech team
+            and then to the word "Member", so a general member's card read
+            "Design" — labelling them with something that is a property of the
+            grid they are in, not a position they hold. `member.team` is still
+            what the filter above the grid runs on; it is just not shown here.
+            No fallback either: a card with nothing under the name is honest,
+            where a card that says "Member" adds a line to say nothing. */}
+        {member.role && (
+          <p className="text-small text-text-muted ease-smooth group-hover:text-accent-fg/75 group-focus-within:text-accent-fg/75 transition-colors duration-[400ms]">
+            {member.role}
+          </p>
+        )}
 
         {!isCore && member.quote && (
           <p className="text-caption text-text-muted border-border mt-sm ease-smooth group-hover:border-accent-fg/25 group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 border-l pl-3 italic transition-colors duration-[400ms]">
