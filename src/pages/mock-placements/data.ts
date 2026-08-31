@@ -51,6 +51,41 @@ export const MOCK_PLACEMENTS_ABOUT = {
   ],
 } as const;
 
+/**
+ * Companies whose HRs have sat on the mock placement panels.
+ *
+ * ⚠️ Taken from the existing FORESE site's own "Companies that have
+ * participated" strip, so the names are the club's claim rather than mine —
+ * but worth confirming before launch, because naming a company that has not
+ * taken part is a claim about them, not just about us.
+ *
+ * `logo` is intentionally absent. These are trademarks: the artwork has to be
+ * the real file, obtained deliberately, not something approximated. Until a
+ * file is dropped into `public/logos/` and named here, the carousel sets the
+ * company name in the page's own typeface and behaves identically otherwise —
+ * so the strip is complete now and gets better one company at a time.
+ */
+export interface MockPlacementCompany {
+  name: string;
+  /** Path under `public/`, e.g. `/logos/zoho.svg`. */
+  logo?: string;
+}
+
+export const MOCK_PLACEMENT_COMPANIES: MockPlacementCompany[] = [
+  { name: 'Zoho' },
+  { name: 'Amazon' },
+  { name: 'L&T' },
+  { name: 'HCL' },
+  { name: 'TCS' },
+  { name: 'Wipro' },
+  { name: 'Freshworks' },
+  { name: 'Capgemini' },
+  { name: 'Accenture' },
+  { name: 'Cognizant' },
+];
+
+export const MOCK_PLACEMENTS_COMPANIES_TITLE = 'Companies on the panels';
+
 export interface ProcessStep {
   /** Stable id, also used as the anchor target. */
   id: string;

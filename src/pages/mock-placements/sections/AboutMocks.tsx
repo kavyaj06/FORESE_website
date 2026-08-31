@@ -3,7 +3,12 @@ import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { ScrollLitText } from '@/components/motion/ScrollLitText';
 import { CountUp } from '@/components/motion/CountUp';
-import { MOCK_PLACEMENTS_ABOUT } from '../data';
+import { LogoCarousel3D } from '@/components/motion/LogoCarousel3D';
+import {
+  MOCK_PLACEMENTS_ABOUT,
+  MOCK_PLACEMENTS_COMPANIES_TITLE,
+  MOCK_PLACEMENT_COMPANIES,
+} from '../data';
 
 /**
  * What Mock Placements actually is, ahead of the timeline that says how it runs.
@@ -70,6 +75,16 @@ export function AboutMocks() {
           ))}
         </Reveal>
       </Container>
+
+      {/* Full-bleed, and outside the container on purpose: the strip is meant
+          to run off both edges so it reads as continuing past the page rather
+          than as a list that happens to be centred. */}
+      <div className="mt-3xl">
+        <p className="text-eyebrow text-text-subtle px-gutter mb-lg text-center uppercase">
+          {MOCK_PLACEMENTS_COMPANIES_TITLE}
+        </p>
+        <LogoCarousel3D logos={MOCK_PLACEMENT_COMPANIES} className="text-text-muted" />
+      </div>
     </section>
   );
 }
