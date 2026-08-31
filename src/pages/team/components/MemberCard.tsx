@@ -68,10 +68,15 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
           <MemberPortrait member={member} />
         </div>
 
-        {/* Vertical pill on the photograph's right edge, as in the reference. */}
+        {/* Pill in the photograph's top-right corner. It used to sit centred
+            on the right edge, which put it directly across the middle of a
+            core member's quote as that quote rose into the same frame — two
+            things arriving on the same hover, overlapping. The corner is the
+            one part of the photograph nothing else claims: the scrim and the
+            quote both work from the bottom up. */}
         <ul
           className={cn(
-            'bg-accent-fg absolute top-1/2 right-2 flex -translate-y-1/2 flex-col gap-1.5 rounded-xl p-1.5 shadow-md',
+            'bg-accent-fg absolute top-2 right-2 flex flex-col gap-1.5 rounded-xl p-1.5 shadow-md',
             'duration-base ease-out-brand translate-x-3 opacity-0 transition-[opacity,transform]',
             'group-hover:translate-x-0 group-hover:opacity-100',
             'group-focus-within:translate-x-0 group-focus-within:opacity-100',
