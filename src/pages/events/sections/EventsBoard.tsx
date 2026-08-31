@@ -16,52 +16,69 @@ import { EVENT_GROUPS } from '../data';
 const PAGE_SIZE = 5;
 
 /**
- * The list swap.
+ * How a row arrives, and how a whole list leaves.
  *
- * Enter is staggered — rows stand up one after another, tipped back and
- * slightly low, rotating flat as they settle. A plain fade-and-rise reads as
- * content appearing; this reads as content arriving.
+ * Each row triggers on its own arrival in the viewport rather than on mount.
+ * That distinction matters here: a page of rows is taller than the screen on
+ * every phone and most laptops, so an orchestrated stagger fired at mount
+ * plays out mostly below the fold, and by the time you scroll down the later
+ * rows are already sitting there finished. Per-row `whileInView` means the
+ * cascade follows you down the page instead of racing ahead of you.
  *
- * Exit is not staggered, and is roughly a third of the duration. The outgoing
- * list is not information any more, so it should be gone, not performed; a
- * reversed stagger on the way out just makes every filter click feel slow.
- * `delayChildren` on the enter side holds the new rows back until the old ones
- * have nearly finished, so the two lists overlap in the same grid cell without
- * the reader ever seeing two sets of text on top of each other.
+ * Rows stand up as they appear: tipped back and slightly low, rotating flat as
+ * they settle. A plain fade-and-rise reads as content appearing; this reads as
+ * content arriving.
+ *
+ * The index delay still gives a stagger, because it is measured from each
+ * row's own trigger rather than from a shared clock — rows already on screen
+ * together cascade, and a row met later still gets its small beat. It is
+ * capped so a full page of rows never ends on a long wait.
  */
-const LIST: Variants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.14 } },
-  exit: { transition: { staggerChildren: 0 } },
-};
-
 const ROW: Variants = {
   hidden: { opacity: 0, y: 26, rotateX: -14, transformPerspective: 1200 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transformPerspective: 1200,
-    transition: { duration: 0.45, ease: EASE_OUT_BRAND },
-  },
-  exit: {
-    opacity: 0,
-    y: -14,
-    rotateX: 8,
-    transformPerspective: 1200,
-    transition: { duration: 0.16, ease: 'easeIn' },
-  },
+  visible: { opacity: 1, y: 0, rotateX: 0, transformPerspective: 1200 },
 };
 
-/** Reduced motion: the same three states, opacity only. */
+/** Reduced motion: the same two states, opacity only, nothing moving. */
 const FADE: Variants = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.2 } },
-  exit: { opacity: 0, transition: { duration: 0.12 } },
+  visible: { opacity: 1 },
 };
 
-/** Hover is a separate, springier transition — it answers the pointer, not the scroll. */
-const HOVER = { type: 'spring', stiffness: 320, damping: 26 } as const;
+/** Seconds between rows, and the ceiling on the accumulated delay. */
+const ROW_STEP = 0.07;
+const MAX_DELAY = 0.35;
+
+/**
+ * Rows reveal once and stay revealed. `amount` is deliberately low: waiting
+ * for a third of a tall row to clear the fold means the row is well up the
+ * screen before it starts, which reads as a late reaction rather than an
+ * entrance.
+ */
+const VIEWPORT = { once: true, amount: 0.15, margin: '0px 0px -60px 0px' } as const;
+
+/**
+ * The outgoing list leaves as one block, not row by row.
+ *
+ * It is no longer information, so it should be gone rather than performed —
+ * a reversed stagger on the way out just makes every filter click feel slow.
+ * The incoming rows are held back by `ENTER_DELAY` until it has nearly
+ * finished, so the two lists share the same grid cell without the reader ever
+ * seeing two sets of text stacked on each other.
+ */
+const LIST_EXIT = { opacity: 0, y: -12, transition: { duration: 0.16, ease: 'easeIn' } } as const;
+const ENTER_DELAY = 0.14;
+
+/**
+ * Hover carries its own transition rather than inheriting the row's. The row's
+ * `transition` prop holds the entrance delay, and a hover that waits half a
+ * second before responding does not read as a hover at all. A spring is right
+ * here for the same reason: this one answers the pointer, not the scroll.
+ */
+const HOVER = {
+  scale: 1.015,
+  transition: { type: 'spring', stiffness: 320, damping: 26 },
+} as const;
 
 /**
  * The events board: a featured carousel, a filter, and the list.
@@ -143,7 +160,11 @@ export function EventsBoard() {
              section collapses to nothing for the length of the swap, and the
              pagination and footer jump up the screen and back. */
           <div data-events-stack className="mt-2xl grid" style={{ perspective: 1200 }}>
-            <AnimatePresence initial={false}>
+            {/* No `initial={false}` here. It suppresses the mount animation
+                for the whole subtree, which silently defeated the rows'
+                scroll reveal: they rendered already-visible and only ever
+                animated on a filter switch. */}
+            <AnimatePresence>
               <motion.ul
                 // Keyed by the filter and page, so no row is ever shared
                 // between two states. This is the whole fix for rows sliding
@@ -153,22 +174,30 @@ export function EventsBoard() {
                 // position to its new one. Correct behaviour, wrong effect.
                 // Switching a filter is a replacement, not a rearrangement.
                 key={`${filter}-${safePage}`}
-                variants={prefersReducedMotion ? undefined : LIST}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                // The list owns only its exit. Enter is left to the rows, so
+                // that each can wait for its own turn on screen — a parent
+                // `animate` here would drive all of them at once and take
+                // that back.
+                exit={prefersReducedMotion ? { opacity: 0 } : LIST_EXIT}
                 className="gap-md flex flex-col [grid-area:1/1]"
               >
-                {visible.map((event) => (
+                {visible.map((event, index) => (
                   <motion.li
                     key={event.id}
                     variants={prefersReducedMotion ? FADE : ROW}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={VIEWPORT}
+                    transition={{
+                      duration: prefersReducedMotion ? 0.2 : 0.45,
+                      ease: EASE_OUT_BRAND,
+                      delay: ENTER_DELAY + Math.min(index * ROW_STEP, MAX_DELAY),
+                    }}
                     // Hover lifts the whole row a little. Kept on the outer
                     // element rather than inside the card so it composes with
                     // Tilt3D's rotation instead of fighting it for the same
                     // transform.
-                    whileHover={prefersReducedMotion ? undefined : { scale: 1.015 }}
-                    transition={HOVER}
+                    whileHover={prefersReducedMotion ? undefined : HOVER}
                     className="[transform-origin:50%_100%]"
                   >
                     <Tilt3D max={3} perspective={1600} liftZ={14}>
