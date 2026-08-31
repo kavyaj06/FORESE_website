@@ -7,6 +7,8 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { GALLERY_ALBUMS } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
 import { PillarCircles } from '../components/PillarCircles';
+import { ConvergePhoto } from '../components/ConvergePhoto';
+import { useIdleAdvance } from '../components/useIdleAdvance';
 
 /**
  * The scroll-scrubbed centrepiece.
@@ -26,8 +28,14 @@ import { PillarCircles } from '../components/PillarCircles';
  * Under `prefers-reduced-motion` the panel is not pinned at all: the section
  * collapses to one screen with the columns already in place.
  */
+/** Photographs on screen at once: three per column. */
+const SLOT_COUNT = 6;
+/** Between one slot's crossfade and the next, so the six do not flip as one. */
+const STAGGER_MS = 130;
+
 export function ConvergeSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
   // Matches the `desktop` breakpoint, which is where the photograph columns
   // are allowed to render. Below it the pinned layout has nothing to show, so
@@ -51,10 +59,20 @@ export function ConvergeSection() {
   const headingScale = useTransform(progress, [0, 1], [0.86, 1]);
   const headingOpacity = useTransform(progress, [0, 0.4, 1], [0.35, 0.85, 1]);
 
-  // Two disjoint sets, so the same photograph never appears on both sides.
   const photos = GALLERY_ALBUMS.flatMap((album) => album.photos);
-  const leftPhotos = photos.slice(0, 3);
-  const rightPhotos = photos.slice(3, 6);
+
+  /**
+   * Every photograph in the gallery is in the pool, not just the six on screen.
+   * Six slots showing six fixed pictures is a decoration; six slots drawing
+   * from twenty-seven is the club's actual gallery going past.
+   */
+  const step = useIdleAdvance({ ref: panelRef, enabled: !prefersReducedMotion });
+  const slots = Array.from({ length: SLOT_COUNT }, (_, i) => {
+    // The whole set slides by six each step, so a slot never shows a picture
+    // one of its neighbours is showing, and no slot repeats until the pool
+    // has been through.
+    return photos[(step * SLOT_COUNT + i) % photos.length];
+  });
 
   if (!prefersReducedMotion && !isDesktop) {
     return <ConvergeMobile photos={photos} />;
@@ -73,21 +91,17 @@ export function ConvergeSection() {
 
   return (
     <div ref={sectionRef} className="relative h-[260vh]">
-      <section className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y">
+      <section
+        ref={panelRef}
+        className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
+      >
         <motion.div
           aria-hidden="true"
           style={{ x: leftX, opacity: columnsOpacity }}
           className="gap-md desktop:flex absolute left-0 hidden w-[21vw] flex-col"
         >
-          {leftPhotos.map((photo) => (
-            <img
-              key={photo.id}
-              src={photo.src}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-[22vh] w-full rounded-lg object-cover"
-            />
+          {slots.slice(0, 3).map((photo, index) => (
+            <ConvergePhoto key={index} photo={photo} delayMs={index * STAGGER_MS} />
           ))}
         </motion.div>
 
@@ -96,15 +110,8 @@ export function ConvergeSection() {
           style={{ x: rightX, opacity: columnsOpacity }}
           className="gap-md desktop:flex absolute right-0 hidden w-[21vw] flex-col"
         >
-          {rightPhotos.map((photo) => (
-            <img
-              key={photo.id}
-              src={photo.src}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="h-[22vh] w-full rounded-lg object-cover"
-            />
+          {slots.slice(3).map((photo, index) => (
+            <ConvergePhoto key={index + 3} photo={photo} delayMs={(index + 3) * STAGGER_MS} />
           ))}
         </motion.div>
 
