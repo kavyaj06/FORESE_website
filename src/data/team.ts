@@ -3,15 +3,26 @@ import type { TeamId } from './teamIds';
 /**
  * The club roster.
  *
- * Senior core and junior core (below) are the club's real office bearers and
- * team leads — real names and real titles. They carry no quote, LinkedIn or
- * email, because none were supplied: inventing contact details for a named,
- * identifiable person is worse than leaving the fields empty, so `MemberCard`
- * simply omits whatever a person does not have.
+ * Senior core and junior core (below) have the club's real names and real
+ * titles.
  *
- * ⚠️ The ninety `member` entries below the core are still DUMMY placeholders —
+ * ⚠️ Their quotes, LinkedIn URLs and emails are DUMMY placeholders. Because
+ * these are real, identifiable people, the placeholders are deliberately
+ * unusable rather than merely invented: emails use `example.com`, the domain
+ * RFC 2606 reserves precisely so it can never resolve, and every LinkedIn
+ * slug ends in `-placeholder` so it cannot collide with a stranger's real
+ * profile. A plausible-looking address is the dangerous kind — it ships
+ * unnoticed and sends mail to whoever actually owns it.
+ *
+ * Neither field is ever displayed as text; both sit behind an icon as an
+ * `href`, so the fake values cost nothing visually and are invisible until
+ * someone clicks. Replace all three fields per person with the real thing.
+ *
+ * ⚠️ The ninety `member` entries below the core are also DUMMY placeholders —
  * invented names, quotes, emails and LinkedIn URLs — standing in until the
- * club supplies the real membership. Replace that block the same way.
+ * club supplies the real membership. Note those still use a plausible
+ * `@forese.in` address; that is safe only while the names themselves are
+ * invented, and must be replaced along with them.
  *
  * One person appears exactly once. A tech team is not a stored list: it is
  * everyone whose `team` matches its id. That is what makes it impossible for
@@ -47,54 +58,81 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'R Mubashir Sheriff',
     rank: 'senior-core',
     role: 'President',
+    quote: 'You spend a year learning that the club runs on follow-ups, not ideas.',
+    linkedin: 'https://www.linkedin.com/in/r-mubashir-sheriff-placeholder',
+    email: 'r-mubashir-sheriff@example.com',
   },
   {
     id: 'kaamesh-kc',
     name: 'Kaamesh KC',
     rank: 'senior-core',
     role: 'Vice President',
+    quote: 'Half of leading anything is making sure nobody is waiting on you.',
+    linkedin: 'https://www.linkedin.com/in/kaamesh-kc-placeholder',
+    email: 'kaamesh-kc@example.com',
   },
   {
     id: 'shree-kowsik',
     name: 'Shree Kowsik',
     rank: 'senior-core',
     role: 'Vice President',
+    quote: 'The best thing we build here is the habit of showing up prepared.',
+    linkedin: 'https://www.linkedin.com/in/shree-kowsik-placeholder',
+    email: 'shree-kowsik@example.com',
   },
   {
     id: 'siddharth-naren-b',
     name: 'Siddharth Naren B',
     rank: 'senior-core',
     role: 'General Secretary',
+    quote: 'Every spreadsheet I made in first year has saved someone a week since.',
+    linkedin: 'https://www.linkedin.com/in/siddharth-naren-b-placeholder',
+    email: 'siddharth-naren-b@example.com',
   },
   {
     id: 'sarvesh-vaidhi-v',
     name: 'Sarvesh Vaidhi V',
     rank: 'senior-core',
     role: 'General Secretary',
+    quote: 'Turns out organising an interview is harder than sitting one.',
+    linkedin: 'https://www.linkedin.com/in/sarvesh-vaidhi-v-placeholder',
+    email: 'sarvesh-vaidhi-v@example.com',
   },
   {
     id: 'salma-siddique',
     name: 'Salma Siddique',
     rank: 'senior-core',
     role: 'General Secretary',
+    quote: 'I joined to fix my own interviews and stayed for everyone else’s.',
+    linkedin: 'https://www.linkedin.com/in/salma-siddique-placeholder',
+    email: 'salma-siddique@example.com',
   },
   {
     id: 'v-anushri',
     name: 'V Anushri',
     rank: 'senior-core',
     role: 'General Secretary',
+    quote: 'You learn more from the panel that rejects you than the one that doesn’t.',
+    linkedin: 'https://www.linkedin.com/in/v-anushri-placeholder',
+    email: 'v-anushri@example.com',
   },
   {
     id: 'visvajith-b-l',
     name: 'Visvajith B L',
     rank: 'senior-core',
     role: 'General Secretary',
+    quote: 'Placement season is quieter when the work happened in August.',
+    linkedin: 'https://www.linkedin.com/in/visvajith-b-l-placeholder',
+    email: 'visvajith-b-l@example.com',
   },
   {
     id: 'thamizh-selvan-a',
     name: 'Thamizh Selvan A',
     rank: 'senior-core',
     role: 'General Secretary',
+    quote: 'Calling strangers for a living cured me of dreading phone calls.',
+    linkedin: 'https://www.linkedin.com/in/thamizh-selvan-a-placeholder',
+    email: 'thamizh-selvan-a@example.com',
   },
 
   {
@@ -102,60 +140,90 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Pragadeesh',
     rank: 'junior-core',
     role: 'Executive Director',
+    quote: 'Nobody tells you how much of this is logistics until you are doing it.',
+    linkedin: 'https://www.linkedin.com/in/pragadeesh-placeholder',
+    email: 'pragadeesh@example.com',
   },
   {
     id: 'sai-shruthe',
     name: 'Sai Shruthe',
     rank: 'junior-core',
     role: 'Executive Director',
+    quote: 'The first mock placement I ran went wrong in ways I now plan for.',
+    linkedin: 'https://www.linkedin.com/in/sai-shruthe-placeholder',
+    email: 'sai-shruthe@example.com',
   },
   {
     id: 'mayooritha',
     name: 'Mayooritha',
     rank: 'junior-core',
     role: 'Executive Director',
+    quote: 'Watching a nervous junior walk out grinning is the whole point.',
+    linkedin: 'https://www.linkedin.com/in/mayooritha-placeholder',
+    email: 'mayooritha@example.com',
   },
   {
     id: 'ananya-ed',
     name: 'Ananya',
     rank: 'junior-core',
     role: 'Executive Director',
+    quote: 'I learnt to ask for things clearly, which is most of the work.',
+    linkedin: 'https://www.linkedin.com/in/ananya-ed-placeholder',
+    email: 'ananya-ed@example.com',
   },
   {
     id: 'srindhi-sarasija',
     name: 'Srindhi Sarasija',
     rank: 'junior-core',
     role: 'Executive Director',
+    quote: 'Every year we hand over a slightly better version of the process.',
+    linkedin: 'https://www.linkedin.com/in/srindhi-sarasija-placeholder',
+    email: 'srindhi-sarasija@example.com',
   },
   {
     id: 'pranaya',
     name: 'Pranaya',
     rank: 'junior-core',
     role: 'Executive Director',
+    quote: 'Being on the other side of the table changes how you prepare for it.',
+    linkedin: 'https://www.linkedin.com/in/pranaya-placeholder',
+    email: 'pranaya@example.com',
   },
   {
     id: 'raghav-gs',
     name: 'Raghav GS',
     rank: 'junior-core',
     role: 'Tech Head',
+    quote: 'Most of the tooling exists because someone got tired of doing it by hand.',
+    linkedin: 'https://www.linkedin.com/in/raghav-gs-placeholder',
+    email: 'raghav-gs@example.com',
   },
   {
     id: 'kavya-j',
     name: 'Kavya J',
     rank: 'junior-core',
     role: 'Tech Head',
+    quote: 'I write code here that a hundred people actually use, which is rare.',
+    linkedin: 'https://www.linkedin.com/in/kavya-j-placeholder',
+    email: 'kavya-j@example.com',
   },
   {
     id: 'shrenik',
     name: 'Shrenik',
     rank: 'junior-core',
     role: 'Communications Chair',
+    quote: 'Writing the newsletter made me read far more than I planned to.',
+    linkedin: 'https://www.linkedin.com/in/shrenik-placeholder',
+    email: 'shrenik@example.com',
   },
   {
     id: 'nikhil-abhishek',
     name: 'Nikhil Abhishek',
     rank: 'junior-core',
     role: 'Treasurer',
+    quote: 'Budgets are just plans that have to be honest about themselves.',
+    linkedin: 'https://www.linkedin.com/in/nikhil-abhishek-placeholder',
+    email: 'nikhil-abhishek@example.com',
   },
 
   {
