@@ -4,22 +4,20 @@ import type { SocialIconName } from '@/components/ui/SocialIcon';
  * Site-wide content.
  *
  * ============================================================================
- * ⚠️  EVERY VALUE BELOW IS DUMMY CONTENT.
- * ----------------------------------------------------------------------------
- * It exists so the header and footer can be designed and reviewed against
- * realistic text rather than empty columns. None of it has been confirmed with
- * the club. Before this site goes anywhere public, replace:
+ * Most of this is now the club's own wording. Two things are still NOT:
  *
- *   • SITE.fullName, SITE.description   — the club's own wording
- *   • CONTACT.email, CONTACT.phone      — real, monitored addresses
- *   • LOCATION                          — the real address
- *   • SOCIAL_LINKS hrefs                — real profile URLs
+ *   • CONTACT.phone    — supplied as "+91 XXXXX XXXXX", i.e. deliberately
+ *                        blank. The footer renders the phone row only when
+ *                        this holds digits, so it is hidden rather than
+ *                        published as a row of X's. Fill it in and the row
+ *                        comes back on its own.
+ *   • SOCIAL_LINKS     — the hrefs are guesses at profile URLs, not verified.
+ *                        These are the one kind of placeholder that fails
+ *                        silently: a wrong link looks exactly like a right one
+ *                        until somebody clicks it.
  *
  * The logo is NOT a placeholder — it is the club's real artwork, traced to
  * `src/components/layout/ForeseMark.tsx` (and `public/forese-logo.svg`).
- *
- * The phone number is the standard Indian placeholder and the profile URLs are
- * guesses. Shipping them would publish contact details that do not work.
  * ==========================================================================*/
 
 export interface SocialLink {
@@ -32,12 +30,10 @@ export const SITE = {
   /** Wordmark. The outline writes this as "Forese". */
   name: 'Forese',
 
-  /** DUMMY — the expansion is unconfirmed. */
   fullName: 'Forum for Economic Studies by Engineers',
 
-  /** DUMMY — needs the club's own description. */
   description:
-    'The placement and industry-interaction forum of College of Engineering, Guindy — running mock placements, corporate sessions and the student newsletter.',
+    'The placement and industry-interaction forum of Sri Venkateswara College of Engineering, connecting students with industry, opportunities, and experiences.',
 
   /**
    * `name` is still used for the document title, the accessible name on the
@@ -51,25 +47,30 @@ export interface ContactDetails {
   phone: string;
 }
 
-/** DUMMY — not real, monitored contact details. */
+/**
+ * `phone` is intentionally empty rather than a masked placeholder. The number
+ * supplied was "+91 XXXXX XXXXX", which is a way of saying "not yet" — and a
+ * footer that prints X's where a phone number goes looks like a bug, not like
+ * a pending detail. The footer hides the row until there is something to dial.
+ */
 export const CONTACT: ContactDetails = {
   email: 'contact@forese.in',
-  phone: '+91 98765 43210',
+  phone: '',
 };
 
 /**
- * Footer "Location" column. DUMMY — unconfirmed address.
- * Kept as lines so the footer does not have to parse a single string.
+ * Footer "Visit us" column. Kept as lines so the footer does not have to parse
+ * a single string, and so the break points stay a content decision.
  */
 export const LOCATION: string[] = [
-  'College of Engineering, Guindy',
-  'Anna University, Sardar Patel Road',
-  'Chennai 600025, Tamil Nadu',
+  'Sri Venkateswara College of Engineering',
+  'Pennalur, Sriperumbudur',
+  'Chennai – Bengaluru Highway',
+  'Tamil Nadu – 602117, India',
 ];
 
-/** DUMMY — every href is a guess, not a verified profile. */
+/** ⚠️ Every href is still a guess, not a verified profile. */
 export const SOCIAL_LINKS: SocialLink[] = [
-  { label: 'Instagram', href: 'https://instagram.com/forese_ceg', icon: 'instagram' },
-  { label: 'LinkedIn', href: 'https://linkedin.com/company/forese-ceg', icon: 'linkedin' },
-  { label: 'YouTube', href: 'https://youtube.com/@forese', icon: 'youtube' },
+  { label: 'Instagram', href: 'https://instagram.com/forese_svce', icon: 'instagram' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/company/forese-svce', icon: 'linkedin' },
 ];

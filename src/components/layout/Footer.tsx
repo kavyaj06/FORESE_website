@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { footerRoutes } from '@/app/routes';
 import { CONTACT, LOCATION, SITE, SOCIAL_LINKS } from '@/data/site';
-import { SocialIcon } from '@/components/ui/SocialIcon';
+import { SocialLinkIcon } from './SocialLinkIcon';
 import { HoverWordmark } from '@/components/motion/HoverWordmark';
 import { ForeseMark } from './ForeseMark';
 
@@ -111,7 +111,7 @@ export function Footer() {
 
           {/* Location */}
           <div>
-            <h2 className={COLUMN_HEADING}>Location</h2>
+            <h2 className={COLUMN_HEADING}>Visit us</h2>
             {LOCATION.length > 0 ? (
               <address className="flex space-x-3 not-italic">
                 <MapPin size={18} className="text-accent-blue mt-1 shrink-0" aria-hidden="true" />
@@ -136,30 +136,33 @@ export function Footer() {
             <ul className="text-text-muted flex space-x-6">
               {SOCIAL_LINKS.map((social) => (
                 <li key={social.label}>
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                    className="hover:text-accent-blue duration-fast ease-out-brand block transition-colors"
-                  >
-                    <SocialIcon name={social.icon} />
-                  </a>
+                  <SocialLinkIcon social={social} />
                 </li>
               ))}
             </ul>
           )}
 
           <p className="text-text-muted tablet:text-left text-center">
-            © {new Date().getFullYear()} {SITE.name}. All rights reserved.
+            {/* The wordmark is set in caps in the artwork, so the copyright
+                line matches it rather than the sentence-case `SITE.name` used
+                for document titles. */}
+            © {new Date().getFullYear()} {SITE.name.toUpperCase()}. All rights reserved.
           </p>
         </div>
       </div>
 
       {/* The oversized wordmark, bleeding past the card's bottom edge. Desktop
-          only — it needs width to read and a cursor to reveal it. */}
+          only — it needs width to read and a cursor to reveal it.
+
+          `z-0` against the content's `z-40`, and that ordering is load-bearing
+          rather than cosmetic. The negative top margin pulls this 30rem box up
+          over the bottom of the content, so on top it covered the social row
+          and swallowed its pointer events entirely — the icons could not be
+          hovered or clicked at all. Underneath, the overlap is inert and the
+          letterforms, which sit at the bottom of the box, are still exposed to
+          the cursor for their own reveal. */}
       <div className="desktop:flex -mt-52 -mb-28 hidden h-[30rem]">
-        <HoverWordmark text={SITE.name} className="z-50" />
+        <HoverWordmark text={SITE.name} className="z-0" />
       </div>
     </footer>
   );
