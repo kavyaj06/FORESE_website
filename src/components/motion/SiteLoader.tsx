@@ -6,9 +6,9 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { useScrollLock } from '@/hooks/useScrollLock';
 
 /** Never hold the page for longer than this, whatever is still loading. */
-const MAX_MS = 2400;
+const MAX_MS = 3200;
 /** Seconds. How long the logo takes to wipe in from the left. */
-const REVEAL_S = 0.9;
+const REVEAL_S = 1.5;
 /**
  * Below this the curtain is a flash, which looks like a glitch — and now also
  * long enough for the logo wipe to actually finish plus a short beat on the
@@ -18,7 +18,7 @@ const REVEAL_S = 0.9;
  * This is the real cost of a preloader: every visitor waits this long even when
  * nothing needs loading. Kept as tight as the animation allows.
  */
-const MIN_MS = REVEAL_S * 1000 + 350;
+const MIN_MS = REVEAL_S * 1000 + 450;
 
 interface SiteLoaderProps {
   onDone: () => void;
@@ -32,7 +32,11 @@ interface SiteLoaderProps {
  * delay someone chose to inflict, and on a fast connection it is the slowest
  * part of the site.
  *
- * It is bounded at both ends. `MIN_MS` stops it flashing on a warm cache,
+ * It is bounded at both ends. `MIN_MS` stops it flashing on a warm cache, and
+ * is derived from `REVEAL_S` rather than set independently — the floor has to
+ * cover the wipe, or a warm cache lifts the curtain mid-animation and the
+ * reveal is never seen. Slowing the wipe therefore slows the floor with it,
+ * and `MAX_MS` had to rise to stay above both.
  * where appearing and vanishing inside 100ms reads as a rendering bug.
  * `MAX_MS` guarantees it lifts even if an asset never resolves — a curtain
  * with no timeout is a blank page waiting for one slow request.
@@ -128,17 +132,12 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
               <Logo className="h-16" />
             </motion.div>
 
-            <div className="gap-sm flex w-56 flex-col">
-              <div className="bg-border h-px w-full overflow-hidden">
-                <motion.div
-                  className="bg-accent h-full origin-left"
-                  style={{ scaleX: progress / 100 }}
-                />
-              </div>
-              <p className="text-caption text-text-muted tabular-nums">
-                {String(Math.round(progress)).padStart(3, '0')}
-              </p>
-            </div>
+            {/* The progress bar is gone; the count remains, centred under the
+                mark rather than left-aligned to a rule that no longer exists.
+                `tabular-nums` keeps it from jittering as the digits change. */}
+            <p className="text-caption text-text-muted tabular-nums">
+              {String(Math.round(progress)).padStart(3, '0')}
+            </p>
           </motion.div>
         </motion.div>
       )}
