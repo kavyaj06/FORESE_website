@@ -49,7 +49,7 @@ function Pillar({
       style={{ scale, opacity }}
       whileHover={{ scale: 1.06 }}
       transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-      className="group relative flex aspect-square w-[clamp(7rem,10vw,10.5rem)] shrink-0 items-center justify-center"
+      className="group relative flex aspect-square w-[clamp(6rem,10vw,10.5rem)] shrink-0 items-center justify-center"
     >
       {/* The ring is an SVG stroke rather than a CSS border because a border
           can only appear, where a stroke can be drawn. `-rotate-90` puts the
@@ -75,15 +75,19 @@ function Pillar({
       </svg>
 
       {/* Padding in `%` rather than a fixed step: the circle is fluid, and a
-          20px gutter that is comfortable at 168px crowds the text at 112px. */}
-      <div className="px-[14%] text-center">
+          20px gutter that is comfortable at a 168px ring leaves no usable
+          measure at a 104px one. */}
+      <div className="px-[11%] text-center">
         <Icon
           size={20}
           strokeWidth={1.5}
           aria-hidden="true"
           className="text-text-muted group-hover:text-text duration-base mx-auto transition-colors"
         />
-        <p className="text-label mt-2">{pillar.title}</p>
+        {/* Steps up only at `wide`. Five rings have to share the 54vw the
+            photograph columns leave, so at the narrower desktop widths a ring
+            is around 104px across and a 14px label will not set inside it. */}
+        <p className="text-caption wide:text-label mt-2">{pillar.title}</p>
         {/* The body is the reward for hovering. Five circles each carrying
             three lines of text at this size is a wall; the title alone is
             scannable, and the sentence is there when one is worth reading.
@@ -125,7 +129,15 @@ export function PillarCircles({ progress, reduced }: PillarCirclesProps) {
   }
 
   return (
-    <ul className="mt-xl gap-sm tablet:gap-md flex flex-wrap justify-center">
+    <ul
+      // `gap-xs`, and the step matters. Five rings plus four gaps have to fit
+      // the 54vw the photograph columns leave: at 1024px that is 553px against
+      // 5 x 102px of ring, so the four gaps have 43px between them. `gap-sm`
+      // is 12px — 48px in total — and those five pixels were enough to drop
+      // the fifth ring onto a line of its own. `flex-wrap` stays as the
+      // safety net rather than the plan.
+      className="mt-xl gap-xs flex flex-wrap justify-center"
+    >
       {HOME_PILLARS.map((pillar, index) => (
         <Pillar
           key={pillar.id}

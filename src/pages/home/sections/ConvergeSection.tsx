@@ -64,11 +64,11 @@ export function ConvergeSection() {
 
   return (
     <div ref={sectionRef} className="relative h-[260vh]">
-      <section className="border-border bg-surface sticky top-0 flex h-screen items-center overflow-hidden border-y">
+      <section className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y">
         <motion.div
           aria-hidden="true"
           style={{ x: leftX, opacity: columnsOpacity }}
-          className="gap-md desktop:flex absolute left-0 hidden w-[15vw] flex-col"
+          className="gap-md desktop:flex absolute left-0 hidden w-[21vw] flex-col"
         >
           {leftPhotos.map((photo) => (
             <img
@@ -85,7 +85,7 @@ export function ConvergeSection() {
         <motion.div
           aria-hidden="true"
           style={{ x: rightX, opacity: columnsOpacity }}
-          className="gap-md desktop:flex absolute right-0 hidden w-[15vw] flex-col"
+          className="gap-md desktop:flex absolute right-0 hidden w-[21vw] flex-col"
         >
           {rightPhotos.map((photo) => (
             <img
@@ -102,19 +102,30 @@ export function ConvergeSection() {
         {/* Capped to the space the photograph columns leave, and only where
             those columns exist. `max-w-content` has a 1200px floor, so on any
             window narrower than about 2070px it was wider than the gap between
-            two 21vw columns and the headline and circles ran underneath them —
-            measured as an overlap at 1024 and 1280. Narrower columns plus this
-            cap keep the two apart at every desktop width. */}
-        <Container className="desktop:max-w-[66vw] relative">
+            two 21vw columns, and the headline and circles ran underneath them.
+            54vw against the columns' 42vw leaves a 2vw gutter either side.
+            The photographs keep their full width; it is the content that
+            yields, because the content is what can reflow. */}
+        <Container className="desktop:max-w-[54vw] relative">
           <motion.div style={{ scale: headingScale, opacity: headingOpacity }}>
             <Heading />
           </motion.div>
-
-          {/* Outside the scaling wrapper on purpose: the heading grows into
-              place as the section is scrubbed, and rings inherited that scale
-              would draw at a size that is still changing. */}
-          <PillarCircles progress={progress} reduced={false} />
         </Container>
+
+        {/* The circles get the same 54vw cap but not the page gutter, and that
+            is the difference between five rings on one line and four with the
+            fifth wrapped underneath. Inside a `Container` the gutter comes off
+            both ends of an already tight budget: at 1024px the cap is 553px
+            and the row needs 542px, which the gutter alone was enough to
+            overflow. There is no gutter to lose here — the cap is measured
+            against the photograph columns, so clearance is already built in.
+
+            Also outside the heading's scaling wrapper on purpose: the heading
+            grows into place as the section is scrubbed, and rings inheriting
+            that scale would draw at a size that is still changing. */}
+        <div className="max-w-content px-gutter desktop:max-w-[54vw] desktop:px-0 relative mx-auto w-full">
+          <PillarCircles progress={progress} reduced={false} />
+        </div>
       </section>
     </div>
   );
