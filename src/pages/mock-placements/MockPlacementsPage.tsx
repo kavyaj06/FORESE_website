@@ -14,7 +14,7 @@ export default function MockPlacementsPage() {
     <>
       <PageHero
         eyebrow="FORESE"
-        title="Mock Placement"
+        title="Mock Placements"
         description="A full placement rehearsal — aptitude, group discussion and interviews with HRs from real companies, so the first time you sit in front of a recruiter is not the first time that matters."
         meta={[
           `${PROCESS_STEPS.length} stages`,
