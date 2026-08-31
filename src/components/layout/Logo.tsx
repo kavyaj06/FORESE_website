@@ -1,41 +1,42 @@
 import { Link } from 'react-router-dom';
 import { SITE } from '@/data/site';
 import { cn } from '@/lib/cn';
+import { ForeseMark } from './ForeseMark';
 
 interface LogoProps {
-  /** Extra classes for the wordmark text. */
+  /**
+   * Sizing for the mark, as a height. Width follows from the artwork's own
+   * proportions, so only ever set a height here — `h-8`, `h-10` — and never a
+   * width, or the logo distorts.
+   */
   className?: string;
 }
 
 /**
  * The site's identity mark, linking home.
  *
- * Renders the logo file when `SITE.logoSrc` is set and falls back to the
- * wordmark otherwise. The fallback is the point: the club has not supplied a
- * logo yet, and a broken image in the header is worse than well-set type.
- * Supplying one later is a single value in `site.ts` — nothing here changes.
+ * The club's artwork already contains the word FORESE, so this renders the
+ * lockup alone — there is deliberately no text node beside it, which would
+ * print the name twice.
+ *
+ * That also means the link needs its own accessible name: the mark is
+ * `aria-hidden`, and `aria-label` here is the only thing announcing where the
+ * link goes.
+ *
+ * The mark inherits `currentColor`, so it is dark in the header and light in
+ * the inverse footer and loading curtain without a second asset or a filter.
  */
 export function Logo({ className }: LogoProps) {
   return (
     <Link
       to="/"
       aria-label={`${SITE.name} — home`}
-      className="duration-fast ease-out-brand group inline-flex shrink-0 items-center gap-2.5 transition-opacity hover:opacity-70"
+      // `w-fit` and `self-start` matter: inside a flex column the link would
+      // otherwise stretch to the container's full width, leaving a click
+      // target hundreds of pixels wide that navigates home from empty space.
+      className="duration-fast ease-out-brand inline-flex w-fit shrink-0 items-center self-start transition-opacity hover:opacity-70"
     >
-      {SITE.logoSrc ? (
-        <img src={SITE.logoSrc} alt="" width={32} height={32} className="size-8 object-contain" />
-      ) : (
-        /* Four squares standing in for a mark. Deliberately geometric rather
-           than a made-up emblem — it reads as a placeholder, not as a logo
-           someone might mistake for the club's real one. */
-        <span aria-hidden="true" className="grid shrink-0 grid-cols-2 gap-0.5">
-          <span className="bg-accent size-2" />
-          <span className="bg-accent size-2" />
-          <span className="bg-accent size-2" />
-          <span className="bg-accent size-2 opacity-40" />
-        </span>
-      )}
-      <span className={cn('text-h3 tracking-tight', className)}>{SITE.name}</span>
+      <ForeseMark className={cn('h-9 w-auto', className)} />
     </Link>
   );
 }

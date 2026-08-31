@@ -14,7 +14,9 @@ import type { SocialIconName } from '@/components/ui/SocialIcon';
  *   • CONTACT.email, CONTACT.phone      — real, monitored addresses
  *   • LOCATION                          — the real address
  *   • SOCIAL_LINKS hrefs                — real profile URLs
- *   • SITE.logoSrc                      — the logo file, if there is one
+ *
+ * The logo is NOT a placeholder — it is the club's real artwork, traced to
+ * `src/components/layout/ForeseMark.tsx` (and `public/forese-logo.svg`).
  *
  * The phone number is the standard Indian placeholder and the profile URLs are
  * guesses. Shipping them would publish contact details that do not work.
@@ -38,10 +40,10 @@ export const SITE = {
     'The placement and industry-interaction forum of College of Engineering, Guindy — running mock placements, corporate sessions and the student newsletter.',
 
   /**
-   * Path to the logo under `public/`, or null for the text wordmark.
-   * DUMMY — no logo file has been supplied, so the wordmark is used.
+   * `name` is still used for the document title, the accessible name on the
+   * logo link, and the footer's copyright line. The visible wordmark comes
+   * from the logo artwork itself, not from this string.
    */
-  logoSrc: null as string | null,
 } as const;
 
 export interface ContactDetails {

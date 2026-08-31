@@ -101,7 +101,7 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
             }
             className="gap-2xl flex flex-col items-center"
           >
-            <Logo className="text-h1" />
+            <Logo className="h-16" />
 
             <div className="gap-sm flex w-56 flex-col">
               <div className="bg-border h-px w-full overflow-hidden">
