@@ -48,7 +48,16 @@ export function Reveal({
     <MotionTag
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.12, margin: '0px 0px -60px 0px' }}
+      // `amount: 'some'` — any part of the element entering — rather than a
+      // ratio. A ratio is a trap on a tall block: the largest intersection
+      // ratio an element can ever reach is viewport height over its own
+      // height, so anything taller than the viewport divided by the threshold
+      // can never meet it and stays invisible for good. The team page's member
+      // grid is 6757px, which is past that ceiling on a 700px-tall window and
+      // under it on a 982px one — the same page appearing or not depending on
+      // how tall the browser happens to be. The negative bottom margin still
+      // holds the reveal until the element is properly on screen.
+      viewport={{ once: true, amount: 'some', margin: '0px 0px -60px 0px' }}
       variants={variants}
       transition={{ delay }}
       className={className}

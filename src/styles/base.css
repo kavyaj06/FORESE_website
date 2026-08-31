@@ -15,6 +15,13 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    /* The browser's scroll anchoring keeps a visible element pinned when the
+       DOM above it changes. That is the right default for a feed, and wrong
+       here: on a route change the whole page is swapped, and anchoring would
+       "helpfully" scroll to keep something in place immediately after we have
+       deliberately scrolled to the top — landing the reader partway down a
+       page they just navigated to. */
+    overflow-anchor: none;
     /* Offsets in-page anchor targets so the fixed header never covers them. */
     scroll-padding-top: 6rem;
   }

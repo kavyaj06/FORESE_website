@@ -14,9 +14,10 @@ import { SITE } from '@/data/site';
 /**
  * The app shell wrapping every route.
  *
- * Owns the three things that must behave identically on every page and are
- * easy to forget page by page: the skip link, scroll position on navigation,
- * and document metadata.
+ * Owns the two things that must behave identically on every page and are easy
+ * to forget page by page: the skip link and document metadata. Scroll position
+ * on navigation belongs to `PageTransition`, which mounts when the incoming
+ * page does — see the note there.
  */
 /** Once per tab. A curtain on every visit makes a site feel slower the more
     of it you look at. */
@@ -27,12 +28,6 @@ export function RootLayout() {
   const location = useLocation();
   const [introDone, setIntroDone] = useState(seenIntro);
   const meta = resolveRouteMeta(location.pathname);
-
-  // Reset scroll on navigation. Without this the new page inherits the old
-  // page's scroll offset, which reads as a broken link.
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [location.pathname]);
 
   // Title and meta tags, driven by the route table.
   useEffect(() => {
