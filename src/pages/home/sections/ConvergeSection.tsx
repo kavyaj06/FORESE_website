@@ -103,10 +103,17 @@ export function ConvergeSection() {
             those columns exist. `max-w-content` has a 1200px floor, so on any
             window narrower than about 2070px it was wider than the gap between
             two 21vw columns, and the headline and circles ran underneath them.
-            54vw against the columns' 42vw leaves a 2vw gutter either side.
             The photographs keep their full width; it is the content that
-            yields, because the content is what can reflow. */}
-        <Container className="desktop:max-w-[54vw] relative">
+            yields, because the content is what can reflow.
+
+            60vw here rather than the 54vw the circles get. The heading is
+            centred and its longest line is well short of its box, so it can
+            sit in a wider box without coming near the photographs — and it
+            needs to, because at 1024px the 54vw box minus the page gutter
+            left 488px for a line that sets at about 500px, which broke
+            "beyond the classroom." across two lines and the headline across
+            three. */}
+        <Container className="desktop:max-w-[60vw] relative">
           <motion.div style={{ scale: headingScale, opacity: headingOpacity }}>
             <Heading />
           </motion.div>
@@ -140,9 +147,22 @@ function Heading() {
   return (
     <div className="gap-md mx-auto flex max-w-[52rem] flex-col items-center text-center">
       <p className="text-eyebrow text-text-subtle uppercase">{HOME_CONVERGE.eyebrow}</p>
-      <h2 className="text-h1">
-        {HOME_CONVERGE.titleBefore} <AccentWord>{HOME_CONVERGE.accent}</AccentWord>{' '}
-        {HOME_CONVERGE.titleAfter}
+      {/* Two lines, broken where the sentence breaks — after the comma —
+          rather than wherever the measure happens to run out. Left to wrap on
+          its own it made three ragged lines at the narrower desktop widths,
+          with "beyond" stranded at the end of the second. The break is
+          declared here rather than left to `text-balance`, which optimises for
+          even line lengths and has no idea where the clause ends. */}
+      {/* One step down below `tablet`. The two-line break is the point of the
+          markup below, and on a 390px screen `text-h1` bottoms out at 36px,
+          where "beyond the classroom." sets at about 390px against a ~350px
+          measure — so it broke to three lines anyway and the declared break
+          bought nothing. */}
+      <h2 className="text-h2 tablet:text-h1">
+        <span className="block">{HOME_CONVERGE.titleBefore}</span>
+        <span className="block">
+          <AccentWord>{HOME_CONVERGE.accent}</AccentWord> {HOME_CONVERGE.titleAfter}
+        </span>
       </h2>
       <p className="text-body text-text-muted max-w-[68ch]">{HOME_CONVERGE.description}</p>
     </div>
