@@ -94,7 +94,7 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
           exit={
             prefersReducedMotion
               ? { opacity: 0, transition: { duration: 0.2 } }
-              : { y: '-100%', transition: { duration: 0.85, ease: EASE_OUT_BRAND } }
+              : { y: '-100%', transition: { duration: 1.15, ease: EASE_OUT_BRAND } }
           }
           className="bg-bg fixed inset-0 z-[100] flex flex-col items-center justify-center"
         >
@@ -102,7 +102,7 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
             exit={
               prefersReducedMotion
                 ? {}
-                : { y: -40, opacity: 0, transition: { duration: 0.45, ease: EASE_OUT_BRAND } }
+                : { y: -40, opacity: 0, transition: { duration: 0.55, ease: EASE_OUT_BRAND } }
             }
             // One child now, so no gap and no column: the mark is centred by
             // the overlay itself.

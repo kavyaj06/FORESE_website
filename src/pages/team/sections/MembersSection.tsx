@@ -59,7 +59,9 @@ export function MembersSection() {
     setFilter(tabs[(current + step + tabs.length) % tabs.length].id);
   };
 
-  const activeTeam = CLUB_TEAMS.find((team) => team.id === filter);
+  // `CLUB_TEAMS` still builds the filter tabs and their counts. What is gone
+  // is the paragraph that described the selected team beneath them — the
+  // descriptions stay in the data, unused by this page.
 
   return (
     <section className="py-section">
@@ -106,23 +108,6 @@ export function MembersSection() {
             })}
           </div>
         </Reveal>
-
-        {/* What the selected team actually does. Without this the filter is
-            three unexplained words. */}
-        <AnimatePresence mode="wait" initial={false}>
-          {activeTeam && (
-            <motion.p
-              key={activeTeam.id}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: EASE_OUT_BRAND }}
-              className="text-body text-text-muted mt-lg max-w-[58ch]"
-            >
-              {activeTeam.description}
-            </motion.p>
-          )}
-        </AnimatePresence>
 
         <motion.div
           layout={!prefersReducedMotion}
