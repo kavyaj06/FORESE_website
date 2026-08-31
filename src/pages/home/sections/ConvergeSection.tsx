@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { AccentWord } from '@/components/motion/AccentWord';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { GALLERY_ALBUMS } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
@@ -28,6 +29,10 @@ import { PillarCircles } from '../components/PillarCircles';
 export function ConvergeSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
+  // Matches the `desktop` breakpoint, which is where the photograph columns
+  // are allowed to render. Below it the pinned layout has nothing to show, so
+  // the DOM itself has to differ rather than just the styling.
+  const isDesktop = useMediaQuery('(min-width: 64rem)');
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -50,6 +55,10 @@ export function ConvergeSection() {
   const photos = GALLERY_ALBUMS.flatMap((album) => album.photos);
   const leftPhotos = photos.slice(0, 3);
   const rightPhotos = photos.slice(3, 6);
+
+  if (!prefersReducedMotion && !isDesktop) {
+    return <ConvergeMobile photos={photos} />;
+  }
 
   if (prefersReducedMotion) {
     return (
@@ -135,6 +144,73 @@ export function ConvergeSection() {
         </div>
       </section>
     </div>
+  );
+}
+
+/**
+ * The same section, composed for a phone.
+ *
+ * The desktop version pins a panel and slides two columns of photographs in
+ * from either edge. Neither survives the trip down: the columns are hidden
+ * below `desktop` because there is no room beside the text for them, and with
+ * them gone the pin was holding a still image for 1350px of scrolling — the
+ * section was 2194px tall on a 390px screen and contained no photograph at
+ * all. What reached the phone was the argument's text with the argument's
+ * imagery stripped out, which is exactly what it looked like.
+ *
+ * So the phone gets its own composition rather than a squeezed copy. Nothing
+ * is pinned; the section is as tall as its content. The photographs return as
+ * a full-bleed rail that drifts sideways against the page's own scrolling —
+ * horizontal movement driven by vertical scroll, which reads as depth and
+ * needs no width beside the text to work. Deliberately not a swipeable
+ * carousel: nothing here is worth asking a reader to operate.
+ */
+function ConvergeMobile({ photos }: { photos: { id: string; src?: string }[] }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const ringsRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress: sectionProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+  // Starts inset and ends pulled left, so the rail is never flush with either
+  // edge — a strip that begins at x=0 looks like it failed to load.
+  const railX = useTransform(sectionProgress, [0, 1], ['2%', '-26%']);
+
+  const { scrollYProgress: ringProgress } = useScroll({
+    target: ringsRef,
+    offset: ['start 0.95', 'start 0.3'],
+  });
+
+  return (
+    <section
+      ref={sectionRef}
+      className="border-border bg-surface py-section overflow-hidden border-y"
+    >
+      <Container>
+        <Heading />
+      </Container>
+
+      <motion.ul aria-hidden="true" style={{ x: railX }} className="gap-sm mt-2xl flex w-max">
+        {photos.slice(0, 6).map((photo) => (
+          <li key={photo.id} className="w-[58vw] shrink-0">
+            <img
+              src={photo.src}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="aspect-[4/3] w-full rounded-lg object-cover"
+            />
+          </li>
+        ))}
+      </motion.ul>
+
+      <Container>
+        <div ref={ringsRef}>
+          <PillarCircles progress={ringProgress} reduced={false} />
+        </div>
+      </Container>
+    </section>
   );
 }
 
