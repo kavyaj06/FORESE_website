@@ -8,6 +8,7 @@ import { GALLERY_ALBUMS, type GalleryPhoto } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
 import { PillarCircles } from '../components/PillarCircles';
 import { ConvergePhoto } from '../components/ConvergePhoto';
+import { ConvergeRail } from '../components/ConvergeRail';
 import { useIdleAdvance } from '../components/useIdleAdvance';
 
 /**
@@ -185,7 +186,6 @@ export function ConvergeSection() {
 function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const ringsRef = useRef<HTMLDivElement>(null);
-  const railRef = useRef<HTMLUListElement>(null);
 
   const { scrollYProgress: sectionProgress } = useScroll({
     target: sectionRef,
@@ -200,16 +200,6 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
     offset: ['start 0.95', 'start 0.3'],
   });
 
-  // Watched on the rail rather than the section. The section is taller than a
-  // phone screen, so by the time its last third is in view the photographs are
-  // long gone above the fold — the rail would be cycling where nobody could see
-  // it. The element that has to be on screen is the one doing the changing.
-  const step = useIdleAdvance({ ref: railRef, enabled: true });
-  const railSlots = Array.from(
-    { length: SLOT_COUNT },
-    (_, i) => photos[(step * SLOT_COUNT + i) % photos.length],
-  );
-
   return (
     <section
       ref={sectionRef}
@@ -219,22 +209,7 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
         <Heading />
       </Container>
 
-      <motion.ul
-        ref={railRef}
-        aria-hidden="true"
-        style={{ x: railX }}
-        className="gap-sm mt-2xl flex w-max"
-      >
-        {railSlots.map((photo, index) => (
-          <li key={index} className="w-[58vw] shrink-0">
-            <ConvergePhoto
-              photo={photo}
-              delayMs={index * STAGGER_MS}
-              className="aspect-[4/3] w-full"
-            />
-          </li>
-        ))}
-      </motion.ul>
+      <ConvergeRail photos={photos} drift={railX} />
 
       <Container>
         <div ref={ringsRef}>
