@@ -177,7 +177,7 @@ export function Footer() {
           hovered or clicked at all. Underneath, the overlap is inert and the
           letterforms, which sit at the bottom of the box, are still exposed to
           the cursor for their own reveal. */}
-      <div className="desktop:flex -mt-52 -mb-8 hidden h-[30rem]">
+      <div className="desktop:flex -mt-52 -mb-16 hidden h-[30rem]">
         <HoverWordmark text={SITE.name} className="z-0" />
       </div>
     </footer>
