@@ -26,17 +26,25 @@ export function StatBand() {
       <div aria-hidden="true" className="bg-dot-grid mask-radial-fade absolute inset-0 -z-10" />
 
       <Container>
-        {/* Equal columns from tablet up. It used to go three-across only at
-            `desktop`, so every laptop between the two breakpoints stacked the
-            three figures into one long left-aligned column — the band reads as
-            a row of figures or it does not read at all. `grid-cols-3` gives
-            three 1fr tracks, so the columns stay equal whatever the numbers
-            underneath them are. */}
-        <Reveal staggerChildren className="gap-xl tablet:grid-cols-3 grid grid-cols-1">
+        {/* Three across at every width, phones included. The band reads as a
+            row of figures or it does not read at all: stacked one per screen,
+            they arrive as three unrelated numbers with no sense that they
+            belong together, and the section costs three screens of scrolling
+            to say one thing. The type shrinks to fit instead — see below. */}
+        <Reveal staggerChildren className="gap-md tablet:gap-xl grid grid-cols-3">
           {HOME_STATS.map((stat) => (
             <RevealItem key={stat.label} className="gap-xs flex flex-col items-center text-center">
-              <CountUp value={stat.value} className="text-display leading-none" />
-              <p className="text-body-lg text-balance">{stat.label}</p>
+              {/* The figure steps down twice on the way to a phone. At
+                  `text-display` three of these will not sit side by side on a
+                  390px screen, and shrinking the row rather than stacking it
+                  is the trade that keeps the three readable as one set. */}
+              <CountUp
+                value={stat.value}
+                className="text-h2 tablet:text-h1 desktop:text-display leading-none"
+              />
+              <p className="text-caption tablet:text-body desktop:text-body-lg text-balance">
+                {stat.label}
+              </p>
             </RevealItem>
           ))}
         </Reveal>
