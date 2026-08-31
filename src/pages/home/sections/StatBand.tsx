@@ -19,7 +19,13 @@ export function StatBand() {
       <div aria-hidden="true" className="bg-dot-grid mask-radial-fade absolute inset-0 -z-10" />
 
       <Container>
-        <Reveal staggerChildren className="gap-xl desktop:grid-cols-3 grid">
+        {/* Equal columns from tablet up. It used to go three-across only at
+            `desktop`, so every laptop between the two breakpoints stacked the
+            three figures into one long left-aligned column — the band reads as
+            a row of figures or it does not read at all. `grid-cols-3` gives
+            three 1fr tracks, so the columns stay equal whatever the numbers
+            underneath them are. */}
+        <Reveal staggerChildren className="gap-xl tablet:grid-cols-3 grid grid-cols-1">
           {HOME_STATS.map((stat) => (
             <RevealItem key={stat.label} className="gap-xs flex flex-col">
               <CountUp value={stat.value} className="text-display leading-none" />
