@@ -45,17 +45,34 @@ const FADE: Variants = {
   visible: { opacity: 1 },
 };
 
-/** Seconds between rows, and the ceiling on the accumulated delay. */
+/**
+ * Seconds between rows, and the ceiling on the accumulated delay.
+ *
+ * This only bites when several rows do trigger together — a filter switch,
+ * or a short list that fits the screen at once. Scrolling normally, the
+ * viewport threshold has already separated them and each row's delay is just
+ * a short beat before it stands up.
+ */
 const ROW_STEP = 0.07;
 const MAX_DELAY = 0.35;
 
 /**
- * Rows reveal once and stay revealed. `amount` is deliberately low: waiting
- * for a third of a tall row to clear the fold means the row is well up the
- * screen before it starts, which reads as a late reaction rather than an
- * entrance.
+ * Rows reveal once, and one at a time.
+ *
+ * The threshold is what enforces "one at a time". A low `amount` fires as soon
+ * as any sliver of a row clears the fold, and since rows are roughly a third
+ * of a screen apart, three or four cross that line inside a single flick of
+ * the wheel and light as a block. Requiring 40% of the row spaces the triggers
+ * a full row-height of scrolling apart — so each event answers its own
+ * arrival rather than the list answering the scroll.
+ *
+ * No negative bottom margin, deliberately. Pulling the trigger line up the
+ * screen as well left a row that was two-thirds visible at the bottom edge
+ * still blank, which after a filter click reads as a row that failed to
+ * render rather than one waiting its turn. `amount` alone sets the spacing;
+ * the margin only ever added that failure mode.
  */
-const VIEWPORT = { once: true, amount: 0.15, margin: '0px 0px -60px 0px' } as const;
+const VIEWPORT = { once: true, amount: 0.4 } as const;
 
 /**
  * The outgoing list leaves as one block, not row by row.
