@@ -1,7 +1,7 @@
 import { PageHero } from '@/components/sections/PageHero';
+import { AboutMocks } from './sections/AboutMocks';
 import { ProcessTimeline } from './sections/ProcessTimeline';
 import { PROCESS_STEPS } from './data';
-import { DriveCallout } from './sections/DriveCallout';
 
 /**
  * Mock Placements.
@@ -22,8 +22,8 @@ export default function MockPlacementsPage() {
           'For all pre-final years',
         ]}
       />
+      <AboutMocks />
       <ProcessTimeline />
-      <DriveCallout />
     </>
   );
 }
