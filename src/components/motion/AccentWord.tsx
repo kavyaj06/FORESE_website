@@ -13,6 +13,17 @@ import { cn } from '@/lib/cn';
  * `<em>`. If a word ever needs real emphasis for a screen reader, that is a
  * different element.
  */
+/**
+ * The face change itself, separated so it can be handed to `TextReveal`.
+ *
+ * A headline that reveals word by word has to reveal its accent word too. This
+ * component renders a plain, always-visible span, which is right inside a
+ * block that reveals as a unit — and wrong inside a `TextReveal`, where every
+ * other word is held down and this one would sit there alone. Callers in that
+ * position pass this class to `TextReveal` instead of nesting this component.
+ */
+export const ACCENT_WORD_CLASS = 'pr-[0.06em] font-serif italic';
+
 export function AccentWord({ children, className }: { children: ReactNode; className?: string }) {
-  return <span className={cn('pr-[0.06em] font-serif italic', className)}>{children}</span>;
+  return <span className={cn(ACCENT_WORD_CLASS, className)}>{children}</span>;
 }

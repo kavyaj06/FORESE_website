@@ -49,6 +49,11 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
   const [open, setOpen] = useState(true);
   const startedAt = useRef(Date.now());
 
+  // Held in a ref so the effect below does not re-run — and does not restart
+  // the whole curtain — if the parent passes a new function identity.
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
+
   useScrollLock(open);
 
   useEffect(() => {
@@ -63,7 +68,18 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
       finished = true;
 
       const elapsed = Date.now() - startedAt.current;
-      window.setTimeout(() => setOpen(false), Math.max(0, MIN_MS - elapsed));
+      window.setTimeout(
+        () => {
+          setOpen(false);
+          // Released as the curtain *starts* to rise, not after it has gone.
+          // Waiting for the exit to finish left the hero standing empty for the
+          // whole 1.15s lift and only then filling in, which read as the page
+          // arriving twice. Firing here means the headline is already rising as
+          // the curtain uncovers it — the two motions are one movement.
+          onDoneRef.current();
+        },
+        Math.max(0, MIN_MS - elapsed),
+      );
     };
 
     const ready = Promise.all([
@@ -82,7 +98,7 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
   }, []);
 
   return (
-    <AnimatePresence onExitComplete={onDone}>
+    <AnimatePresence>
       {open && (
         <motion.div
           // Not a dialog and not focus-trapped: it takes no input and blocks
