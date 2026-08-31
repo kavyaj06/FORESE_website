@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, motion, type Variants } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { Tilt3D } from '@/components/motion/Tilt3D';
@@ -14,6 +14,54 @@ import { EVENT_GROUPS } from '../data';
 
 /** Rows shown before paging. Enough to fill a screen without burying the tabs. */
 const PAGE_SIZE = 5;
+
+/**
+ * The list swap.
+ *
+ * Enter is staggered — rows stand up one after another, tipped back and
+ * slightly low, rotating flat as they settle. A plain fade-and-rise reads as
+ * content appearing; this reads as content arriving.
+ *
+ * Exit is not staggered, and is roughly a third of the duration. The outgoing
+ * list is not information any more, so it should be gone, not performed; a
+ * reversed stagger on the way out just makes every filter click feel slow.
+ * `delayChildren` on the enter side holds the new rows back until the old ones
+ * have nearly finished, so the two lists overlap in the same grid cell without
+ * the reader ever seeing two sets of text on top of each other.
+ */
+const LIST: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.14 } },
+  exit: { transition: { staggerChildren: 0 } },
+};
+
+const ROW: Variants = {
+  hidden: { opacity: 0, y: 26, rotateX: -14, transformPerspective: 1200 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    transformPerspective: 1200,
+    transition: { duration: 0.45, ease: EASE_OUT_BRAND },
+  },
+  exit: {
+    opacity: 0,
+    y: -14,
+    rotateX: 8,
+    transformPerspective: 1200,
+    transition: { duration: 0.16, ease: 'easeIn' },
+  },
+};
+
+/** Reduced motion: the same three states, opacity only. */
+const FADE: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.12 } },
+};
+
+/** Hover is a separate, springier transition — it answers the pointer, not the scroll. */
+const HOVER = { type: 'spring', stiffness: 320, damping: 26 } as const;
 
 /**
  * The events board: a featured carousel, a filter, and the list.
@@ -89,45 +137,48 @@ export function EventsBoard() {
             {filter === 'completed' ? EVENT_GROUPS.completed.empty : EVENT_GROUPS.upcoming.empty}
           </p>
         ) : (
-          <motion.ul
-            layout={!prefersReducedMotion}
-            style={{ perspective: 1200 }}
-            className="mt-2xl gap-md flex flex-col"
-          >
-            <AnimatePresence mode="popLayout" initial={false}>
-              {visible.map((event, index) => (
-                <motion.li
-                  key={event.id}
-                  layout={!prefersReducedMotion}
-                  custom={index}
-                  // Rows arrive by standing up: tipped back and slightly below,
-                  // rotating flat as they settle. A plain fade-and-rise reads
-                  // as content appearing; this reads as content arriving.
-                  initial={
-                    prefersReducedMotion
-                      ? { opacity: 0 }
-                      : { opacity: 0, y: 26, rotateX: -14, transformPerspective: 1200 }
-                  }
-                  animate={
-                    prefersReducedMotion
-                      ? { opacity: 1 }
-                      : { opacity: 1, y: 0, rotateX: 0, transformPerspective: 1200 }
-                  }
-                  exit={
-                    prefersReducedMotion
-                      ? { opacity: 0 }
-                      : { opacity: 0, y: -14, rotateX: 8, transformPerspective: 1200 }
-                  }
-                  transition={{ duration: 0.45, ease: EASE_OUT_BRAND, delay: index * 0.06 }}
-                  className="[transform-origin:50%_100%]"
-                >
-                  <Tilt3D max={3} perspective={1600} liftZ={14}>
-                    <EventRow event={event} photoCount={albumFor(event.id)?.photos.length ?? 0} />
-                  </Tilt3D>
-                </motion.li>
-              ))}
+          /* The list is a stack, not a flow: both the outgoing and incoming
+             lists occupy grid cell 1/1, so the container is always as tall as
+             the taller of the two. Without that the old list unmounts, the
+             section collapses to nothing for the length of the swap, and the
+             pagination and footer jump up the screen and back. */
+          <div data-events-stack className="mt-2xl grid" style={{ perspective: 1200 }}>
+            <AnimatePresence initial={false}>
+              <motion.ul
+                // Keyed by the filter and page, so no row is ever shared
+                // between two states. This is the whole fix for rows sliding
+                // across the screen when you moved from Completed to All: a
+                // row present in both lists kept its key, and `layout` then
+                // did exactly what it is for — animated it from its old
+                // position to its new one. Correct behaviour, wrong effect.
+                // Switching a filter is a replacement, not a rearrangement.
+                key={`${filter}-${safePage}`}
+                variants={prefersReducedMotion ? undefined : LIST}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="gap-md flex flex-col [grid-area:1/1]"
+              >
+                {visible.map((event) => (
+                  <motion.li
+                    key={event.id}
+                    variants={prefersReducedMotion ? FADE : ROW}
+                    // Hover lifts the whole row a little. Kept on the outer
+                    // element rather than inside the card so it composes with
+                    // Tilt3D's rotation instead of fighting it for the same
+                    // transform.
+                    whileHover={prefersReducedMotion ? undefined : { scale: 1.015 }}
+                    transition={HOVER}
+                    className="[transform-origin:50%_100%]"
+                  >
+                    <Tilt3D max={3} perspective={1600} liftZ={14}>
+                      <EventRow event={event} photoCount={albumFor(event.id)?.photos.length ?? 0} />
+                    </Tilt3D>
+                  </motion.li>
+                ))}
+              </motion.ul>
             </AnimatePresence>
-          </motion.ul>
+          </div>
         )}
 
         {pageCount > 1 && (
