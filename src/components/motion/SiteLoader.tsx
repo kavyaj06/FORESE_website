@@ -46,29 +46,21 @@ interface SiteLoaderProps {
  */
 export function SiteLoader({ onDone }: SiteLoaderProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
-  const [progress, setProgress] = useState(0);
   const [open, setOpen] = useState(true);
   const startedAt = useRef(Date.now());
 
   useScrollLock(open);
 
   useEffect(() => {
-    let frame = 0;
     let finished = false;
 
-    // Creep towards 90% while waiting. The last 10% belongs to the real
-    // completion event, so the bar never sits full while the page is not ready.
-    const creep = () => {
-      setProgress((current) => (current < 90 ? current + (90 - current) * 0.04 : current));
-      frame = requestAnimationFrame(creep);
-    };
-    frame = requestAnimationFrame(creep);
-
+    // The creeping percentage that used to drive the readout is gone with it.
+    // It existed to have something to display; nothing here needs to know how
+    // far along loading is, only whether it is done. That also takes a
+    // per-frame setState off the page during its slowest moment.
     const finish = () => {
       if (finished) return;
       finished = true;
-      cancelAnimationFrame(frame);
-      setProgress(100);
 
       const elapsed = Date.now() - startedAt.current;
       window.setTimeout(() => setOpen(false), Math.max(0, MIN_MS - elapsed));
@@ -85,7 +77,6 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
     const failsafe = window.setTimeout(finish, MAX_MS);
 
     return () => {
-      cancelAnimationFrame(frame);
       window.clearTimeout(failsafe);
     };
   }, []);
@@ -113,7 +104,9 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
                 ? {}
                 : { y: -40, opacity: 0, transition: { duration: 0.45, ease: EASE_OUT_BRAND } }
             }
-            className="gap-2xl flex flex-col items-center"
+            // One child now, so no gap and no column: the mark is centred by
+            // the overlay itself.
+            className="flex"
           >
             {/* The logo wipes in from the left rather than fading. Measured
                 the reference frame by frame to check which it was: its left
@@ -128,16 +121,15 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
                 duration: prefersReducedMotion ? 0.3 : REVEAL_S,
                 ease: EASE_OUT_BRAND,
               }}
+              // `flex`, not a bare block. The logo link is `inline-flex`, so
+              // in a block parent it sits on a text baseline and the
+              // line-height's half-leading adds 7px beneath it — which made
+              // this box taller than the mark and pushed the mark 4px above
+              // true centre. Flex takes it out of inline layout entirely.
+              className="flex"
             >
               <Logo className="h-16" />
             </motion.div>
-
-            {/* The progress bar is gone; the count remains, centred under the
-                mark rather than left-aligned to a rule that no longer exists.
-                `tabular-nums` keeps it from jittering as the digits change. */}
-            <p className="text-caption text-text-muted tabular-nums">
-              {String(Math.round(progress)).padStart(3, '0')}
-            </p>
           </motion.div>
         </motion.div>
       )}
