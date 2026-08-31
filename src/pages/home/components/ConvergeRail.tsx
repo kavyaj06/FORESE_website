@@ -11,6 +11,23 @@ interface ConvergeRailProps {
 }
 
 /**
+ * The item's width and the gap between items, as they are written in the
+ * markup below. Repeated here because the track has to be offset by exactly one
+ * of them, and a number that must agree with a class name is safer stated once
+ * than inferred twice.
+ */
+const ITEM_VW = 58;
+const GAP = '0.75rem';
+/**
+ * Where the track sits at rest: back by one whole item, then in by half the
+ * leftover width. That puts the *second* mounted photograph dead centre with
+ * its neighbours cut by the frame either side — which is the arrangement the
+ * rail had before it could step, and the reason it reads as a strip rather
+ * than as a row that happens to start at the edge.
+ */
+const REST_OFFSET = `calc(${(100 - ITEM_VW) / 2 - ITEM_VW}vw - ${GAP})`;
+
+/**
  * How many photographs are mounted. Two are on screen at 58vw each, so this is
  * one behind, two visible and two in hand — enough that nothing is ever
  * conjured at the edge of the frame, few enough that a phone is not holding a
@@ -95,7 +112,11 @@ export function ConvergeRail({ photos, drift }: ConvergeRailProps) {
   return (
     <div ref={railRef} className="mt-2xl overflow-hidden">
       <motion.div style={{ x: drift }}>
-        <motion.ul animate={controls} className="gap-sm flex w-max">
+        <motion.ul
+          animate={controls}
+          style={{ marginLeft: REST_OFFSET }}
+          className="gap-sm flex w-max"
+        >
           {visible.map((photo, index) => (
             <li
               key={base + index}

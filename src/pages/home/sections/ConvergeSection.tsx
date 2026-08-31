@@ -191,9 +191,12 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
     target: sectionRef,
     offset: ['start end', 'end start'],
   });
-  // Starts inset and ends pulled left, so the rail is never flush with either
-  // edge — a strip that begins at x=0 looks like it failed to load.
-  const railX = useTransform(sectionProgress, [0, 1], ['2%', '-26%']);
+  // In `vw`, not `%`. A percentage here is a percentage of the *track*, which
+  // is several screens wide, so `-26%` moved the rail most of a screen and
+  // dragged the centred photograph out of frame. The drift is meant to be a
+  // parallax against the page, not a second carousel: a few vw either side of
+  // wherever the track is resting.
+  const railX = useTransform(sectionProgress, [0, 1], ['3vw', '-3vw']);
 
   const { scrollYProgress: ringProgress } = useScroll({
     target: ringsRef,
