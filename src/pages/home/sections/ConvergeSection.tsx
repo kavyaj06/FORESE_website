@@ -4,7 +4,7 @@ import { Container } from '@/components/layout/Container';
 import { AccentWord } from '@/components/motion/AccentWord';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { GALLERY_ALBUMS } from '@/pages/gallery/data';
+import { GALLERY_ALBUMS, type GalleryPhoto } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
 import { PillarCircles } from '../components/PillarCircles';
 import { ConvergePhoto } from '../components/ConvergePhoto';
@@ -101,7 +101,12 @@ export function ConvergeSection() {
           className="gap-md desktop:flex absolute left-0 hidden w-[21vw] flex-col"
         >
           {slots.slice(0, 3).map((photo, index) => (
-            <ConvergePhoto key={index} photo={photo} delayMs={index * STAGGER_MS} />
+            <ConvergePhoto
+              key={index}
+              photo={photo}
+              delayMs={index * STAGGER_MS}
+              className="h-[22vh] w-full"
+            />
           ))}
         </motion.div>
 
@@ -111,7 +116,12 @@ export function ConvergeSection() {
           className="gap-md desktop:flex absolute right-0 hidden w-[21vw] flex-col"
         >
           {slots.slice(3).map((photo, index) => (
-            <ConvergePhoto key={index + 3} photo={photo} delayMs={(index + 3) * STAGGER_MS} />
+            <ConvergePhoto
+              key={index + 3}
+              photo={photo}
+              delayMs={(index + 3) * STAGGER_MS}
+              className="h-[22vh] w-full"
+            />
           ))}
         </motion.div>
 
@@ -172,9 +182,10 @@ export function ConvergeSection() {
  * needs no width beside the text to work. Deliberately not a swipeable
  * carousel: nothing here is worth asking a reader to operate.
  */
-function ConvergeMobile({ photos }: { photos: { id: string; src?: string }[] }) {
+function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
   const sectionRef = useRef<HTMLElement>(null);
   const ringsRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLUListElement>(null);
 
   const { scrollYProgress: sectionProgress } = useScroll({
     target: sectionRef,
@@ -189,6 +200,16 @@ function ConvergeMobile({ photos }: { photos: { id: string; src?: string }[] }) 
     offset: ['start 0.95', 'start 0.3'],
   });
 
+  // Watched on the rail rather than the section. The section is taller than a
+  // phone screen, so by the time its last third is in view the photographs are
+  // long gone above the fold — the rail would be cycling where nobody could see
+  // it. The element that has to be on screen is the one doing the changing.
+  const step = useIdleAdvance({ ref: railRef, enabled: true });
+  const railSlots = Array.from(
+    { length: SLOT_COUNT },
+    (_, i) => photos[(step * SLOT_COUNT + i) % photos.length],
+  );
+
   return (
     <section
       ref={sectionRef}
@@ -198,15 +219,18 @@ function ConvergeMobile({ photos }: { photos: { id: string; src?: string }[] }) 
         <Heading />
       </Container>
 
-      <motion.ul aria-hidden="true" style={{ x: railX }} className="gap-sm mt-2xl flex w-max">
-        {photos.slice(0, 6).map((photo) => (
-          <li key={photo.id} className="w-[58vw] shrink-0">
-            <img
-              src={photo.src}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="aspect-[4/3] w-full rounded-lg object-cover"
+      <motion.ul
+        ref={railRef}
+        aria-hidden="true"
+        style={{ x: railX }}
+        className="gap-sm mt-2xl flex w-max"
+      >
+        {railSlots.map((photo, index) => (
+          <li key={index} className="w-[58vw] shrink-0">
+            <ConvergePhoto
+              photo={photo}
+              delayMs={index * STAGGER_MS}
+              className="aspect-[4/3] w-full"
             />
           </li>
         ))}

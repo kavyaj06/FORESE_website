@@ -6,6 +6,12 @@ interface ConvergePhotoProps {
   photo: GalleryPhoto;
   /** Staggers this slot behind its neighbours so the six do not flip as one. */
   delayMs: number;
+  /**
+   * The slot's own box. The columns want a fixed height; the phone's rail
+   * wants a fixed aspect. Everything else about a slot is the same in both, so
+   * the shape is the caller's business and the crossfade is this component's.
+   */
+  className?: string;
 }
 
 /**
@@ -25,7 +31,7 @@ interface ConvergePhotoProps {
  * middle of the screen; at the 350ms the interface uses elsewhere it registers
  * as a flicker demanding attention rather than as the background changing.
  */
-export function ConvergePhoto({ photo, delayMs }: ConvergePhotoProps) {
+export function ConvergePhoto({ photo, delayMs, className }: ConvergePhotoProps) {
   const [top, setTop] = useState(photo);
   const [bottom, setBottom] = useState(photo);
   const [topVisible, setTopVisible] = useState(true);
@@ -44,7 +50,7 @@ export function ConvergePhoto({ photo, delayMs }: ConvergePhotoProps) {
   const layer = 'absolute inset-0 size-full rounded-lg object-cover transition-opacity';
 
   return (
-    <div className="relative h-[22vh] w-full overflow-hidden rounded-lg">
+    <div className={cn('relative overflow-hidden rounded-lg', className)}>
       <img
         src={top.src}
         alt=""
