@@ -65,3 +65,12 @@
     color-mix(in srgb, var(--color-accent-blue) 20%, transparent) 100%
   );
 }
+
+/* The board's dot field: 2px dots on a 24px grid, per its brief. Deliberately
+   fainter and wider than `bg-dot-grid`, which is a page texture; this one sits
+   behind a composition and must not compete with it. */
+@utility bg-board-dots {
+  background-image: radial-gradient(var(--color-board-dot) 2px, transparent 2px);
+  background-size: 24px 24px;
+  background-position: -1px -1px;
+}

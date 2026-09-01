@@ -1,25 +1,38 @@
 import { useCallback, useState } from 'react';
 import { motion } from 'framer-motion';
-import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import { SegmentedTabs } from '@/components/sections/SegmentedTabs';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
+import {
+  CANVAS_MIN_HEIGHT,
+  CENTRE_Y,
+  FEATURED,
+  FEATURED_IMAGE,
+  MOBILE_SATELLITE_COUNT,
+  MOVE,
+  MOVE_OUT,
+  SATELLITES,
+  STACK,
+  TABLET_FEATURED,
+  TABLET_IMAGE,
+  TABLET_OFFSET_SCALE,
+  TABLET_SATELLITE_COUNT,
+} from './boardLayout';
 
 export interface StackThumb {
   tag: string;
-  /** Shown on the thumbnail's back when it is flipped. */
+  /** Shown on the preview's back when it is flipped. */
   flipText: string;
   image?: string;
 }
 
 export interface StackSlide {
   id: string;
-  /** Tab label and the card's own category. */
+  /** Tab label, and the card's own title. */
   category: string;
   image?: string;
   description: string;
-  /** Top-left, top-right, bottom-left, bottom-right. */
   thumbnails: [StackThumb, StackThumb, StackThumb, StackThumb];
 }
 
@@ -29,85 +42,56 @@ interface CaseStudyStackProps {
 }
 
 /**
- * Per depth: how far back a card sits, and how much it shrinks.
+ * The card's shell, exactly as specified: a hairline, a 2px lift, and a 12px
+ * corner.
  *
- * `OFFSET_Y` is negative, and that is a deliberate reading of the brief rather
- * than an oversight. The brief asks for cards offset "down-and-back" with
- * "only its top edge/sliver visible", and those two cannot both be true: a
- * card pushed down shows its *bottom* edge. Offset upward, each buried card
- * shows a sliver of its top, which is the arrangement in the reference and the
- * one the brief describes in the half that is about what you see.
- *
- * Pushed down it was also invisible. Scaling from `origin-top` raises a card's
- * bottom edge by 5% of its height — about 22px here — which cancelled a 24px
- * downward offset almost exactly, and five cards rendered as one.
+ * The radius is set here rather than with `rounded-xl` because this project
+ * overrides Tailwind's radius scale — `rounded-xl` resolves to 24px, twice what
+ * the brief asks for, and the difference is the whole distance between a
+ * printed card and a soft UI panel.
  */
-const OFFSET_Y = -22;
-const OFFSET_X = 6;
-const SCALE_STEP = 0.05;
-
-/** Where each satellite rests, as a percentage of the stage. Reading order. */
-const CORNERS = [
-  { x: 12, y: 16 },
-  { x: 88, y: 14 },
-  { x: 14, y: 82 },
-  { x: 86, y: 80 },
-] as const;
-
-const CHANGE = { duration: 0.45, ease: EASE_OUT_BRAND };
-const CROSSFADE = { duration: 0.35, ease: EASE_OUT_BRAND };
-/** Between one satellite being dealt and the next. */
-const DEAL_STAGGER = 0.1;
+const CHROME = {
+  border: '1px solid rgba(0,0,0,0.08)',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  borderRadius: 12,
+};
 
 /**
- * A stack of cards that can be advanced two ways, and peeked at with a third.
+ * A stack of project cards on a canvas, advanced two ways.
  *
  * **The stack order is state, not markup.** `order` is a list of ids whose
- * first entry is the visible card; every card's depth is its index in that
- * list. Both ways of changing the active card are the same operation on it —
- * cutting the deck at some index — which is why a tab and the card itself can
- * never disagree about what is on top. A tab cuts at that slide; clicking the
- * card cuts at one.
+ * first entry is the featured card; a card's depth is its index in that list.
+ * Both ways of changing the featured card are the same operation on it —
+ * cutting the deck at an index — so a tab and the card itself can never
+ * disagree about what is on top. A tab cuts at that slide; clicking the card
+ * cuts at one.
  *
- * Cards are never re-created, only re-indexed, so framer animates each one from
- * where it was to where it now belongs. That is what makes the outgoing card
- * appear to travel to the back rather than blink out of existence — the motion
- * is a consequence of the data, not a separate script that has to be kept in
- * step with it.
+ * **Every card is the same size in the DOM, and scale does the rest.** This is
+ * what lets the brief's rule hold: nothing animates width, height, top or left,
+ * only transform and opacity, which the compositor can do without touching
+ * layout. Cards are re-indexed rather than re-created, so each is animated from
+ * where it was to where it now belongs.
  *
- * **`z-index` is animated rather than set.** Setting it on reorder puts the
- * outgoing card behind the deck on the first frame, so the whole journey
- * backwards happens out of sight and the change reads as a cut rather than a
- * card being placed. Animated, it passes behind its new neighbours in turn.
+ * **One card reads as featured at every instant.** That is the composition's
+ * only hard rule, and it is why a spring is explicitly wrong: a spring
+ * overshoots, and at the moment it passes its target the outgoing and incoming
+ * cards are briefly the same size. A hard decelerate never does that.
  *
- * **The flip belongs to the satellites, not to the card in the middle.** The
- * middle card is the thing you click to advance the deck; giving the same
- * element a hover that turns it over means the two gestures land on the same
- * target and the reader cannot tell which one they are about to get. The small
- * cards do nothing else, so a flip is theirs to spend.
- *
- * It reads no state and writes none: a preview that quietly changed which card
- * was active would be a trap. On a touchscreen there is no hover, so a tap on a
- * satellite flips it — which is safe precisely because a satellite has no other
- * job. Keyboard focus flips it too.
- *
- * Under `prefers-reduced-motion` every one of these becomes a crossfade: no
- * flip, no travel to the back, no dealing, no sliding pill.
+ * The satellites are not part of the deck. They are labelled previews set well
+ * away from the centre, and they own the flip — the featured card is the thing
+ * you click to advance, so giving it a hover that turns it over would put two
+ * gestures on one target with no way to tell them apart.
  */
 export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
   const [order, setOrder] = useState<string[]>(() => slides.map((slide) => slide.id));
 
   const prefersReducedMotion = usePrefersReducedMotion();
   const canHover = useMediaQuery('(hover: hover) and (pointer: fine)');
-  const isDesktop = useMediaQuery('(min-width: 64rem)');
+  const isDesktop = useMediaQuery('(min-width: 1200px)');
+  const isTablet = useMediaQuery('(min-width: 768px)');
 
   const flipEnabled = canHover && !prefersReducedMotion;
 
-  /**
-   * Cut the deck: everything from `index` moves to the front, keeping its
-   * relative order, and everything before it goes to the back in its own. Both
-   * interactions are this, and the flip is not.
-   */
   const cutAt = useCallback((index: number) => {
     if (index <= 0) return;
     setOrder((current) => [...current.slice(index), ...current.slice(0, index)]);
@@ -115,86 +99,104 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
 
   const topId = order[0];
   const top = slides.find((slide) => slide.id === topId) ?? slides[0];
-  const depthOf = (id: string) => order.indexOf(id);
+
+  // Three explicit sets of numbers rather than one set scaled by the viewport,
+  // which is what "do not make it responsive by randomly scaling these" asks
+  // for. `null` means the composition does not fit and the phone layout runs.
+  const card = isDesktop ? FEATURED : isTablet ? TABLET_FEATURED : null;
+  const imageSize = isDesktop ? FEATURED_IMAGE : TABLET_IMAGE;
+  const offsetScale = isDesktop ? 1 : TABLET_OFFSET_SCALE;
+  const satelliteCount = isDesktop
+    ? SATELLITES.length
+    : isTablet
+      ? TABLET_SATELLITE_COUNT
+      : MOBILE_SATELLITE_COUNT;
+
+  const transition = prefersReducedMotion ? { duration: 0.2 } : MOVE;
+  const outTransition = prefersReducedMotion ? { duration: 0.2 } : MOVE_OUT;
 
   return (
-    <div className="relative">
+    <div>
       <div
-        className={cn(
-          'relative mx-auto w-full max-w-[76rem]',
-          isDesktop ? 'aspect-[16/9]' : 'px-gutter py-xl',
-        )}
+        className="bg-board-canvas bg-board-dots relative [height:calc(100vh-145px)] overflow-hidden"
+        style={{ minHeight: CANVAS_MIN_HEIGHT }}
       >
-        {/* Satellites. Keyed by the active slide so they are dealt out fresh on
-            every change rather than crossfading where they stand. */}
-        {isDesktop &&
-          top.thumbnails.map((thumb, i) => (
-            <Satellite
-              key={`${topId}-${i}`}
-              thumb={thumb}
-              corner={CORNERS[i]}
-              index={i}
-              reduced={prefersReducedMotion}
+        <div className="relative mx-auto h-full max-w-[1440px]">
+          {card ? (
+            <>
+              {SATELLITES.slice(0, satelliteCount).map((slot, i) => (
+                <Anchored key={`${topId}-${i}`} box={slot} centreY={CENTRE_Y}>
+                  <motion.div
+                    className="size-full"
+                    initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.4 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      x: slot.x * offsetScale,
+                      y: slot.y * offsetScale,
+                    }}
+                    transition={{ ...transition, delay: prefersReducedMotion ? 0 : i * 0.1 }}
+                  >
+                    <Satellite thumb={top.thumbnails[i]} flipEnabled={flipEnabled} />
+                  </motion.div>
+                </Anchored>
+              ))}
+
+              {slides.map((slide) => {
+                const depth = order.indexOf(slide.id);
+                const isTop = depth === 0;
+                // Cards deeper than the stack are parked at its last position
+                // rather than left at full size behind an opacity of 0. Left at
+                // full size they had to travel the whole way in as they became
+                // visible, which showed as a card growing out of nothing at the
+                // back of the deck.
+                const behind =
+                  depth === 0 ? undefined : (STACK[depth - 1] ?? STACK[STACK.length - 1]);
+                const hidden = depth > STACK.length;
+
+                return (
+                  // The stacking order belongs on the positioned element. On
+                  // the inner one it only competes inside its own wrapper, so
+                  // every buried card painted over the featured one by DOM
+                  // order regardless of the number.
+                  <Anchored
+                    key={slide.id}
+                    box={card}
+                    centreY={CENTRE_Y}
+                    zIndex={isTop ? 20 : 5 - depth}
+                  >
+                    <motion.div
+                      animate={{
+                        x: (behind?.x ?? 0) * offsetScale,
+                        y: (behind?.y ?? 0) * offsetScale,
+                        scale: behind?.scale ?? 1,
+                        // A card deeper than the stack has nowhere to be shown.
+                        opacity: isTop ? 1 : hidden ? 0 : 0.95,
+                      }}
+                      transition={isTop ? transition : outTransition}
+                      className={isTop ? undefined : 'pointer-events-none'}
+                    >
+                      <FeaturedCard
+                        slide={slide}
+                        isTop={isTop}
+                        card={card}
+                        imageSize={imageSize}
+                        onAdvance={() => cutAt(1)}
+                      />
+                    </motion.div>
+                  </Anchored>
+                );
+              })}
+            </>
+          ) : (
+            <MobileBoard
+              top={top}
+              onAdvance={() => cutAt(1)}
               flipEnabled={flipEnabled}
+              satelliteCount={satelliteCount}
             />
-          ))}
-
-        <div
-          className={cn(
-            'relative mx-auto',
-            isDesktop
-              ? 'absolute top-1/2 left-1/2 w-[26%] -translate-x-1/2 -translate-y-1/2'
-              : 'w-full',
           )}
-          style={{ perspective: 1600 }}
-        >
-          {slides.map((slide) => {
-            const depth = depthOf(slide.id);
-            const isTop = depth === 0;
-
-            return (
-              <motion.div
-                key={slide.id}
-                animate={
-                  prefersReducedMotion
-                    ? { opacity: isTop ? 1 : 0, zIndex: slides.length - depth }
-                    : {
-                        y: depth * OFFSET_Y,
-                        x: depth * OFFSET_X,
-                        scale: 1 - depth * SCALE_STEP,
-                        zIndex: slides.length - depth,
-                        opacity: 1,
-                      }
-                }
-                transition={prefersReducedMotion ? CROSSFADE : CHANGE}
-                className={cn(
-                  'origin-top',
-                  isTop ? 'relative' : 'pointer-events-none absolute inset-0',
-                )}
-              >
-                <Card slide={slide} isTop={isTop} onAdvance={() => cutAt(1)} />
-              </motion.div>
-            );
-          })}
         </div>
-
-        {/* On a phone the satellites cannot sit around the stack, so they sit
-            under it — dealt out with the same stagger, never crossfaded. */}
-        {!isDesktop && (
-          <ul className="gap-sm mt-lg grid grid-cols-4">
-            {top.thumbnails.map((thumb, i) => (
-              <li key={`${topId}-${i}`}>
-                <Satellite
-                  thumb={thumb}
-                  index={i}
-                  reduced={prefersReducedMotion}
-                  flipEnabled={flipEnabled}
-                  inFlow
-                />
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
       <div className="mt-xl flex justify-center">
@@ -210,34 +212,63 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
   );
 }
 
-function Card({
+/**
+ * Puts a box's centre on the composition's centre without using a transform.
+ *
+ * Negative margins rather than `translate(-50%, -50%)`, because the transform
+ * belongs to the animation. Two transform sources on one element means one of
+ * them wins, and the symptom is a card that jumps to a corner the instant it
+ * starts moving.
+ */
+function Anchored({
+  box,
+  centreY,
+  zIndex,
+  children,
+}: {
+  box: { width: number; height: number };
+  centreY: string;
+  zIndex?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className="absolute left-1/2"
+      style={{
+        top: centreY,
+        zIndex,
+        width: box.width,
+        height: box.height,
+        marginLeft: -box.width / 2,
+        marginTop: -box.height / 2,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function FeaturedCard({
   slide,
   isTop,
+  card,
+  imageSize,
   onAdvance,
 }: {
   slide: StackSlide;
   isTop: boolean;
+  card: { width: number; height: number };
+  imageSize: number;
   onAdvance: () => void;
 }) {
-  // Buried cards render their real face, not a blank surface. Offset upward,
-  // the sliver that shows is the top of the picture — which is what makes the
-  // deck look like a deck of these cards rather than of blank card stock.
-  //
-  // The picture sits *inside* the card with a margin all round rather than
-  // bleeding to its top edge. That margin is what makes the thing read as a
-  // printed card with an image on it; bled to the edge it reads as a website
-  // panel that happens to be stacked. The extra room on the left carries the
-  // vertical wordmark, as in the reference.
   const face = (
-    <div className="bg-surface-raised border-border relative rounded-lg border p-2.5 pl-7 shadow-lg">
-      {/* Only the card on top. On the buried ones it hung outside their left
-          edge and read as four stray fragments beside the deck.
-
-          `writing-mode` rather than a rotation: rotating a line leaves it
-          occupying its horizontal box, so it overflowed the padding it was
-          supposed to sit in. Vertical writing gives it a vertical box, and the
-          extra 180 turns it bottom-to-top, which is the direction the
-          reference reads. */}
+    // A hairline and a 2px lift, per the brief. Anything heavier and the card
+    // stops reading as something printed and starts reading as a dialog
+    // floating above the page.
+    <div
+      className="relative bg-white p-2.5 pl-7"
+      style={{ width: card.width, height: card.height, ...CHROME }}
+    >
       {isTop && (
         <span
           aria-hidden="true"
@@ -247,7 +278,10 @@ function Card({
         </span>
       )}
 
-      <div className="bg-line-grid aspect-[4/5] w-full overflow-hidden rounded-md">
+      <div
+        className="bg-line-grid mx-auto overflow-hidden rounded-[9px]"
+        style={{ width: imageSize, height: imageSize }}
+      >
         {slide.image && (
           <img
             src={slide.image}
@@ -259,12 +293,21 @@ function Card({
         )}
       </div>
 
-      <div className="pt-md pb-xs text-left">
-        {/* Serif, and large. In the reference the category is the card's
-            headline rather than a label above one, which is what gives each
-            card an identity instead of a caption. */}
-        <h3 className="text-h2 font-serif leading-tight">{slide.category}</h3>
-        <p className="text-small text-text-muted mt-xs">{slide.description}</p>
+      <div className="px-3 pt-3.5 pb-3.5 text-left">
+        {/* Editorial rather than geometric. The serif at 40/0.95 with tight
+            tracking is what makes this a project card and not a UI panel. */}
+        <h3
+          className="font-serif"
+          style={{ fontSize: 40, lineHeight: 0.95, fontWeight: 400, letterSpacing: '-1.8px' }}
+        >
+          {slide.category}
+        </h3>
+        <p
+          className="text-text-muted"
+          style={{ fontSize: 15, lineHeight: 1.18, fontWeight: 400, maxWidth: 380, marginTop: 8 }}
+        >
+          {slide.description}
+        </p>
       </div>
     </div>
   );
@@ -281,81 +324,30 @@ function Card({
     <button
       type="button"
       onClick={onAdvance}
-      className="focus-visible:ring-accent block w-full rounded-lg text-left focus-visible:ring-2 focus-visible:ring-offset-2"
+      className="focus-visible:ring-accent block rounded-[12px] text-left focus-visible:ring-2 focus-visible:ring-offset-2"
     >
       {face}
       <span className="sr-only">
-        {slide.category}. {slide.description} Show the next card.
+        {slide.category}. {slide.description} Show the next project.
       </span>
     </button>
   );
 }
 
 /**
- * One labelled thumbnail, which turns over to show its line.
+ * One labelled preview, which turns over to show its line.
  *
- * A `button` rather than a decorated div, because the flip has to be reachable
- * three ways: hover on a fine pointer, focus from the keyboard, and a tap on a
- * touchscreen where hover does not exist. A tap here is safe in a way a tap on
- * the centre card would not be — a satellite has no other job, so there is no
- * second gesture for it to be confused with.
- *
- * Both faces stay mounted and the back is `aria-hidden`; the line is announced
- * once through the button's own label instead, so a screen reader is not told
- * the same thing twice.
+ * A button, so the flip is reachable three ways: hover on a fine pointer, focus
+ * from a keyboard, and a tap where hover does not exist. A tap is safe here in
+ * a way it would not be on the featured card, because a preview has no second
+ * job to be confused with.
  */
-function Satellite({
-  thumb,
-  corner,
-  index,
-  reduced,
-  flipEnabled,
-  inFlow = false,
-}: {
-  thumb: StackThumb;
-  corner?: { x: number; y: number };
-  index: number;
-  reduced: boolean;
-  flipEnabled: boolean;
-  inFlow?: boolean;
-}) {
+function Satellite({ thumb, flipEnabled }: { thumb: StackThumb; flipEnabled: boolean }) {
   const [flipped, setFlipped] = useState(false);
 
-  const faceBase =
-    'bg-surface-raised border-border absolute inset-0 overflow-hidden rounded-lg border p-1.5 shadow-md [backface-visibility:hidden]';
+  const faceBase = 'absolute inset-0 overflow-hidden bg-white p-1.5 [backface-visibility:hidden]';
 
-  const card = (
-    <motion.div
-      animate={{ rotateY: flipped && !reduced ? 180 : 0 }}
-      transition={{ duration: 0.45, ease: EASE_OUT_BRAND }}
-      className="relative aspect-[4/3] w-full [transform-style:preserve-3d]"
-    >
-      <div className={faceBase}>
-        <div className="bg-line-grid size-full overflow-hidden rounded-sm">
-          {thumb.image && (
-            <img
-              src={thumb.image}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              className="size-full object-cover"
-            />
-          )}
-        </div>
-        <span className="bg-accent text-accent-fg text-caption absolute top-3 left-1/2 -translate-x-1/2 rounded-sm px-2 py-0.5 whitespace-nowrap">
-          {thumb.tag}
-        </span>
-      </div>
-
-      <div aria-hidden="true" className={cn(faceBase, '[transform:rotateY(180deg)]')}>
-        <div className="p-xs flex size-full items-center justify-center text-center">
-          <p className="text-caption text-balance">{thumb.flipText}</p>
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  const content = (
+  return (
     <button
       type="button"
       onClick={() => setFlipped((f) => !f)}
@@ -363,49 +355,107 @@ function Satellite({
       onPointerLeave={() => flipEnabled && setFlipped(false)}
       onFocus={() => flipEnabled && setFlipped(true)}
       onBlur={() => setFlipped(false)}
-      className="focus-visible:ring-accent block w-full rounded-lg focus-visible:ring-2 focus-visible:ring-offset-2"
+      className="focus-visible:ring-accent block size-full rounded-[12px] focus-visible:ring-2 focus-visible:ring-offset-2"
       style={{ perspective: 900 }}
     >
-      {card}
+      <motion.div
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ duration: 0.45, ease: MOVE.ease }}
+        className="relative size-full [transform-style:preserve-3d]"
+      >
+        <div className={faceBase} style={CHROME}>
+          <div className="bg-line-grid size-full overflow-hidden rounded-[9px]">
+            {thumb.image && (
+              <img
+                src={thumb.image}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="size-full object-cover"
+              />
+            )}
+          </div>
+          <span className="bg-accent text-accent-fg text-caption absolute top-3 left-1/2 -translate-x-1/2 rounded-sm px-2 py-0.5 whitespace-nowrap">
+            {thumb.tag}
+          </span>
+        </div>
+
+        <div
+          aria-hidden="true"
+          className={cn(faceBase, '[transform:rotateY(180deg)]')}
+          style={CHROME}
+        >
+          <div className="flex size-full items-center justify-center p-2 text-center">
+            <p className="text-caption text-balance">{thumb.flipText}</p>
+          </div>
+        </div>
+      </motion.div>
+
       <span className="sr-only">
         {thumb.tag}. {thumb.flipText}
       </span>
     </button>
   );
+}
 
-  if (reduced) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={CROSSFADE}
-        className={inFlow ? undefined : 'absolute w-[13%] -translate-x-1/2 -translate-y-1/2'}
-        style={inFlow ? undefined : { left: `${corner?.x}%`, top: `${corner?.y}%` }}
-      >
-        {content}
-      </motion.div>
-    );
-  }
-
-  // Dealt from the middle of the stack outwards, one after another. The origin
-  // is the point of it: appearing where they finish would read as a crossfade,
-  // which is the one thing these must not do.
+/**
+ * Below 768px there is no composition to hold. The card sizes to the screen and
+ * the previews sit under it in normal flow: absolute placement is dropped
+ * entirely rather than scaled down, which is what keeps anything from
+ * overflowing sideways at a width nobody measured.
+ */
+function MobileBoard({
+  top,
+  onAdvance,
+  flipEnabled,
+  satelliteCount,
+}: {
+  top: StackSlide;
+  onAdvance: () => void;
+  flipEnabled: boolean;
+  satelliteCount: number;
+}) {
   return (
-    <motion.div
-      initial={
-        inFlow
-          ? { opacity: 0, scale: 0, y: -40 }
-          : { opacity: 0, scale: 0, left: '50%', top: '50%' }
-      }
-      animate={
-        inFlow
-          ? { opacity: 1, scale: 1, y: 0 }
-          : { opacity: 1, scale: 1, left: `${corner?.x}%`, top: `${corner?.y}%` }
-      }
-      transition={{ ...CHANGE, delay: index * DEAL_STAGGER }}
-      className={inFlow ? undefined : 'absolute w-[13%] -translate-x-1/2 -translate-y-1/2'}
-    >
-      {content}
-    </motion.div>
+    <div className="px-gutter flex h-full flex-col items-center justify-center">
+      <button
+        type="button"
+        onClick={onAdvance}
+        className="focus-visible:ring-accent block w-[min(88vw,360px)] rounded-[12px] text-left focus-visible:ring-2"
+      >
+        <div className="bg-white p-2.5" style={CHROME}>
+          <div className="bg-line-grid mx-auto aspect-square w-[calc(100%-20px)] overflow-hidden rounded-[9px]">
+            {top.image && (
+              <img
+                src={top.image}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="size-full object-cover"
+              />
+            )}
+          </div>
+          <div className="px-3 pt-3.5 pb-3.5">
+            <h3
+              className="font-serif"
+              style={{ fontSize: 32, lineHeight: 0.95, letterSpacing: '-1.2px' }}
+            >
+              {top.category}
+            </h3>
+            <p className="text-text-muted" style={{ fontSize: 15, lineHeight: 1.18, marginTop: 8 }}>
+              {top.description}
+            </p>
+          </div>
+        </div>
+        <span className="sr-only">Show the next project.</span>
+      </button>
+
+      <ul className="gap-sm mt-lg flex justify-center">
+        {top.thumbnails.slice(0, satelliteCount).map((thumb, i) => (
+          <li key={i} className="size-[104px] shrink-0">
+            <Satellite thumb={thumb} flipEnabled={flipEnabled} />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
