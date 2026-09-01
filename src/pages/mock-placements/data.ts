@@ -200,14 +200,15 @@ export interface PrepTopic {
   label: string;
   title: string;
   body: string;
-  /**
-   * One line shown on the card's back when it is flipped. A claim or a figure,
-   * not a summary of the body — the flip is a peek, and repeating what is
-   * already on the front makes it a pointless one.
-   */
-  flipText: string;
   /** Four short labels for the satellite thumbnails. Nouns, not sentences. */
   chips: [string, string, string, string];
+  /**
+   * What each of those four reveals when its card is flipped, in order.
+   *
+   * A line, not a restatement of the tag: the flip is a peek, and a card that
+   * turns over to repeat what was already printed on it is a pointless one.
+   */
+  chipFlips: [string, string, string, string];
 }
 
 /**
@@ -222,40 +223,65 @@ export const PREP_TOPICS: PrepTopic[] = [
     label: 'Tips',
     title: 'Turn up knowing what happens',
     body: 'Most of what goes wrong on the day is not a skills problem. It is not knowing the order of the rounds, what the panel is looking for, or how long you have. Everything on this board is the answer to that, gathered from the people who have run it.',
-    flipText: 'Most of what goes wrong on the day is not a skills problem.',
     chips: ['Know the format', 'Time yourself', 'Ask questions', 'Read the room'],
+    chipFlips: [
+      'Six stages. Three of them are yours.',
+      'The aptitude round is timed. Practise against a clock.',
+      'The panel expects one at the end. Have it ready.',
+      'In a group discussion, listening is scored too.',
+    ],
   },
   {
     id: 'resume',
     label: 'Resume',
     title: 'One page a stranger can read',
     body: 'The panel sees your resume for about thirty seconds before you sit down, and it sets every question that follows. The Resume Clinic reviews it one to one before the mock placements, so what you hand over is the version you meant to write.',
-    flipText: 'Thirty seconds decides every question that follows.',
     chips: ['One page', 'Projects first', 'No jargon', 'Clinic review'],
+    chipFlips: [
+      'Anything longer than a page is not read.',
+      'The panel asks about what you built, not what you listed.',
+      'If you cannot explain it out loud, cut it.',
+      'The Resume Clinic reviews it one to one, before the day.',
+    ],
   },
   {
     id: 'aptitude',
     label: 'Aptitude',
     title: 'The round that decides the rest',
     body: 'An aptitude test conducted by the college. Every pre-final year student writes it on the college portal, and the scores carry forward into allocation.',
-    flipText: 'Every pre-final year writes it. The score follows you.',
     chips: ['College portal', 'All pre-finals', 'Scored', 'Feeds allocation'],
+    chipFlips: [
+      'Written on the college portal, not here.',
+      'Every pre-final year sits it. There is no opting out.',
+      'Your score is recorded and kept.',
+      'It is what decides which panel you face.',
+    ],
   },
   {
     id: 'group-discussion',
     label: 'Group Discussion',
     title: 'Judged on how you carry a group',
     body: 'The college brings in panellists who run the discussion rounds and evaluate each participant on structure, clarity and how they carry a group.',
-    flipText: 'You are marked on how you carry a group, not on winning.',
     chips: ['Structure', 'Clarity', 'Panellists', 'Live rounds'],
+    chipFlips: [
+      'Open, argue, close. In that order.',
+      'Marked on being understood, not on being loudest.',
+      'Evaluated by panellists the college invites in.',
+      'Run live, in front of the people scoring it.',
+    ],
   },
   {
     id: 'interview',
     label: 'Interview',
     title: 'One to one, with real HRs',
     body: 'HRs from different companies conduct one-on-one mock interviews. Students bring their report into the room and leave with direct feedback from the people who do this for a living.',
-    flipText: '130+ HRs on the 2025 panels, one to one.',
     chips: ['One to one', 'Real HRs', 'Your report', 'Direct feedback'],
+    chipFlips: [
+      'One student, one HR, one room.',
+      '130+ took part in 2025.',
+      'Bring your aptitude and group discussion report in with you.',
+      'You leave knowing what to fix.',
+    ],
   },
 ];
 

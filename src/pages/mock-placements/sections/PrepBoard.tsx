@@ -23,9 +23,9 @@ const SLIDES: StackSlide[] = PREP_TOPICS.map((topic, index) => ({
   category: topic.label,
   image: PHOTOS[(index * 5) % PHOTOS.length]?.src,
   description: topic.body,
-  flipText: topic.flipText,
   thumbnails: [0, 1, 2, 3].map((i) => ({
     tag: topic.chips[i],
+    flipText: topic.chipFlips[i],
     image: PHOTOS[(index * 5 + i + 1) % PHOTOS.length]?.src,
   })) as StackSlide['thumbnails'],
 }));
