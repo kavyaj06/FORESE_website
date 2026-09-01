@@ -28,30 +28,33 @@ export const FEATURED = { width: 440, height: 622 } as const;
 export const FEATURED_IMAGE = 410;
 
 /**
- * The three cards showing behind the featured one.
+ * The four cards showing behind the featured one, so all five are on screen.
  *
- * The scales, the 30px step between layers and the x jitter (+5, -4, 0) are
- * the brief's. The y values are computed from them, because the brief's own
- * y values cannot produce the arrangement the brief describes.
+ * Scales are read off the reference. Measuring the width of each visible edge
+ * against the featured card's own width gives 0.81, 0.70, 0.62 and 0.56 — a
+ * falloff that steepens with depth rather than a constant step, which is what
+ * makes the deck look like it recedes rather than like five sizes of the same
+ * card. A uniform step reads as a fan; this reads as perspective.
  *
- * Implemented literally first, and measured: at y -305 a card of this size
- * scaled 0.88 has its centre 305px above the featured card's centre, so it
- * floats clear above the composition with its whole face and its body text
- * showing — three full cards hovering over the featured one, not slivers
- * behind it. Those numbers are consistent with a different origin than the
- * card centre they are applied to here.
+ * Centred on one axis, with no horizontal jitter. The reference's five cards
+ * share a centre line to within a pixel, and the symmetry is what lets the
+ * eye read the widths as depth.
  *
- * So they are derived instead, from the values that are unambiguous. A card at
- * scale `s` has height `622s` and, centred at `y`, a top edge at `y - 311s`.
- * Setting that top edge 30px, 60px and 90px above the featured card's own top
- * edge of -311 gives the three values below, and reproduces exactly what the
- * brief describes: a 30px step, in the brief's scales, with the brief's jitter.
+ * `y` is derived, not measured. A card at scale `s` has height `622s`, so
+ * centred at `y` its top edge is at `y - 311s`; putting that 30px further above
+ * the featured card's own top edge (-311) for each layer gives the values
+ * below. Read straight off a screenshot the y values would carry the error of
+ * every pixel I misjudged; derived, the slivers are exactly 30, 60, 90 and 120.
  */
-export const STACK: Placed[] = [
-  { ...FEATURED, x: 5, y: -30 - 311 * (1 - 0.88), scale: 0.88 },
-  { ...FEATURED, x: -4, y: -60 - 311 * (1 - 0.8), scale: 0.8 },
-  { ...FEATURED, x: 0, y: -90 - 311 * (1 - 0.72), scale: 0.72 },
-];
+const SLIVER_STEP = 30;
+const STACK_SCALES = [0.81, 0.7, 0.62, 0.56];
+
+export const STACK: Placed[] = STACK_SCALES.map((scale, i) => ({
+  ...FEATURED,
+  x: 0,
+  y: -(FEATURED.height / 2) * (1 - scale) - SLIVER_STEP * (i + 1),
+  scale,
+}));
 
 /**
  * The four cards set well away from the centre. Sizes differ on purpose: four

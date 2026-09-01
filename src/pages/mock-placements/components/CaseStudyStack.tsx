@@ -152,7 +152,6 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
                 // back of the deck.
                 const behind =
                   depth === 0 ? undefined : (STACK[depth - 1] ?? STACK[STACK.length - 1]);
-                const hidden = depth > STACK.length;
 
                 return (
                   // The stacking order belongs on the positioned element. On
@@ -171,7 +170,7 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
                         y: (behind?.y ?? 0) * offsetScale,
                         scale: behind?.scale ?? 1,
                         // A card deeper than the stack has nowhere to be shown.
-                        opacity: isTop ? 1 : hidden ? 0 : 0.95,
+                        opacity: isTop ? 1 : 0.95,
                       }}
                       transition={isTop ? transition : outTransition}
                       className={isTop ? undefined : 'pointer-events-none'}
