@@ -196,11 +196,17 @@ export const BOARD_ARRANGEMENTS: BoardSlot[][] = [
 
 export interface PrepTopic {
   id: string;
-  /** Tab label. Kept to one or two words so five fit a single row. */
+  /** Tab label, and the card's own category. One or two words so five fit a row. */
   label: string;
   title: string;
   body: string;
-  /** Four short labels for the scattered cards. Nouns, not sentences. */
+  /**
+   * One line shown on the card's back when it is flipped. A claim or a figure,
+   * not a summary of the body — the flip is a peek, and repeating what is
+   * already on the front makes it a pointless one.
+   */
+  flipText: string;
+  /** Four short labels for the satellite thumbnails. Nouns, not sentences. */
   chips: [string, string, string, string];
 }
 
@@ -216,6 +222,7 @@ export const PREP_TOPICS: PrepTopic[] = [
     label: 'Tips',
     title: 'Turn up knowing what happens',
     body: 'Most of what goes wrong on the day is not a skills problem. It is not knowing the order of the rounds, what the panel is looking for, or how long you have. Everything on this board is the answer to that, gathered from the people who have run it.',
+    flipText: 'Most of what goes wrong on the day is not a skills problem.',
     chips: ['Know the format', 'Time yourself', 'Ask questions', 'Read the room'],
   },
   {
@@ -223,6 +230,7 @@ export const PREP_TOPICS: PrepTopic[] = [
     label: 'Resume',
     title: 'One page a stranger can read',
     body: 'The panel sees your resume for about thirty seconds before you sit down, and it sets every question that follows. The Resume Clinic reviews it one to one before the mock placements, so what you hand over is the version you meant to write.',
+    flipText: 'Thirty seconds decides every question that follows.',
     chips: ['One page', 'Projects first', 'No jargon', 'Clinic review'],
   },
   {
@@ -230,6 +238,7 @@ export const PREP_TOPICS: PrepTopic[] = [
     label: 'Aptitude',
     title: 'The round that decides the rest',
     body: 'An aptitude test conducted by the college. Every pre-final year student writes it on the college portal, and the scores carry forward into allocation.',
+    flipText: 'Every pre-final year writes it. The score follows you.',
     chips: ['College portal', 'All pre-finals', 'Scored', 'Feeds allocation'],
   },
   {
@@ -237,6 +246,7 @@ export const PREP_TOPICS: PrepTopic[] = [
     label: 'Group Discussion',
     title: 'Judged on how you carry a group',
     body: 'The college brings in panellists who run the discussion rounds and evaluate each participant on structure, clarity and how they carry a group.',
+    flipText: 'You are marked on how you carry a group, not on winning.',
     chips: ['Structure', 'Clarity', 'Panellists', 'Live rounds'],
   },
   {
@@ -244,6 +254,7 @@ export const PREP_TOPICS: PrepTopic[] = [
     label: 'Interview',
     title: 'One to one, with real HRs',
     body: 'HRs from different companies conduct one-on-one mock interviews. Students bring their report into the room and leave with direct feedback from the people who do this for a living.',
+    flipText: '130+ HRs on the 2025 panels, one to one.',
     chips: ['One to one', 'Real HRs', 'Your report', 'Direct feedback'],
   },
 ];
