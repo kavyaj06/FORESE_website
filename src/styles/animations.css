@@ -97,12 +97,16 @@
  * for an infinite animation would read as a flicker. The component therefore
  * checks the preference itself and renders a static list instead.
  * --------------------------------------------------------------------------*/
+/* Travels exactly one copy of the list, whatever the copy count is, so the
+   loop point lands on an identical frame. `--marquee-copies` is set by the
+   component that renders the copies, which is the only place that knows how
+   many there are. */
 @keyframes forese-marquee {
   from {
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(calc(-100% / var(--marquee-copies, 2)));
   }
 }
 

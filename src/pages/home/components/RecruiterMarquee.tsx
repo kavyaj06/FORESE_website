@@ -12,18 +12,31 @@ import { RECRUITERS } from '../data';
  * entirely under `prefers-reduced-motion`, where it becomes a plain wrapped
  * list.
  *
- * The list is rendered twice and the track translates by half its own width,
- * so copy two lands exactly where copy one began and the loop point is
- * invisible.
+ * The list is rendered several times and the track travels exactly one copy,
+ * so the next copy lands where the last began and the loop point is invisible.
  *
- * That only holds if half the track width is exactly one copy. The gap between
- * the two copies used to live on the track, which made the track
- * `2 x copy + gap` wide — so half of it was `copy + gap/2`, sixteen pixels
- * short of a full copy on a 32px gap. Every loop the strip snapped back by
- * that much: the last name appeared to stall, then the first two jumped in.
- * The spacing between copies is now a trailing gutter on each copy instead, so
- * the track is exactly `2 x (copy + gap)` and half of it is exactly one copy.
+ * **Why four copies and not two.** Seamlessness and coverage are different
+ * requirements, and two copies only satisfied the first. At the end of the
+ * loop the track has moved one copy to the left, so what remains on screen is
+ * whatever follows that copy — with two copies, one copy's width. Anything
+ * wider than that showed blank: measured at 226px of empty space after the
+ * last name on a 1440px screen and 706px on a 1920px one, once per cycle. The
+ * rule is that the copies after the first must cover the viewport, so a
+ * viewport up to three copies wide — 3642px here — is covered by four.
+ *
+ * The spacing between copies is a trailing gutter on each copy rather than a
+ * gap on the track. On the track it made the track `n x copy + (n-1) x gap`
+ * wide, so one nth of it fell short of a full copy by a fraction of the gap,
+ * and the strip snapped back by that much every loop.
  */
+/**
+ * Enough copies that the ones after the first cover the widest screen this is
+ * likely to meet. See the note above: this is a coverage number, not a
+ * stylistic one, and it is shared with the keyframe through a custom property
+ * so the two can never disagree.
+ */
+const COPIES = 4;
+
 export function RecruiterMarquee() {
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -39,17 +52,16 @@ export function RecruiterMarquee() {
 
   return (
     <div className="mt-3xl group relative overflow-hidden">
-      <div className="marquee-track flex w-max group-hover:[animation-play-state:paused]">
-        {[0, 1].map((copy) => (
+      <div
+        style={{ '--marquee-copies': COPIES } as React.CSSProperties}
+        className="marquee-track flex w-max group-hover:[animation-play-state:paused]"
+      >
+        {Array.from({ length: COPIES }, (_, copy) => (
           // `pr-xl` matching the inner `gap-xl` is what keeps the seam exact:
           // the gutter after the last name of a copy has to equal the gutter
           // between names, and it has to belong to the copy rather than to the
           // track. See the note above.
-          <ul
-            key={copy}
-            aria-hidden={copy === 1}
-            className="gap-xl pr-xl flex shrink-0 items-center"
-          >
+          <ul key={copy} aria-hidden={copy > 0} className="gap-xl pr-xl flex shrink-0 items-center">
             {RECRUITERS.map((name) => (
               <li key={name} className="text-h3 text-text-muted whitespace-nowrap opacity-70">
                 {name}
