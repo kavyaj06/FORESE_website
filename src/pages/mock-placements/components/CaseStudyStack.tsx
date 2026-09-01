@@ -221,10 +221,33 @@ function Card({
 }) {
   // Buried cards render their real face, not a blank surface. Offset upward,
   // the sliver that shows is the top of the picture — which is what makes the
-  // deck look like a deck of these cards rather than a stack of blank paper.
+  // deck look like a deck of these cards rather than of blank card stock.
+  //
+  // The picture sits *inside* the card with a margin all round rather than
+  // bleeding to its top edge. That margin is what makes the thing read as a
+  // printed card with an image on it; bled to the edge it reads as a website
+  // panel that happens to be stacked. The extra room on the left carries the
+  // vertical wordmark, as in the reference.
   const face = (
-    <div className="bg-surface-raised border-border overflow-hidden rounded-lg border shadow-lg">
-      <div className="bg-line-grid aspect-[4/3] w-full overflow-hidden">
+    <div className="bg-surface-raised border-border relative rounded-lg border p-2.5 pl-7 shadow-lg">
+      {/* Only the card on top. On the buried ones it hung outside their left
+          edge and read as four stray fragments beside the deck.
+
+          `writing-mode` rather than a rotation: rotating a line leaves it
+          occupying its horizontal box, so it overflowed the padding it was
+          supposed to sit in. Vertical writing gives it a vertical box, and the
+          extra 180 turns it bottom-to-top, which is the direction the
+          reference reads. */}
+      {isTop && (
+        <span
+          aria-hidden="true"
+          className="text-caption text-text-subtle absolute top-1/2 left-1.5 -translate-y-1/2 rotate-180 tracking-widest uppercase [writing-mode:vertical-rl]"
+        >
+          Forese
+        </span>
+      )}
+
+      <div className="bg-line-grid aspect-[4/5] w-full overflow-hidden rounded-md">
         {slide.image && (
           <img
             src={slide.image}
@@ -235,8 +258,12 @@ function Card({
           />
         )}
       </div>
-      <div className="p-md text-left">
-        <p className="text-eyebrow text-text-subtle uppercase">{slide.category}</p>
+
+      <div className="pt-md pb-xs text-left">
+        {/* Serif, and large. In the reference the category is the card's
+            headline rather than a label above one, which is what gives each
+            card an identity instead of a caption. */}
+        <h3 className="text-h2 font-serif leading-tight">{slide.category}</h3>
         <p className="text-small text-text-muted mt-xs">{slide.description}</p>
       </div>
     </div>
