@@ -131,6 +131,129 @@ export const MOCK_PLACEMENT_CAROUSEL_LOGOS = MOCK_PLACEMENT_COMPANIES.map((compa
 
 export const MOCK_PLACEMENTS_COMPANIES_TITLE = 'Companies on the panels';
 
+/* ============================================================================
+ * PREPARATION BOARD
+ * ----------------------------------------------------------------------------
+ * The five things a student actually wants to know about, as a board of cards
+ * rather than as prose. It replaces the three-paragraph description, which
+ * said all of this correctly and was a wall of text nobody finished.
+ * ==========================================================================*/
+
+/**
+ * Where one scattered thumbnail sits, as a percentage of the stage.
+ *
+ * The stage keeps a constant 16/7 aspect at every desktop width, so a position
+ * proved safe once is safe everywhere — that is the whole reason these are
+ * percentages and not pixels.
+ *
+ * INVARIANT, checked by eye against every arrangement below:
+ *   8 <= x <= 92        (never leaves the stage)
+ *   13 <= y <= 87
+ *   x < 28 || x > 72    (never touches the centre card)
+ */
+export interface BoardSlot {
+  x: number;
+  y: number;
+  /** Degrees. Small: past about eight a card stops looking placed and starts looking dropped. */
+  rotate: number;
+  /** Pixels of pointer parallax. Varying it per card is what reads as depth. */
+  depth: number;
+}
+
+/** One arrangement per topic, so switching tabs visibly re-scatters the board. */
+export const BOARD_ARRANGEMENTS: BoardSlot[][] = [
+  [
+    { x: 14, y: 26, rotate: -7, depth: 18 },
+    { x: 21, y: 70, rotate: 5, depth: 12 },
+    { x: 79, y: 22, rotate: 6, depth: 16 },
+    { x: 84, y: 66, rotate: -4, depth: 10 },
+  ],
+  [
+    { x: 24, y: 20, rotate: -5, depth: 18 },
+    { x: 17, y: 62, rotate: 6, depth: 14 },
+    { x: 84, y: 34, rotate: -6, depth: 11 },
+    { x: 76, y: 74, rotate: 4, depth: 16 },
+  ],
+  [
+    { x: 12, y: 44, rotate: -4, depth: 17 },
+    { x: 26, y: 74, rotate: 7, depth: 11 },
+    { x: 88, y: 52, rotate: 5, depth: 13 },
+    { x: 74, y: 18, rotate: -6, depth: 15 },
+  ],
+  [
+    { x: 20, y: 32, rotate: 5, depth: 12 },
+    { x: 13, y: 74, rotate: -6, depth: 16 },
+    { x: 80, y: 62, rotate: -5, depth: 18 },
+    { x: 87, y: 26, rotate: 4, depth: 10 },
+  ],
+  [
+    { x: 16, y: 22, rotate: 6, depth: 15 },
+    { x: 23, y: 68, rotate: -5, depth: 12 },
+    { x: 86, y: 30, rotate: -6, depth: 14 },
+    { x: 78, y: 70, rotate: 5, depth: 17 },
+  ],
+];
+
+export interface PrepTopic {
+  id: string;
+  /** Tab label. Kept to one or two words so five fit a single row. */
+  label: string;
+  title: string;
+  body: string;
+  /** Four short labels for the scattered cards. Nouns, not sentences. */
+  chips: [string, string, string, string];
+}
+
+/**
+ * ⚠️ `tips` and `resume` are DRAFTS. The other three are drawn from the
+ * process steps below, which are the club's own words. Nobody has written
+ * these two yet, and they read as plausible rather than as true — replace them
+ * before this goes anywhere public.
+ */
+export const PREP_TOPICS: PrepTopic[] = [
+  {
+    id: 'tips',
+    label: 'Tips',
+    title: 'Turn up knowing what happens',
+    body: 'Most of what goes wrong on the day is not a skills problem. It is not knowing the order of the rounds, what the panel is looking for, or how long you have. Everything on this board is the answer to that, gathered from the people who have run it.',
+    chips: ['Know the format', 'Time yourself', 'Ask questions', 'Read the room'],
+  },
+  {
+    id: 'resume',
+    label: 'Resume',
+    title: 'One page a stranger can read',
+    body: 'The panel sees your resume for about thirty seconds before you sit down, and it sets every question that follows. The Resume Clinic reviews it one to one before the mock placements, so what you hand over is the version you meant to write.',
+    chips: ['One page', 'Projects first', 'No jargon', 'Clinic review'],
+  },
+  {
+    id: 'aptitude',
+    label: 'Aptitude',
+    title: 'The round that decides the rest',
+    body: 'An aptitude test conducted by the college. Every pre-final year student writes it on the college portal, and the scores carry forward into allocation.',
+    chips: ['College portal', 'All pre-finals', 'Scored', 'Feeds allocation'],
+  },
+  {
+    id: 'group-discussion',
+    label: 'Group Discussion',
+    title: 'Judged on how you carry a group',
+    body: 'The college brings in panellists who run the discussion rounds and evaluate each participant on structure, clarity and how they carry a group.',
+    chips: ['Structure', 'Clarity', 'Panellists', 'Live rounds'],
+  },
+  {
+    id: 'interview',
+    label: 'Interview',
+    title: 'One to one, with real HRs',
+    body: 'HRs from different companies conduct one-on-one mock interviews. Students bring their report into the room and leave with direct feedback from the people who do this for a living.',
+    chips: ['One to one', 'Real HRs', 'Your report', 'Direct feedback'],
+  },
+];
+
+export const PREP_BOARD = {
+  eyebrow: 'What to expect',
+  title: 'Five things worth knowing before the day',
+  tablistLabel: 'Choose a preparation topic',
+} as const;
+
 export interface ProcessStep {
   /** Stable id, also used as the anchor target. */
   id: string;

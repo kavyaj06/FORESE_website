@@ -1,5 +1,6 @@
 import { PageHero } from '@/components/sections/PageHero';
 import { AboutMocks } from './sections/AboutMocks';
+import { PrepBoard } from './sections/PrepBoard';
 import { ProcessTimeline } from './sections/ProcessTimeline';
 import { PROCESS_STEPS } from './data';
 
@@ -23,6 +24,7 @@ export default function MockPlacementsPage() {
         ]}
       />
       <AboutMocks />
+      <PrepBoard />
       <ProcessTimeline />
     </>
   );

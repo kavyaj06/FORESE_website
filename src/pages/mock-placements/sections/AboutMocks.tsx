@@ -1,7 +1,6 @@
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
-import { ScrollLitText } from '@/components/motion/ScrollLitText';
 import { CountUp } from '@/components/motion/CountUp';
 import { LogoCarousel3D } from '@/components/motion/LogoCarousel3D';
 import {
@@ -34,7 +33,7 @@ import {
  * repetition, not an oversight — a number inside a paragraph is never seen.
  */
 export function AboutMocks() {
-  const { eyebrow, title, paragraphs, figures } = MOCK_PLACEMENTS_ABOUT;
+  const { eyebrow, title, figures } = MOCK_PLACEMENTS_ABOUT;
 
   return (
     <section className="py-section border-border border-b">
@@ -42,15 +41,6 @@ export function AboutMocks() {
         <Reveal>
           <SectionHeading eyebrow={eyebrow} title={title} />
         </Reveal>
-
-        <ScrollLitText
-          paragraphs={paragraphs}
-          // `text-h3` is the right *size* for the sweep to read a line at a
-          // time, but it carries a 600 weight meant for headings; three
-          // paragraphs of it is a wall of bold. The weight and leading are
-          // dialled back to prose values on top of it.
-          className="mt-2xl text-body-lg tablet:text-h3 tablet:leading-relaxed text-text tablet:font-normal text-pretty"
-        />
       </Container>
 
       {/* Same `narrow` measure as the prose, so the figures' left edge lands
