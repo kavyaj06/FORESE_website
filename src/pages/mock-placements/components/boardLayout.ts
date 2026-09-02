@@ -57,14 +57,20 @@ export const STACK: Placed[] = STACK_SCALES.map((scale, i) => ({
 }));
 
 /**
- * The four cards set well away from the centre. Sizes differ on purpose: four
+ * The four cards set away from the centre. Sizes differ on purpose: four
  * identical squares would read as a grid that happens to have a hole in it.
+ *
+ * Pulled in from the original ±565/±545 by about 15%. At the old spread the
+ * composition needed 1348px of width, so on a 1024 laptop the fourth card was
+ * simply outside the canvas — three showed and one was sliced. Closer also
+ * reads better: cards that far out stop belonging to the deck in the middle
+ * and start looking like four unrelated things near the corners.
  */
 export const SATELLITES: Placed[] = [
-  { width: 175, height: 175, x: -520, y: -250 },
-  { width: 218, height: 218, x: 565, y: -215 },
-  { width: 218, height: 218, x: -565, y: 250 },
-  { width: 178, height: 178, x: 545, y: 325 },
+  { width: 175, height: 175, x: -442, y: -212 },
+  { width: 218, height: 218, x: 480, y: -183 },
+  { width: 218, height: 218, x: -480, y: 212 },
+  { width: 178, height: 178, x: 463, y: 276 },
 ];
 
 /** Tablet: the brief's own smaller card, with the offsets pulled in by a quarter. */
@@ -112,19 +118,55 @@ export const MOVE_OUT = {
   ease: MOVE.ease,
 };
 
-/** Where the composition's centre sits inside the canvas. */
-export const CENTRE_Y = '57%';
+/**
+ * How far the composition reaches from its own centre, in its own units.
+ *
+ * Measured from the numbers actually in use rather than written down, because
+ * a hand-kept extent is wrong the first time anybody nudges a card. The stack
+ * is included: a buried card is scaled about its centre, so its top edge is
+ * `-y + height * scale / 2`, which reaches higher than the featured card's own
+ * top even though the card is smaller.
+ */
+export function stageExtent(card: CardBox, satellites: Placed[], offsetScale: number) {
+  let halfWidth = card.width / 2;
+  let above = card.height / 2;
+  let below = card.height / 2;
+
+  for (const slot of STACK) {
+    above = Math.max(above, -slot.y * offsetScale + (card.height * (slot.scale ?? 1)) / 2);
+  }
+  for (const slot of satellites) {
+    halfWidth = Math.max(halfWidth, Math.abs(slot.x) * offsetScale + slot.width / 2);
+    above = Math.max(above, -slot.y * offsetScale + slot.height / 2);
+    below = Math.max(below, slot.y * offsetScale + slot.height / 2);
+  }
+
+  return { width: halfWidth * 2, height: above + below, above, below };
+}
 
 /**
- * The canvas has to be tall enough to hold the composition it is given.
+ * Where the composition's centre sits inside the canvas — derived, not chosen.
  *
- * With the centre at 57%, the lowest element is the bottom-right preview: 325px
- * below centre plus half its own 178px height, so 414px. For that to sit inside
- * the canvas, 0.43H must be at least 414 — which puts the floor at 963px, not
- * the brief's 760. At 760 the bottom preview was simply cut off by the canvas's
- * own `overflow: hidden`.
+ * The brief fixed it at 57%, and that was the source of the clipping: the
+ * composition reaches further above its centre than below, so putting that
+ * centre below the canvas's middle pushed the bottom card off the edge. The
+ * canvas floor was then raised to 963px to make room, which on a laptop is
+ * taller than the screen — so the card was inside the canvas and still below
+ * the fold, which is the same thing to a reader.
  *
- * Raising the floor rather than moving the composition up keeps every supplied
- * position exactly as given, including the 57% the brief is explicit about.
+ * Splitting the canvas in the ratio the composition actually needs is the only
+ * value that cannot clip, and it recovers about 7% of scale over 57%.
  */
-export const CANVAS_MIN_HEIGHT = 963;
+export function centreFraction(extent: { above: number; height: number }) {
+  return extent.above / extent.height;
+}
+
+/** Breathing room between the composition and the canvas edge, in canvas px. */
+export const STAGE_PADDING = 16;
+
+/**
+ * The canvas no longer has to be tall enough for the composition: the
+ * composition is scaled to the canvas. This is a floor for legibility, not for
+ * geometry — below it the cards are too small to read whatever fits.
+ */
+export const CANVAS_MIN_HEIGHT = 600;

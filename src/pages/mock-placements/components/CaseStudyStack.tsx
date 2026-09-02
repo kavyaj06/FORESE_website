@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SegmentedTabs } from '@/components/sections/SegmentedTabs';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -6,14 +6,16 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
 import {
   CANVAS_MIN_HEIGHT,
-  CENTRE_Y,
+  centreFraction,
   FEATURED,
   FEATURED_IMAGE,
   MOBILE_SATELLITE_COUNT,
   MOVE,
   MOVE_OUT,
   SATELLITES,
+  STAGE_PADDING,
   STACK,
+  stageExtent,
   TABLET_FEATURED,
   TABLET_IMAGE,
   TABLET_OFFSET_SCALE,
@@ -100,6 +102,27 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
   const topId = order[0];
   const top = slides.find((slide) => slide.id === topId) ?? slides[0];
 
+  // The stage's real size, not the viewport's. `100vh` is not what this
+  // element gets — a mobile browser's chrome takes a slice of it — and the
+  // stage is capped at 1440px inside a wider window, so measuring the
+  // full-bleed canvas behind it would over-report the room available.
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const [canvas, setCanvas] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const node = canvasRef.current;
+    if (!node) return;
+    const measure = () =>
+      setCanvas((current) =>
+        current.width === node.clientWidth && current.height === node.clientHeight
+          ? current
+          : { width: node.clientWidth, height: node.clientHeight },
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   // Three explicit sets of numbers rather than one set scaled by the viewport,
   // which is what "do not make it responsive by randomly scaling these" asks
   // for. `null` means the composition does not fit and the phone layout runs.
@@ -115,17 +138,42 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
   const transition = prefersReducedMotion ? { duration: 0.2 } : MOVE;
   const outTransition = prefersReducedMotion ? { duration: 0.2 } : MOVE_OUT;
 
+  // Every position below stays exactly as specified; the whole composition is
+  // scaled to whatever canvas the device gives it. Fitting the stage once is
+  // the only way all four previews are on screen at every width — nudging
+  // individual offsets until they happen to fit one laptop is how the fourth
+  // one ended up sliced on every other.
+  const satellites = SATELLITES.slice(0, satelliteCount);
+  const extent = card
+    ? stageExtent(card, satellites, offsetScale)
+    : { width: 1, height: 1, above: 0.5, below: 0.5 };
+  const centreY = `${(centreFraction(extent) * 100).toFixed(3)}%`;
+  // Before the first measurement there is nothing to fit to, and a zero-width
+  // box would compute a negative scale and flip the whole board inside out.
+  const fit =
+    canvas.width && canvas.height
+      ? Math.min(
+          1,
+          (canvas.width - STAGE_PADDING * 2) / extent.width,
+          (canvas.height - STAGE_PADDING * 2) / extent.height,
+        )
+      : 1;
+
   return (
     <div>
       <div
         className="bg-board-canvas bg-board-dots relative [height:calc(100vh-145px)] overflow-hidden"
         style={{ minHeight: CANVAS_MIN_HEIGHT }}
       >
-        <div className="relative mx-auto h-full max-w-[1440px]">
+        <div
+          ref={canvasRef}
+          className="relative mx-auto h-full max-w-[1440px]"
+          style={{ transform: `scale(${fit})`, transformOrigin: `50% ${centreY}` }}
+        >
           {card ? (
             <>
-              {SATELLITES.slice(0, satelliteCount).map((slot, i) => (
-                <Anchored key={`${topId}-${i}`} box={slot} centreY={CENTRE_Y}>
+              {satellites.map((slot, i) => (
+                <Anchored key={`${topId}-${i}`} box={slot} centreY={centreY}>
                   <motion.div
                     className="size-full"
                     initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.4 }}
@@ -161,7 +209,7 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
                   <Anchored
                     key={slide.id}
                     box={card}
-                    centreY={CENTRE_Y}
+                    centreY={centreY}
                     zIndex={isTop ? 20 : 5 - depth}
                   >
                     <motion.div

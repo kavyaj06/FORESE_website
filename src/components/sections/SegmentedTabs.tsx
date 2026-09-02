@@ -39,11 +39,11 @@ interface SegmentedTabsProps<T extends string> {
  * silently loses an option looks broken.
  *
  * The strip scrolls inside itself when it is wider than the space it is given,
- * and the selected tab is kept in view. Six team tabs overflow a phone, and
- * arrow keys move the selection without moving the scroll — so the pill would
- * slide to a tab that is off the edge and the control would look like it had
- * stopped responding. `inline: 'nearest'` scrolls the strip and nothing else;
- * a plain `scrollIntoView` would also drag the page vertically.
+ * and the selected tab is kept in view after a change the reader made. Six
+ * team tabs overflow a phone, and arrow keys move the selection without moving
+ * the scroll — so the pill would slide to a tab past the edge and the control
+ * would look like it had stopped responding. Never on mount, though: see the
+ * note on the effect.
  *
  * Promoted out of the events filter once a third caller appeared, per the
  * repo's rule that components move up only when a second page needs them.
@@ -57,8 +57,18 @@ export function SegmentedTabs<T extends string>({
   className,
 }: SegmentedTabsProps<T>) {
   const selectedRef = useRef<HTMLButtonElement>(null);
+  const mounted = useRef(false);
 
   useEffect(() => {
+    // Not on mount. `block: 'nearest'` scrolls vertically too when the strip
+    // is below the fold, so a control that merely existed further down the
+    // page dragged the reader to it the moment the page loaded — landing on
+    // /mocks jumped past the hero and the About section entirely. Only a
+    // selection the reader actually made should move anything.
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
     selectedRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }, [value]);
 

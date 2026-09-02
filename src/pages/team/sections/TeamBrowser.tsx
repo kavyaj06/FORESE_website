@@ -79,13 +79,19 @@ export function TeamBrowser() {
   ];
 
   const visible =
-    group === 'core' || team === 'all' ? inGroup : inGroup.filter((member) => member.team === team);
+    group === 'member' && team !== 'all'
+      ? inGroup.filter((member) => member.team === team)
+      : inGroup;
 
-  // Senior core keep the taller card and a four-across grid. The size
-  // difference is the hierarchy: rendered at one scale the page would say the
-  // nine and the ninety are interchangeable, which is the one thing a team
-  // page has to get right.
-  const featured = group === 'core' && coreRank === 'senior-core';
+  // The whole core reads at one size: senior core, junior core and leads share
+  // the taller card and the four-across grid. They are one group under one
+  // tab, and three different card sizes inside it would say they are three
+  // different kinds of thing — the ranks are already named by the tabs.
+  //
+  // The size difference that remains is core against members, which is the
+  // hierarchy that matters: rendered at one scale the page would say the
+  // twenty-three and the ninety are interchangeable.
+  const featured = group === 'core';
 
   return (
     <section className="pt-2xl pb-section">
@@ -99,7 +105,12 @@ export function TeamBrowser() {
             ariaLabel="Which part of the club to show"
           />
 
-          {group === 'core' ? (
+          {/* Senior members get no second row. They are divided by working
+              team in the data like everyone else, but the club presents them
+              as one body — so a filter here would invent a distinction the
+              club does not make. Members keep it, where thirty-one cards are
+              worth narrowing. */}
+          {group === 'core' && (
             <SegmentedTabs
               tabs={coreTabs}
               value={coreRank}
@@ -107,7 +118,8 @@ export function TeamBrowser() {
               layoutId="team-sub-pill"
               ariaLabel="Which core rank to show"
             />
-          ) : (
+          )}
+          {group === 'member' && (
             <SegmentedTabs
               tabs={teamTabs}
               value={team}
@@ -136,7 +148,7 @@ export function TeamBrowser() {
               // as one sweep across the grid either way.
               transition={{
                 duration: 0.3,
-                delay: prefersReducedMotion ? 0 : (index % 5) * 0.05,
+                delay: prefersReducedMotion ? 0 : (index % (featured ? 4 : 5)) * 0.05,
                 ease: EASE_OUT_BRAND,
               }}
             >
