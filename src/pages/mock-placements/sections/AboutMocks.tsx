@@ -1,69 +1,84 @@
 import { Container } from '@/components/layout/Container';
-import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { CountUp } from '@/components/motion/CountUp';
+import { DecodeReveal } from '@/components/motion/DecodeReveal';
 import { LogoCarousel3D } from '@/components/motion/LogoCarousel3D';
+import { GALLERY_ALBUMS } from '@/pages/gallery/data';
 import {
   MOCK_PLACEMENTS_ABOUT,
   MOCK_PLACEMENTS_COMPANIES_TITLE,
   MOCK_PLACEMENT_CAROUSEL_LOGOS,
 } from '../data';
 
+const COVER = GALLERY_ALBUMS[0]?.photos[0]?.src;
+
 /**
- * What Mock Placements actually is, ahead of the timeline that says how it runs.
+ * What Mock Placements is, as a picture beside the argument for it.
  *
- * The problem this section solves is that the source copy is a genuinely long
- * paragraph, and a long paragraph on a landing page is skipped. Rather than
- * cutting it down or dropping it behind a "read more", it is read *through*:
- * `ScrollLitText` dims every word and lights it as the reader scrolls, so
- * scrolling and reading become the same gesture and the length turns into the
- * point of the section instead of a cost.
+ * Two columns rather than a centred column, because the two halves are doing
+ * different jobs: the left is evidence and the right is the claim. Stacked,
+ * the reader meets the claim first and has already decided by the time the
+ * evidence arrives.
  *
- * Two consequences shape the layout:
+ * The photograph is uncovered by a field of characters that resolves off it as
+ * the section is scrolled — see `DecodeReveal`. The words that surface out of
+ * the noise are the four rounds, so the effect is not decoration: by the time
+ * the picture is clear the reader has been shown what the day consists of.
  *
- *  - The type is set large and on a narrow measure. The sweep is only legible
- *    at a size where a whole line is taken in at once, and the effect needs
- *    enough scroll distance to play, which tall narrow text provides for free.
- *  - The section sits on the page's plain background between the black hero
- *    and the `surface` timeline, so the lit words are the brightest thing on
- *    screen while they are being read.
- *
- * The three figures underneath are the numbers already stated in the prose,
- * pulled out so they land for a reader who scrolled past. That is a deliberate
- * repetition, not an oversight — a number inside a paragraph is never seen.
+ * Two figures, not the three the data holds. Side by side they are a pair the
+ * eye compares; a third makes a row that is read as a list and skimmed. The
+ * one left out is the count of modes, which the copy beside it already says.
  */
 export function AboutMocks() {
-  const { eyebrow, title, figures } = MOCK_PLACEMENTS_ABOUT;
+  const { eyebrow, title, paragraphs, figures } = MOCK_PLACEMENTS_ABOUT;
 
   return (
     <section className="py-section border-border border-b">
-      <Container width="narrow">
-        <Reveal>
-          <SectionHeading eyebrow={eyebrow} title={title} />
-        </Reveal>
-      </Container>
+      <Container>
+        <div className="gap-2xl desktop:grid-cols-2 desktop:gap-3xl grid grid-cols-1 items-center">
+          <Reveal motionStyle="scale">
+            <DecodeReveal
+              src={COVER}
+              words={['Aptitude', 'Discussion', 'Interview', 'Feedback']}
+              className="aspect-square w-full"
+            />
+          </Reveal>
 
-      {/* Same `narrow` measure as the prose, so the figures' left edge lands
-          on the paragraphs' left edge. On the default width they sat further
-          out and the section read as two unrelated blocks. */}
-      <Container width="narrow">
-        <Reveal
-          staggerChildren
-          className="mt-3xl gap-lg tablet:grid-cols-3 border-border grid grid-cols-1 border-t"
-        >
-          {figures.map((figure) => (
-            <RevealItem
-              key={figure.label}
-              className="pt-lg tablet:border-border tablet:border-r tablet:pr-lg tablet:last:border-r-0"
-            >
-              <p className="text-h2 text-text tabular-nums">
-                <CountUp value={figure.value} />
-              </p>
-              <p className="mt-xs text-body text-text">{figure.label}</p>
-              <p className="text-caption text-text-muted mt-1">{figure.note}</p>
+          <Reveal staggerChildren className="gap-lg flex flex-col">
+            <RevealItem>
+              <span className="text-label border-border bg-surface-raised rounded-pill inline-flex border px-3 py-1.5">
+                {eyebrow}
+              </span>
             </RevealItem>
-          ))}
-        </Reveal>
+
+            <RevealItem as="h2" className="text-h2 text-balance">
+              {title}
+            </RevealItem>
+
+            {paragraphs.slice(0, 2).map((paragraph) => (
+              <RevealItem key={paragraph.slice(0, 24)} as="p" className="text-body text-text-muted">
+                {paragraph}
+              </RevealItem>
+            ))}
+
+            <RevealItem className="gap-md pt-xs tablet:grid-cols-2 grid grid-cols-1">
+              {figures
+                .filter((figure) => figure.value !== '2')
+                .map((figure) => (
+                  <div
+                    key={figure.label}
+                    className="border-border bg-surface-raised p-lg rounded-lg border"
+                  >
+                    <p className="text-h2 text-text tabular-nums">
+                      <CountUp value={figure.value} />
+                    </p>
+                    <p className="text-body mt-xs">{figure.label}</p>
+                    <p className="text-small text-text-muted mt-1">{figure.note}</p>
+                  </div>
+                ))}
+            </RevealItem>
+          </Reveal>
+        </div>
       </Container>
 
       {/* Full-bleed, and outside the container on purpose: the strip is meant
