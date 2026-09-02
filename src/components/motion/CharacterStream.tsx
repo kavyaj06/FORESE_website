@@ -145,6 +145,7 @@ export function CharacterStream({ words, className }: CharacterStreamProps) {
     if (!wrap) return;
 
     const cycle = WRITE + HOLD + UNWRITE + PAUSE;
+    const end = total + FADE;
     let frame = 0;
     let started = 0;
     let last = 0;
@@ -158,10 +159,15 @@ export function CharacterStream({ words, className }: CharacterStreamProps) {
         last = now;
         const t = ((now - started) / 1000) % cycle;
 
+        // The head runs to `total + FADE`, not to `total`. Stopping at the end
+        // of the tape leaves its last FADE characters still inside the fade
+        // band, so that trailing block sits frozen on screen for the whole
+        // hold. Running the head off the end lets the field clear behind it
+        // and the hold is words only, which is the point of the hold.
         let head: number;
-        if (t < WRITE) head = (t / WRITE) * total;
-        else if (t < WRITE + HOLD) head = total;
-        else if (t < WRITE + HOLD + UNWRITE) head = total * (1 - (t - WRITE - HOLD) / UNWRITE);
+        if (t < WRITE) head = (t / WRITE) * end;
+        else if (t < WRITE + HOLD) head = end;
+        else if (t < WRITE + HOLD + UNWRITE) head = end * (1 - (t - WRITE - HOLD) / UNWRITE);
         else head = 0;
 
         const { chars, isWord } = tapeRef.current;
