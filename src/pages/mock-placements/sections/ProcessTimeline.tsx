@@ -116,7 +116,7 @@ export function ProcessTimeline() {
   }, [prefersReducedMotion]);
 
   return (
-    <section className="border-border bg-surface py-section relative isolate overflow-hidden border-b">
+    <section className="border-border bg-surface pt-2xl pb-section relative isolate overflow-hidden border-b">
       <Container>
         <Reveal>
           <SectionHeading

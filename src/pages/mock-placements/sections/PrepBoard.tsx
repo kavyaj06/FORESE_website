@@ -38,13 +38,14 @@ const SLIDES: StackSlide[] = PREP_TOPICS.map((topic, index) => ({
  * student could act on. A deck asks for a glance, and the card that matters to
  * a given reader is one click away.
  *
- * A shorter top padding than `py-section` would give, because the section
- * above already ends with 48px of its own: two full section paddings met here
- * and left 190px of empty page between the logo strip and this heading.
+ * Shorter padding than `py-section` on both edges, because the sections either
+ * side already end with 48px of their own. Two full section paddings met at
+ * each seam: 190px of empty page above this heading, and as much again between
+ * the tab strip and "How it works" below.
  */
 export function PrepBoard() {
   return (
-    <section className="pt-2xl pb-section border-border border-b">
+    <section className="pt-2xl pb-2xl border-border border-b">
       <Container>
         <Reveal>
           <SectionHeading eyebrow={PREP_BOARD.eyebrow} title={PREP_BOARD.title} />

@@ -1,5 +1,5 @@
 import { PageHero } from '@/components/sections/PageHero';
-import { CLUB_TEAMS, membersByRank, ROSTER_TOTAL } from '@/data/teams';
+import { CORE_RANKS, membersByRank } from '@/data/teams';
 import { TeamBrowser } from './sections/TeamBrowser';
 import { TEAM_INTRO } from './data';
 
@@ -19,9 +19,12 @@ export default function TeamPage() {
         title={TEAM_INTRO.title}
         size="compact"
         meta={[
-          `${membersByRank('senior-core').length + membersByRank('junior-core').length + membersByRank('lead').length} core`,
-          `${CLUB_TEAMS.length} working teams`,
-          `${ROSTER_TOTAL} in total`,
+          // The three groups the page is divided into, in the order its tabs
+          // show them, so the hero says what is below it rather than a
+          // different set of facts. Counted off the roster, never stored.
+          `${CORE_RANKS.reduce((total, rank) => total + membersByRank(rank).length, 0)} core`,
+          `${membersByRank('senior-member').length} senior members`,
+          `${membersByRank('member').length} members`,
         ]}
       />
       <TeamBrowser />

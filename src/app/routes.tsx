@@ -8,7 +8,12 @@ import TeamPage from '@/pages/team/TeamPage';
 import GalleryPage from '@/pages/gallery/GalleryPage';
 import AlbumPage from '@/pages/gallery/AlbumPage';
 import { findEventBySlug } from '@/data/events';
-import NewsPage from '@/pages/news/NewsPage';
+// News is commented out across the site at the club's request, not deleted:
+// the page and its content still exist, and uncommenting this import and the
+// route below is the whole of putting it back. Everything else — the nav bar,
+// the footer's Quick links, the sitemap — reads the route table, so removing
+// the entry removes the page from all of them at once.
+// import NewsPage from '@/pages/news/NewsPage';
 import CodersPage from '@/pages/coders/CodersPage';
 import StyleguidePage from '@/pages/styleguide/StyleguidePage';
 
@@ -23,7 +28,7 @@ import StyleguidePage from '@/pages/styleguide/StyleguidePage';
  * place to remember.
  *
  * Order matches the navigation order in the Canva outline:
- *   Forese | Mock Placements  Events  Team  Gallery  News | Coders
+ *   Forese | Mock Placements  Events  Team  Gallery | Coders
  * ==========================================================================*/
 
 /** Footer column a route appears under. Omit to keep it out of the footer. */
@@ -125,15 +130,15 @@ const ALL_ROUTES: AppRoute[] = [
         : 'Photographs from a FORESE event.',
     inPrimaryNav: false,
   },
-  {
-    path: '/news',
-    label: 'News',
-    Component: NewsPage,
-    title: 'News',
-    description: 'The FORESE newsletter and news updates.',
-    inPrimaryNav: true,
-    footerGroup: 'quickLinks',
-  },
+  // {
+  //   path: '/news',
+  //   label: 'News',
+  //   Component: NewsPage,
+  //   title: 'News',
+  //   description: 'The FORESE newsletter and news updates.',
+  //   inPrimaryNav: true,
+  //   footerGroup: 'quickLinks',
+  // },
   {
     path: '/coders',
     label: 'Coders',

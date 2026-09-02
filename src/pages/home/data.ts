@@ -101,52 +101,15 @@ export const HOME_PILLARS = [
   },
 ] as const;
 
+/**
+ * The one panel of things coming up — mock placement stages and events
+ * together. The dates themselves live in `@/data/mockSchedule` and
+ * `@/data/events`, never here: both are read by more than one page, and two
+ * copies of a date drift apart the first time one of them is corrected.
+ */
 export const HOME_EVENTS = {
   eyebrow: 'Upcoming',
   title: 'What is next',
-  description: 'Conducted for every pre-final year student. No sign-up needed.',
+  description: 'Mock placement rounds and club events, in the order they happen.',
   emptyMessage: 'Nothing scheduled right now. The next mock placements are announced here first.',
 } as const;
-
-export interface Announcement {
-  id: string;
-  date: string;
-  title: string;
-  body: string;
-}
-
-/**
- * DUMMY — invented dates and copy.
- *
- * Two kinds of entry only, deliberately: newsletter issue dates, and dates in
- * the mock placement process itself (registration windows, round dates,
- * results). Not events — an event already has its own card in Upcoming
- * Events above, so repeating it here would show the same thing twice under
- * two different names.
- */
-export const ANNOUNCEMENTS: Announcement[] = [
-  {
-    id: 'aptitude-window',
-    date: '2026-09-05',
-    title: 'Aptitude round opens for Mock Placements 2026',
-    body: 'All pre-final year students take the aptitude round through the college portal ahead of Mock Placements on 19 September.',
-  },
-  {
-    id: 'reg-closes',
-    date: '2026-08-29',
-    title: 'Registrations close for the Resume Clinic',
-    body: 'Sign-ups for one-on-one CV review slots close at the end of this week.',
-  },
-  {
-    id: 'newsletter-august',
-    date: '2026-08-14',
-    title: 'August newsletter is out',
-    body: 'Placement statistics, alumni interviews and the term ahead.',
-  },
-  {
-    id: 'newsletter-july',
-    date: '2026-07-17',
-    title: 'July newsletter is out',
-    body: 'A look back at the last round of mock placements, and what changed for this one.',
-  },
-];
