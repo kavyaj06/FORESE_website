@@ -7,8 +7,8 @@ import { MemberPortrait } from './MemberPortrait';
 
 interface MemberCardProps {
   member: ClubMember;
-  /** `lead` is the taller senior-core treatment. */
-  size?: 'lead' | 'standard';
+  /** `feature` is the taller senior-core treatment. */
+  size?: 'feature' | 'standard';
 }
 
 /**
@@ -83,7 +83,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
       <div
         className={cn(
           'relative overflow-hidden rounded-md',
-          size === 'lead' ? 'aspect-[4/5]' : 'aspect-square',
+          size === 'feature' ? 'aspect-[4/5]' : 'aspect-square',
         )}
       >
         <div className="duration-slow ease-out-brand h-full w-full grayscale transition-[transform,filter] group-focus-within:grayscale-0 group-hover:scale-[1.04] group-hover:grayscale-0 group-data-open:scale-[1.04] group-data-open:grayscale-0">
@@ -137,7 +137,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
               className={cn(
                 'tablet:p-4 pointer-events-none absolute inset-x-0 bottom-0 p-3 text-white italic',
                 'hidden @[12rem]:block',
-                size === 'lead' ? 'text-body' : 'text-small',
+                size === 'feature' ? 'text-body' : 'text-small',
                 'duration-base ease-out-brand translate-y-2 opacity-0 transition-[opacity,transform]',
                 'group-hover:translate-y-0 group-hover:opacity-100',
                 'group-focus-within:translate-y-0 group-focus-within:opacity-100',
@@ -154,7 +154,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
         <h3
           className={cn(
             'ease-smooth group-hover:text-accent-fg group-focus-within:text-accent-fg group-data-open:text-accent-fg transition-colors duration-[400ms]',
-            size === 'lead' ? 'text-h3' : 'text-body font-semibold',
+            size === 'feature' ? 'text-h3' : 'text-body font-semibold',
           )}
         >
           {member.name}

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/cn';
 import { motion } from 'framer-motion';
 
@@ -37,6 +38,13 @@ interface SegmentedTabsProps<T extends string> {
  * and go change the width of the control between renders, and a control that
  * silently loses an option looks broken.
  *
+ * The strip scrolls inside itself when it is wider than the space it is given,
+ * and the selected tab is kept in view. Six team tabs overflow a phone, and
+ * arrow keys move the selection without moving the scroll — so the pill would
+ * slide to a tab that is off the edge and the control would look like it had
+ * stopped responding. `inline: 'nearest'` scrolls the strip and nothing else;
+ * a plain `scrollIntoView` would also drag the page vertically.
+ *
  * Promoted out of the events filter once a third caller appeared, per the
  * repo's rule that components move up only when a second page needs them.
  */
@@ -48,6 +56,12 @@ export function SegmentedTabs<T extends string>({
   ariaLabel,
   className,
 }: SegmentedTabsProps<T>) {
+  const selectedRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    selectedRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }, [value]);
+
   const onKeyDown = (event: React.KeyboardEvent) => {
     const last = tabs.length - 1;
     const current = tabs.findIndex((tab) => tab.id === value);
@@ -85,6 +99,7 @@ export function SegmentedTabs<T extends string>({
         return (
           <button
             key={tab.id}
+            ref={selected ? selectedRef : undefined}
             role="tab"
             type="button"
             aria-selected={selected}

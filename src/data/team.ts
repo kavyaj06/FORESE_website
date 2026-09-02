@@ -24,16 +24,22 @@ import type { TeamId } from './teamIds';
  * `@forese.in` address; that is safe only while the names themselves are
  * invented, and must be replaced along with them.
  *
- * One person appears exactly once. A tech team is not a stored list: it is
+ * One person appears exactly once. A working team is not a stored list: it is
  * everyone whose `team` matches its id. That is what makes it impossible for
  * a face to be rendered twice, and impossible for a team's membership to
  * drift out of sync with the roster.
  *
- * The three tech teams sit inside the `member` rank only. Junior core manage
- * all three collectively rather than each leading one, so they carry no team.
+ * The five working teams sit inside the two member ranks only. Core carry no
+ * team: senior and junior core manage all five collectively rather than each
+ * leading one.
+ *
+ * `senior-member` is not a separate list either — it is the `2027` batch that
+ * was already on the roster. Seniority is a fact about when someone joined, so
+ * deriving it from `batch` keeps one source of truth; a hand-kept list of
+ * senior members would start drifting from the batches the day it was written.
  */
 
-export type MemberRank = 'senior-core' | 'junior-core' | 'member';
+export type MemberRank = 'senior-core' | 'junior-core' | 'lead' | 'senior-member' | 'member';
 
 export interface ClubMember {
   id: string;
@@ -48,7 +54,7 @@ export interface ClubMember {
   quote?: string;
   linkedin?: string;
   email?: string;
-  /** Tech team. Members only. */
+  /** Working team. Members and senior members only. */
   team?: TeamId;
 }
 
@@ -134,7 +140,6 @@ export const CLUB_MEMBERS: ClubMember[] = [
     linkedin: 'https://www.linkedin.com/in/thamizh-selvan-a-placeholder',
     email: 'thamizh-selvan-a@example.com',
   },
-
   {
     id: 'pragadeesh',
     name: 'Pragadeesh',
@@ -225,13 +230,56 @@ export const CLUB_MEMBERS: ClubMember[] = [
     linkedin: 'https://www.linkedin.com/in/nikhil-abhishek-placeholder',
     email: 'nikhil-abhishek@example.com',
   },
-
+  /**
+   * ⚠️ DUMMY placeholders — four invented people standing in until the club
+   * supplies its real leads. Same unusable-on-purpose convention as the core
+   * above: `example.com` never resolves and every slug ends `-placeholder`.
+   * `role` is the bare word "Lead" rather than a specific title, because
+   * inventing "Design Lead" would be a claim about how the club is organised
+   * that this file has no way to know.
+   */
+  {
+    id: 'lead-1',
+    name: 'Aravind Krishnan',
+    rank: 'lead',
+    role: 'Lead',
+    quote: 'A lead is mostly the person who notices what nobody has picked up.',
+    linkedin: 'https://www.linkedin.com/in/aravind-krishnan-placeholder',
+    email: 'aravind-krishnan@example.com',
+  },
+  {
+    id: 'lead-2',
+    name: 'Divya Ramesh',
+    rank: 'lead',
+    role: 'Lead',
+    quote: 'You stop measuring a week by what you finished and start by what moved.',
+    linkedin: 'https://www.linkedin.com/in/divya-ramesh-placeholder',
+    email: 'divya-ramesh@example.com',
+  },
+  {
+    id: 'lead-3',
+    name: 'Karthik Subramanian',
+    rank: 'lead',
+    role: 'Lead',
+    quote: 'The handover notes I resented writing are the ones I now reread.',
+    linkedin: 'https://www.linkedin.com/in/karthik-subramanian-placeholder',
+    email: 'karthik-subramanian@example.com',
+  },
+  {
+    id: 'lead-4',
+    name: 'Nithya Balaji',
+    rank: 'lead',
+    role: 'Lead',
+    quote: 'Running one round taught me more than sitting through ten.',
+    linkedin: 'https://www.linkedin.com/in/nithya-balaji-placeholder',
+    email: 'nithya-balaji@example.com',
+  },
   {
     id: 'm-1',
     name: 'Revathi Raghavan',
     rank: 'member',
     batch: '2029',
-    team: 'design',
+    team: 'marketing',
     quote: 'Designing for a deadline is a different skill from designing well.',
     linkedin: 'https://linkedin.com/in/revathi-raghavan',
     email: 'revathi-raghavan@forese.in',
@@ -241,7 +289,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Srinivas Reddy',
     rank: 'member',
     batch: '2029',
-    team: 'design',
+    team: 'videography',
     quote: 'Designing for a deadline is a different skill from designing well.',
     linkedin: 'https://linkedin.com/in/srinivas-reddy',
     email: 'srinivas-reddy@forese.in',
@@ -251,7 +299,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Ananya Raghavan',
     rank: 'member',
     batch: '2029',
-    team: 'design',
+    team: 'marketing',
     quote: 'I learnt to ask better questions before writing any code.',
     linkedin: 'https://linkedin.com/in/ananya-raghavan',
     email: 'ananya-raghavan@forese.in',
@@ -259,7 +307,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-4',
     name: 'Gokul Chandran',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'design',
     quote: 'Every rejection came with something worth fixing.',
@@ -269,9 +317,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-5',
     name: 'Sathish Chandran',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'design',
+    team: 'marketing',
     quote: 'The mock placements taught me more in a weekend than a term of theory.',
     linkedin: 'https://linkedin.com/in/sathish-chandran',
     email: 'sathish-chandran@forese.in',
@@ -279,9 +327,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-6',
     name: 'Bhuvana Krishnan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'design',
+    team: 'development',
     quote: 'You learn to think out loud, which is most of a group discussion.',
     linkedin: 'https://linkedin.com/in/bhuvana-krishnan',
     email: 'bhuvana-krishnan@forese.in',
@@ -291,7 +339,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Arjun Murugan',
     rank: 'member',
     batch: '2028',
-    team: 'design',
+    team: 'marketing',
     quote: 'Turns out organising mock placements is harder than sitting them.',
     linkedin: 'https://linkedin.com/in/arjun-murugan',
     email: 'arjun-murugan@forese.in',
@@ -299,9 +347,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-8',
     name: 'Yamini Gopal',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'design',
+    team: 'development',
     quote: 'Nothing beats watching a nervous junior walk out grinning.',
     linkedin: 'https://linkedin.com/in/yamini-gopal',
     email: 'yamini-gopal@forese.in',
@@ -311,7 +359,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Tanvi Pillai',
     rank: 'member',
     batch: '2029',
-    team: 'design',
+    team: 'marketing',
     quote: 'Designing for a deadline is a different skill from designing well.',
     linkedin: 'https://linkedin.com/in/tanvi-pillai',
     email: 'tanvi-pillai@forese.in',
@@ -321,7 +369,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Swetha Raghavan',
     rank: 'member',
     batch: '2028',
-    team: 'design',
+    team: 'videography',
     quote: 'The feedback stings once and helps for years.',
     linkedin: 'https://linkedin.com/in/swetha-raghavan',
     email: 'swetha-raghavan@forese.in',
@@ -329,9 +377,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-11',
     name: 'Aditi Gopal',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'design',
+    team: 'marketing',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/aditi-gopal',
     email: 'aditi-gopal@forese.in',
@@ -339,9 +387,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-12',
     name: 'Rajesh Mahadevan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'design',
+    team: 'content',
     quote: 'The mock placements taught me more in a weekend than a term of theory.',
     linkedin: 'https://linkedin.com/in/rajesh-mahadevan',
     email: 'rajesh-mahadevan@forese.in',
@@ -351,7 +399,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Aruna Kumar',
     rank: 'member',
     batch: '2028',
-    team: 'design',
+    team: 'videography',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/aruna-kumar',
     email: 'aruna-kumar@forese.in',
@@ -359,7 +407,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-14',
     name: 'Bhuvana Prasad',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'design',
     quote: 'I joined for the CV line and stayed for the people.',
@@ -409,7 +457,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-19',
     name: 'Akash Pillai',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'design',
     quote: 'Half of placement prep is just knowing what the room expects.',
@@ -429,7 +477,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-21',
     name: 'Anjali Menon',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'design',
     quote: 'I joined for the CV line and stayed for the people.',
@@ -449,7 +497,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-23',
     name: 'Bhavya Raghavan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'design',
     quote: 'You learn to think out loud, which is most of a group discussion.',
@@ -459,7 +507,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-24',
     name: 'Sathya Venkat',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'design',
     quote: 'The mock placements taught me more in a weekend than a term of theory.',
@@ -509,7 +557,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-29',
     name: 'Priya Sundaram',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'design',
     quote: 'Turns out organising mock placements is harder than sitting them.',
@@ -531,7 +579,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Revathi Pillai',
     rank: 'member',
     batch: '2029',
-    team: 'development',
+    team: 'marketing',
     quote: 'Half of placement prep is just knowing what the room expects.',
     linkedin: 'https://linkedin.com/in/revathi-pillai',
     email: 'revathi-pillai@forese.in',
@@ -539,9 +587,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-32',
     name: 'Karthik Sundaram',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'development',
+    team: 'content',
     quote: 'Half of placement prep is just knowing what the room expects.',
     linkedin: 'https://linkedin.com/in/karthik-sundaram',
     email: 'karthik-sundaram@forese.in',
@@ -549,9 +597,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-33',
     name: 'Arjun Iyer',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'development',
+    team: 'marketing',
     quote: 'The mock placements taught me more in a weekend than a term of theory.',
     linkedin: 'https://linkedin.com/in/arjun-iyer',
     email: 'arjun-iyer@forese.in',
@@ -559,9 +607,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-34',
     name: 'Nikhil Rao',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'development',
+    team: 'videography',
     quote: 'Turns out organising mock placements is harder than sitting them.',
     linkedin: 'https://linkedin.com/in/nikhil-rao',
     email: 'nikhil-rao@forese.in',
@@ -571,7 +619,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Manish Chandran',
     rank: 'member',
     batch: '2028',
-    team: 'development',
+    team: 'marketing',
     quote: 'Half of placement prep is just knowing what the room expects.',
     linkedin: 'https://linkedin.com/in/manish-chandran',
     email: 'manish-chandran@forese.in',
@@ -589,9 +637,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-37',
     name: 'Madhan Srinivasan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'development',
+    team: 'videography',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/madhan-srinivasan',
     email: 'madhan-srinivasan@forese.in',
@@ -601,7 +649,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Priya Murugan',
     rank: 'member',
     batch: '2029',
-    team: 'development',
+    team: 'marketing',
     quote: 'The best interviews feel like a conversation, not a test.',
     linkedin: 'https://linkedin.com/in/priya-murugan',
     email: 'priya-murugan@forese.in',
@@ -609,7 +657,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-39',
     name: 'Sriram Sundaram',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'development',
     quote: 'Designing for a deadline is a different skill from designing well.',
@@ -621,7 +669,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Pavithra Pillai',
     rank: 'member',
     batch: '2029',
-    team: 'development',
+    team: 'videography',
     quote: 'The mock placements taught me more in a weekend than a term of theory.',
     linkedin: 'https://linkedin.com/in/pavithra-pillai',
     email: 'pavithra-pillai@forese.in',
@@ -631,7 +679,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Ashwin Rao',
     rank: 'member',
     batch: '2028',
-    team: 'development',
+    team: 'marketing',
     quote: 'I joined for the CV line and stayed for the people.',
     linkedin: 'https://linkedin.com/in/ashwin-rao',
     email: 'ashwin-rao@forese.in',
@@ -639,9 +687,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-42',
     name: 'Rajesh Subramanian',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'development',
+    team: 'videography',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/rajesh-subramanian',
     email: 'rajesh-subramanian@forese.in',
@@ -651,7 +699,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Saranya Balan',
     rank: 'member',
     batch: '2029',
-    team: 'development',
+    team: 'marketing',
     quote: 'Nothing beats watching a nervous junior walk out grinning.',
     linkedin: 'https://linkedin.com/in/saranya-balan',
     email: 'saranya-balan@forese.in',
@@ -661,7 +709,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Ishaan Raghavan',
     rank: 'member',
     batch: '2028',
-    team: 'development',
+    team: 'videography',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/ishaan-raghavan',
     email: 'ishaan-raghavan@forese.in',
@@ -671,7 +719,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Hemanth Varma',
     rank: 'member',
     batch: '2029',
-    team: 'development',
+    team: 'videography',
     quote: 'Turns out organising mock placements is harder than sitting them.',
     linkedin: 'https://linkedin.com/in/hemanth-varma',
     email: 'hemanth-varma@forese.in',
@@ -681,7 +729,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Dinesh Natarajan',
     rank: 'member',
     batch: '2029',
-    team: 'development',
+    team: 'videography',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/dinesh-natarajan',
     email: 'dinesh-natarajan@forese.in',
@@ -689,7 +737,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-47',
     name: 'Shalini Subramanian',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'development',
     quote: 'I joined for the CV line and stayed for the people.',
@@ -729,7 +777,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-51',
     name: 'Srinivas Menon',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'development',
     quote: 'Cold-calling forty HRs cures stage fright faster than anything else.',
@@ -739,7 +787,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-52',
     name: 'Vidhya Srinivasan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'development',
     quote: 'Being on the other side of the table changes how you prepare.',
@@ -759,7 +807,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-54',
     name: 'Swetha Balan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'development',
     quote: 'The best interviews feel like a conversation, not a test.',
@@ -831,7 +879,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Vishal Srinivasan',
     rank: 'member',
     batch: '2029',
-    team: 'content',
+    team: 'marketing',
     quote: 'Nothing beats watching a nervous junior walk out grinning.',
     linkedin: 'https://linkedin.com/in/vishal-srinivasan',
     email: 'vishal-srinivasan@forese.in',
@@ -841,7 +889,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Indira Kumar',
     rank: 'member',
     batch: '2028',
-    team: 'content',
+    team: 'videography',
     quote: 'Every rejection came with something worth fixing.',
     linkedin: 'https://linkedin.com/in/indira-kumar',
     email: 'indira-kumar@forese.in',
@@ -861,7 +909,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Nikhil Krishnan',
     rank: 'member',
     batch: '2028',
-    team: 'content',
+    team: 'marketing',
     quote: 'Nothing beats watching a nervous junior walk out grinning.',
     linkedin: 'https://linkedin.com/in/nikhil-krishnan',
     email: 'nikhil-krishnan@forese.in',
@@ -869,9 +917,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-65',
     name: 'Deepak Murugan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'content',
+    team: 'videography',
     quote: 'You learn to think out loud, which is most of a group discussion.',
     linkedin: 'https://linkedin.com/in/deepak-murugan',
     email: 'deepak-murugan@forese.in',
@@ -901,7 +949,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Aditi Balan',
     rank: 'member',
     batch: '2028',
-    team: 'content',
+    team: 'marketing',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/aditi-balan',
     email: 'aditi-balan@forese.in',
@@ -909,7 +957,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-69',
     name: 'Nithin Sundaram',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'content',
     quote: 'Writing the newsletter made me read far more than I planned to.',
@@ -921,7 +969,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Lakshmi Varma',
     rank: 'member',
     batch: '2029',
-    team: 'content',
+    team: 'videography',
     quote: 'Being on the other side of the table changes how you prepare.',
     linkedin: 'https://linkedin.com/in/lakshmi-varma',
     email: 'lakshmi-varma@forese.in',
@@ -929,9 +977,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-71',
     name: 'Gayathri Murugan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'content',
+    team: 'marketing',
     quote: 'The feedback stings once and helps for years.',
     linkedin: 'https://linkedin.com/in/gayathri-murugan',
     email: 'gayathri-murugan@forese.in',
@@ -941,7 +989,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Abhinav Ganesan',
     rank: 'member',
     batch: '2028',
-    team: 'content',
+    team: 'videography',
     quote: 'You learn to think out loud, which is most of a group discussion.',
     linkedin: 'https://linkedin.com/in/abhinav-ganesan',
     email: 'abhinav-ganesan@forese.in',
@@ -949,9 +997,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-73',
     name: 'Uma Gopal',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'content',
+    team: 'marketing',
     quote: 'Being on the other side of the table changes how you prepare.',
     linkedin: 'https://linkedin.com/in/uma-gopal',
     email: 'uma-gopal@forese.in',
@@ -959,9 +1007,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-74',
     name: 'Pavithra Chandran',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'content',
+    team: 'videography',
     quote: 'Nothing beats watching a nervous junior walk out grinning.',
     linkedin: 'https://linkedin.com/in/pavithra-chandran',
     email: 'pavithra-chandran@forese.in',
@@ -969,9 +1017,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-75',
     name: 'Srinivas Pillai',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'content',
+    team: 'marketing',
     quote: 'Every panel I sat in front of made the next one easier.',
     linkedin: 'https://linkedin.com/in/srinivas-pillai',
     email: 'srinivas-pillai@forese.in',
@@ -979,9 +1027,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-76',
     name: 'Manoj Balan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
-    team: 'content',
+    team: 'videography',
     quote: 'Turns out organising mock placements is harder than sitting them.',
     linkedin: 'https://linkedin.com/in/manoj-balan',
     email: 'manoj-balan@forese.in',
@@ -991,7 +1039,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Lakshmi Iyer',
     rank: 'member',
     batch: '2028',
-    team: 'content',
+    team: 'videography',
     quote: 'I joined for the CV line and stayed for the people.',
     linkedin: 'https://linkedin.com/in/lakshmi-iyer',
     email: 'lakshmi-iyer@forese.in',
@@ -1001,7 +1049,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Sanjay Pillai',
     rank: 'member',
     batch: '2028',
-    team: 'content',
+    team: 'videography',
     quote: 'Half of placement prep is just knowing what the room expects.',
     linkedin: 'https://linkedin.com/in/sanjay-pillai',
     email: 'sanjay-pillai@forese.in',
@@ -1029,7 +1077,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-81',
     name: 'Subash Raghavan',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'content',
     quote: 'Designing for a deadline is a different skill from designing well.',
@@ -1059,7 +1107,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-84',
     name: 'Veena Ramesh',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'content',
     quote: 'The best interviews feel like a conversation, not a test.',
@@ -1079,7 +1127,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-86',
     name: 'Ananya Rao',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'content',
     quote: 'I learnt to ask better questions before writing any code.',
@@ -1119,7 +1167,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'm-90',
     name: 'Bhuvana Pillai',
-    rank: 'member',
+    rank: 'senior-member',
     batch: '2027',
     team: 'content',
     quote: 'Every rejection came with something worth fixing.',

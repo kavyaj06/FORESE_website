@@ -24,6 +24,17 @@ export const CLUB_TEAMS: ClubTeam[] = [
     name: 'Content',
     description: 'Newsletter writing, event copy, social posts and interview write-ups.',
   },
+  {
+    id: 'marketing',
+    name: 'Marketing',
+    description:
+      'Outreach to companies and students, sponsorships and the club\u2019s public voice.',
+  },
+  {
+    id: 'videography',
+    name: 'Videography',
+    description: 'Filming and cutting event recaps, aftermovies and the interview reels.',
+  },
 ];
 
 /**
@@ -42,5 +53,11 @@ export function membersInTeam(teamId: TeamId): ClubMember[] {
 export function findTeam(id: TeamId): ClubTeam | undefined {
   return CLUB_TEAMS.find((team) => team.id === id);
 }
+
+/** Everyone in one of the core ranks, in the order the page shows them. */
+export const CORE_RANKS = ['senior-core', 'junior-core', 'lead'] as const;
+
+/** The two ranks that sit on a working team. */
+export const MEMBER_RANKS = ['senior-member', 'member'] as const;
 
 export const ROSTER_TOTAL = CLUB_MEMBERS.length;

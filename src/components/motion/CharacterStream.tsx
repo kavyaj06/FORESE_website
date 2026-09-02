@@ -200,9 +200,7 @@ export function CharacterStream({ words, className }: CharacterStreamProps) {
           // whatever the tape says. This is where a word "resolves": its own
           // letters stop rolling and stay while the noise around them goes.
           const settling = behind < SCRAMBLE;
-          const glyph = settling
-            ? GLYPHS[(Math.random() * GLYPHS.length) | 0]
-            : (chars[i] ?? ' ');
+          const glyph = settling ? GLYPHS[(Math.random() * GLYPHS.length) | 0] : (chars[i] ?? ' ');
           if (node.textContent !== glyph) node.textContent = glyph;
 
           node.style.opacity = isWord[i]
