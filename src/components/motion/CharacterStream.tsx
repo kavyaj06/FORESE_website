@@ -43,8 +43,14 @@ function hash(i: number): number {
  * would be a different picture each pass, so the animation could never be
  * looked at twice, compared against itself, or tested.
  *
- * Words are spaced evenly along the tape and nudged off a row boundary if they
- * would wrap, because a word split across two lines never reads as a word.
+ * Words are placed by row rather than by position along the tape: one per row,
+ * on rows spread evenly down the whole height. Spacing them by tape index
+ * instead looks even on the tape and is not even on the picture — a word that
+ * lands late on its row pushes the next one most of a row further down, so the
+ * gaps came out uneven and the lower half of the box sat empty.
+ *
+ * The column is jittered, so the words still scatter horizontally the way the
+ * reference does. Only the vertical rhythm is regular.
  */
 function buildTape(length: number, cols: number, words: string[]) {
   const chars: string[] = [];
@@ -54,14 +60,21 @@ function buildTape(length: number, cols: number, words: string[]) {
     isWord.push(false);
   }
 
-  const gap = Math.floor(length / (words.length + 1));
+  const rows = Math.floor(length / cols);
+  // A whole number of rows between each pair, with the remainder split top and
+  // bottom. Interpolating across the full height instead rounds to rows that
+  // are not equally spaced — at 1440 that produced gaps of 3,3,4,3,3 rows, and
+  // the one wide gap is the only thing the eye picks out of a regular rhythm.
+  const step = words.length > 1 ? Math.floor((rows - 1) / (words.length - 1)) : 0;
+  // Rounded up, not down. A glyph sits in the top of its 1.55 line box, so the
+  // leftover rows are not symmetric: flooring left the block visibly low in
+  // the picture (50px of air above, 101 below at 1440).
+  const top = Math.round((rows - 1 - step * (words.length - 1)) / 2);
   words.forEach((word, w) => {
-    let at = gap * (w + 1) + Math.floor(hash(w * 31) * gap * 0.4) - Math.floor(gap * 0.2);
-    at = Math.max(0, Math.min(at, length - word.length - 1));
-    // Push the word to the next row rather than let it wrap.
-    const room = cols - (at % cols);
-    if (room < word.length) at += room;
-    if (at + word.length >= length) return;
+    const row = top + step * w;
+    const room = Math.max(0, cols - word.length);
+    const at = row * cols + Math.floor(hash(w * 31 + 7) * room);
+    if (at + word.length > length) return;
     for (let k = 0; k < word.length; k += 1) {
       chars[at + k] = word[k];
       isWord[at + k] = true;

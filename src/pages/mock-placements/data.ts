@@ -366,11 +366,12 @@ export const PROCESS_STEPS: ProcessStep[] = [
 /**
  * The words that survive the character stream over the About photograph.
  *
- * The four rounds first, in the order the day runs them, then the terms around
- * them. Eight rather than four because the stream fills the whole picture: with
- * four, most of the field clears to nothing and the effect reads as an empty
- * box. They are not decoration — by the time the picture is clear the reader
- * has been shown what the day consists of.
+ * The four rounds first, in the order the day runs them, then the two terms
+ * around them. Six rather than four because the stream fills the whole
+ * picture and gets one word per band down its height; with four, the bands
+ * are tall enough that the field reads as mostly empty. They are not
+ * decoration — by the time the picture is clear the reader has been shown
+ * what the day consists of.
  */
 export const MOCK_PLACEMENTS_STREAM_WORDS = [
   'Aptitude',
@@ -378,7 +379,5 @@ export const MOCK_PLACEMENTS_STREAM_WORDS = [
   'Interview',
   'Feedback',
   'Resume',
-  'Panel',
   'Practice',
-  'Offer',
 ];
