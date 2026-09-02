@@ -4,6 +4,8 @@ import { SegmentedTabs } from '@/components/sections/SegmentedTabs';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
+import { CHROME, type StackSlide, type StackThumb } from './stackTypes';
+import { MobileStack } from './MobileStack';
 import {
   CANVAS_MIN_HEIGHT,
   centreFraction,
@@ -22,41 +24,12 @@ import {
   TABLET_SATELLITE_COUNT,
 } from './boardLayout';
 
-export interface StackThumb {
-  tag: string;
-  /** Shown on the preview's back when it is flipped. */
-  flipText: string;
-  image?: string;
-}
-
-export interface StackSlide {
-  id: string;
-  /** Tab label, and the card's own title. */
-  category: string;
-  image?: string;
-  description: string;
-  thumbnails: [StackThumb, StackThumb, StackThumb, StackThumb];
-}
+export type { StackSlide, StackThumb } from './stackTypes';
 
 interface CaseStudyStackProps {
   slides: StackSlide[];
   tablistLabel: string;
 }
-
-/**
- * The card's shell, exactly as specified: a hairline, a 2px lift, and a 12px
- * corner.
- *
- * The radius is set here rather than with `rounded-xl` because this project
- * overrides Tailwind's radius scale — `rounded-xl` resolves to 24px, twice what
- * the brief asks for, and the difference is the whole distance between a
- * printed card and a soft UI panel.
- */
-const CHROME = {
-  border: '1px solid rgba(0,0,0,0.08)',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-  borderRadius: 12,
-};
 
 /**
  * A stack of project cards on a canvas, advanced two ways.
@@ -137,6 +110,12 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
 
   const transition = prefersReducedMotion ? { duration: 0.2 } : MOVE;
   const outTransition = prefersReducedMotion ? { duration: 0.2 } : MOVE_OUT;
+
+  // Below the tablet width the composition is not scaled down, it is replaced.
+  // Four previews placed around a centre card is the whole idea, and a phone
+  // has nowhere to place them; shrunk to fit they become unreadable squares
+  // and the arrangement stops meaning anything. See `MobileStack`.
+  if (!card) return <MobileStack slides={slides} tablistLabel={tablistLabel} />;
 
   // Every position below stays exactly as specified; the whole composition is
   // scaled to whatever canvas the device gives it. Fitting the stage once is
@@ -235,14 +214,7 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
                 );
               })}
             </>
-          ) : (
-            <MobileBoard
-              top={top}
-              onAdvance={() => cutAt(1)}
-              flipEnabled={flipEnabled}
-              satelliteCount={satelliteCount}
-            />
-          )}
+          ) : null}
         </div>
       </div>
 
@@ -442,67 +414,5 @@ function Satellite({ thumb, flipEnabled }: { thumb: StackThumb; flipEnabled: boo
         {thumb.tag}. {thumb.flipText}
       </span>
     </button>
-  );
-}
-
-/**
- * Below 768px there is no composition to hold. The card sizes to the screen and
- * the previews sit under it in normal flow: absolute placement is dropped
- * entirely rather than scaled down, which is what keeps anything from
- * overflowing sideways at a width nobody measured.
- */
-function MobileBoard({
-  top,
-  onAdvance,
-  flipEnabled,
-  satelliteCount,
-}: {
-  top: StackSlide;
-  onAdvance: () => void;
-  flipEnabled: boolean;
-  satelliteCount: number;
-}) {
-  return (
-    <div className="px-gutter flex h-full flex-col items-center justify-center">
-      <button
-        type="button"
-        onClick={onAdvance}
-        className="focus-visible:ring-accent block w-[min(88vw,360px)] rounded-[12px] text-left focus-visible:ring-2"
-      >
-        <div className="bg-white p-2.5" style={CHROME}>
-          <div className="bg-line-grid mx-auto aspect-square w-[calc(100%-20px)] overflow-hidden rounded-[9px]">
-            {top.image && (
-              <img
-                src={top.image}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="size-full object-cover"
-              />
-            )}
-          </div>
-          <div className="px-3 pt-3.5 pb-3.5">
-            <h3
-              className="font-serif"
-              style={{ fontSize: 32, lineHeight: 0.95, letterSpacing: '-1.2px' }}
-            >
-              {top.category}
-            </h3>
-            <p className="text-text-muted" style={{ fontSize: 15, lineHeight: 1.18, marginTop: 8 }}>
-              {top.description}
-            </p>
-          </div>
-        </div>
-        <span className="sr-only">Show the next project.</span>
-      </button>
-
-      <ul className="gap-sm mt-lg flex justify-center">
-        {top.thumbnails.slice(0, satelliteCount).map((thumb, i) => (
-          <li key={i} className="size-[104px] shrink-0">
-            <Satellite thumb={thumb} flipEnabled={flipEnabled} />
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }

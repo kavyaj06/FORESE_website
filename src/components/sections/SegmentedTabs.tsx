@@ -20,6 +20,13 @@ interface SegmentedTabsProps<T extends string> {
    */
   layoutId: string;
   ariaLabel: string;
+  /**
+   * Wraps to a second row and tightens the padding instead of scrolling
+   * sideways. For a phone, where five labels are wider than the screen and a
+   * strip that scrolls inside itself hides options behind a gesture nothing
+   * announces.
+   */
+  compact?: boolean;
   className?: string;
 }
 
@@ -54,6 +61,7 @@ export function SegmentedTabs<T extends string>({
   onChange,
   layoutId,
   ariaLabel,
+  compact,
   className,
 }: SegmentedTabsProps<T>) {
   const selectedRef = useRef<HTMLButtonElement>(null);
@@ -98,7 +106,10 @@ export function SegmentedTabs<T extends string>({
       aria-label={ariaLabel}
       onKeyDown={onKeyDown}
       className={cn(
-        'border-border bg-surface gap-xs rounded-pill flex w-fit max-w-full scrollbar-none overflow-x-auto border p-1',
+        'border-border bg-surface gap-xs flex max-w-full border p-1',
+        compact
+          ? 'w-full flex-wrap justify-center rounded-xl'
+          : 'rounded-pill w-fit scrollbar-none overflow-x-auto',
         className,
       )}
     >
@@ -117,7 +128,8 @@ export function SegmentedTabs<T extends string>({
             disabled={disabled}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'text-label rounded-pill duration-fast relative shrink-0 px-4 py-2 whitespace-nowrap transition-colors',
+              'rounded-pill duration-fast relative shrink-0 whitespace-nowrap transition-colors',
+              compact ? 'text-caption px-3 py-1.5' : 'text-label px-4 py-2',
               selected ? 'text-accent-fg' : 'text-text-muted hover:text-text',
               disabled && 'hover:text-text-muted cursor-not-allowed opacity-40',
             )}
