@@ -7,28 +7,27 @@ import { CharacterStream } from './CharacterStream';
 interface DecodeRevealProps {
   src?: string;
   alt?: string;
-  /** One line each, assembled character by character over the picture. */
+  /** What is left standing when the character field clears. */
   words: string[];
   className?: string;
 }
 
 /**
- * A photograph with typography assembled over it, character by character.
+ * A photograph uncovered by a stream of characters running across it.
  *
- * The lettering is `CharacterStream`: glyphs travel in from the left, settle
- * into words, hold, then leave to the right in reverse order. That is the whole
- * effect now — the field of random characters that used to sit here is gone,
- * because it read as a hacker cipher rather than as type being set, and it
- * competed with the words for the same space.
+ * The lettering is `CharacterStream`, and the mechanism is the reference's: a
+ * field of random characters is written across the picture, and the words are
+ * what is left standing when that field clears behind the writing head. Nothing
+ * travels to a destination — see the note there.
  *
- * The picture is still tied to scroll: it lifts from dim to full as the section
- * is read, so the reader uncovers it themselves rather than watching it fade on
- * a timer they did not start. The scrim between the two does one job — keeping
- * white letters legible over a pale photograph — and thins as the picture comes
- * up.
+ * The picture is tied to scroll: it lifts from dim to full as the section is
+ * read, so the reader uncovers it themselves rather than watching it fade on a
+ * timer they did not start. The scrim between the two does one job — keeping
+ * white characters legible over a pale photograph — and thins as the picture
+ * comes up.
  *
  * Under `prefers-reduced-motion` the photograph is simply at full opacity with
- * the words set statically over it. Nothing travels, nothing loops.
+ * the words set statically over it. Nothing streams, nothing loops.
  */
 export function DecodeReveal({ src, alt = '', words, className }: DecodeRevealProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -82,7 +81,7 @@ export function DecodeReveal({ src, alt = '', words, className }: DecodeRevealPr
       )}
 
       <CharacterStream
-        lines={words}
+        words={words}
         className="text-caption pointer-events-none absolute inset-0 text-white"
       />
     </div>

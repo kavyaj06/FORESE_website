@@ -8,6 +8,7 @@ import {
   MOCK_PLACEMENTS_ABOUT,
   MOCK_PLACEMENTS_COMPANIES_TITLE,
   MOCK_PLACEMENT_CAROUSEL_LOGOS,
+  MOCK_PLACEMENTS_STREAM_WORDS,
 } from '../data';
 
 const COVER = GALLERY_ALBUMS[0]?.photos[0]?.src;
@@ -20,10 +21,10 @@ const COVER = GALLERY_ALBUMS[0]?.photos[0]?.src;
  * the reader meets the claim first and has already decided by the time the
  * evidence arrives.
  *
- * The photograph is uncovered by a field of characters that resolves off it as
- * the section is scrolled — see `DecodeReveal`. The words that surface out of
- * the noise are the four rounds, so the effect is not decoration: by the time
- * the picture is clear the reader has been shown what the day consists of.
+ * The photograph is uncovered by a stream of characters written across it and
+ * then cleared away — see `DecodeReveal`. The words left standing lead with the
+ * four rounds, so the effect is not decoration: by the time the picture is
+ * clear the reader has been shown what the day consists of.
  *
  * Two figures, not the three the data holds. Side by side they are a pair the
  * eye compares; a third makes a row that is read as a list and skimmed. The
@@ -39,7 +40,7 @@ export function AboutMocks() {
           <Reveal motionStyle="scale">
             <DecodeReveal
               src={COVER}
-              words={['Aptitude', 'Discussion', 'Interview', 'Feedback']}
+              words={MOCK_PLACEMENTS_STREAM_WORDS}
               className="aspect-square w-full"
             />
           </Reveal>
