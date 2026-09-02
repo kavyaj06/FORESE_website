@@ -34,14 +34,20 @@ export function AboutMocks() {
   const { eyebrow, title, paragraphs, figures } = MOCK_PLACEMENTS_ABOUT;
 
   return (
-    <section className="py-section border-border border-b">
+    <section className="pt-2xl pb-2xl border-border border-b">
       <Container>
-        <div className="gap-2xl desktop:grid-cols-2 desktop:gap-3xl grid grid-cols-1 items-center">
-          <Reveal motionStyle="scale">
+        <div className="gap-2xl desktop:grid-cols-2 desktop:gap-3xl grid grid-cols-1">
+          <Reveal motionStyle="scale" className="desktop:h-full">
+            {/* Square while the columns are stacked, and the full height of the
+                text column once they are side by side, so the picture and the
+                figures finish on the same line. A fixed square next to a column
+                of prose ends 150px short of it at 1440 and 310px at 1024 —
+                which is not a proportion that can be tuned, since it moves with
+                the copy. */}
             <DecodeReveal
               src={COVER}
               words={MOCK_PLACEMENTS_STREAM_WORDS}
-              className="aspect-square w-full"
+              className="desktop:aspect-auto desktop:h-full aspect-square w-full"
             />
           </Reveal>
 
@@ -56,13 +62,13 @@ export function AboutMocks() {
               {title}
             </RevealItem>
 
-            {paragraphs.slice(0, 2).map((paragraph) => (
+            {paragraphs.map((paragraph) => (
               <RevealItem key={paragraph.slice(0, 24)} as="p" className="text-body text-text-muted">
                 {paragraph}
               </RevealItem>
             ))}
 
-            <RevealItem className="gap-md pt-xs tablet:grid-cols-2 grid grid-cols-1">
+            <RevealItem className="gap-md pt-xs desktop:mt-auto tablet:grid-cols-2 grid grid-cols-1">
               {figures
                 .filter((figure) => figure.value !== '2')
                 .map((figure) => (
@@ -85,7 +91,7 @@ export function AboutMocks() {
       {/* Full-bleed, and outside the container on purpose: the strip is meant
           to run off both edges so it reads as continuing past the page rather
           than as a list that happens to be centred. */}
-      <div className="mt-3xl">
+      <div className="mt-2xl">
         <p className="text-eyebrow text-text-subtle px-gutter mb-lg text-center uppercase">
           {MOCK_PLACEMENTS_COMPANIES_TITLE}
         </p>

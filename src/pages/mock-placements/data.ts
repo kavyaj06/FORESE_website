@@ -30,17 +30,16 @@ export const MOCK_PLACEMENTS_INTRO = {
  * over from the existing FORESE site rather than invented — including the 130+
  * figure, which is therefore a number that can be published.
  *
- * Split into paragraphs rather than kept as one block because it is read
- * word-by-word as the reader scrolls: the breaks are where the sweep pauses,
- * so they have to fall on real shifts in the argument (what it is → what
- * happened in 2025 → what it has become).
+ * Two paragraphs: what it is, and what it has become. The 2025 paragraph that
+ * sat between them is gone at the club's request. Its 130+ figure is not lost
+ * — it is the first of the figures below, which is where a number registers
+ * without having to be read for.
  */
 export const MOCK_PLACEMENTS_ABOUT = {
   eyebrow: 'What it is',
   title: 'Bridging talent with opportunity',
   paragraphs: [
-    "FORESE's Mock Placements is the flagship annual initiative of Sri Venkateswara College of Engineering, built to prepare pre-final year students from every discipline for the challenges of their placement journey. Run in both online and offline modes, it is a full simulation of the recruitment process: aptitude tests, group discussions and personal interviews, giving students an authentic taste of real placement dynamics in a competitive but supportive environment.",
-    'In 2025 the programme reached new heights, with over 130 HR professionals and industry experts taking part. They did not only assess students. They mentored them, with insights and personal feedback that sharpened their skills, built their confidence and strengthened their readiness for what comes next.',
+    "FORESE's Mock Placements is the flagship annual initiative of Sri Venkateswara College of Engineering, built to prepare pre-final year students from every discipline for the challenges of their placement journey. Run in both online and offline modes, it is a full simulation of the recruitment process: aptitude tests, group discussions and personal interviews, giving students a real placement dynamics in a competitive but supportive environment.",
     'Over the years Mock Placements has grown into a platform that equips students with the technical expertise, the interpersonal skill and the mindset to perform under pressure, and FORESE, alongside the college, keeps pushing it further each year.',
   ],
   /** Figures pulled out of the prose so they register without being read for. */
