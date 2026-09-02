@@ -30,17 +30,16 @@ export const MOCK_PLACEMENTS_INTRO = {
  * over from the existing FORESE site rather than invented — including the 130+
  * figure, which is therefore a number that can be published.
  *
- * Two paragraphs: what it is, and what it has become. The 2025 paragraph that
- * sat between them is gone at the club's request. Its 130+ figure is not lost
- * — it is the first of the figures below, which is where a number registers
- * without having to be read for.
+ * One paragraph: what it is. The other two are gone at the club's request —
+ * the 2025 one, and the "over the years" one that followed it. The 130+ figure
+ * the first of them carried is not lost; it is the first of the figures below,
+ * which is where a number registers without having to be read for.
  */
 export const MOCK_PLACEMENTS_ABOUT = {
   eyebrow: 'What it is',
   title: 'Bridging talent with opportunity',
   paragraphs: [
     "FORESE's Mock Placements is the flagship annual initiative of Sri Venkateswara College of Engineering, built to prepare pre-final year students from every discipline for the challenges of their placement journey. Run in both online and offline modes, it is a full simulation of the recruitment process: aptitude tests, group discussions and personal interviews, giving students a real placement dynamics in a competitive but supportive environment.",
-    'Over the years Mock Placements has grown into a platform that equips students with the technical expertise, the interpersonal skill and the mindset to perform under pressure, and FORESE, alongside the college, keeps pushing it further each year.',
   ],
   /** Figures pulled out of the prose so they register without being read for. */
   figures: [
@@ -90,18 +89,23 @@ export const MOCK_PLACEMENT_COMPANIES: MockPlacementCompany[] = [
     logoScale: 1,
     website: 'https://www.cognizant.com/in/en',
   },
-  { name: 'Zoho', logo: '/logos/zoho.svg', website: 'https://www.zoho.com/' },
-  { name: 'Amazon', logo: '/logos/amazon.svg', logoScale: 0.78, website: 'https://www.amazon.in/' },
-  { name: 'L&T', logo: '/logos/lnt.svg', website: 'https://www.lnt.in/' },
+  { name: 'Zoho', logo: '/logos/zoho.png', logoScale: 0.7, website: 'https://www.zoho.com/' },
+  { name: 'Amazon', logo: '/logos/amazon.svg', logoScale: 0.66, website: 'https://www.amazon.in/' },
+  { name: 'L&T', logo: '/logos/lnt.png', logoScale: 0.75, website: 'https://www.lnt.in/' },
   {
     name: 'HCLTech',
     logo: '/logos/hcltech.svg',
-    logoScale: 1,
+    logoScale: 0.82,
     website: 'https://www.hcltech.com/',
   },
-  { name: 'TCS', logo: '/logos/tcs.svg', website: 'https://www.tcs.com/' },
+  { name: 'TCS', logo: '/logos/tcs.png', logoScale: 1, website: 'https://www.tcs.com/' },
   { name: 'Wipro', logo: '/logos/wipro.svg', website: 'https://www.wipro.com/' },
-  { name: 'Freshworks', logo: '/logos/freshworks.svg', website: 'https://www.freshworks.com/' },
+  {
+    name: 'Freshworks',
+    logo: '/logos/freshworks.png',
+    logoScale: 0.97,
+    website: 'https://www.freshworks.com/',
+  },
   {
     name: 'Capgemini',
     logo: '/logos/capgemini.svg',
@@ -111,7 +115,7 @@ export const MOCK_PLACEMENT_COMPANIES: MockPlacementCompany[] = [
   {
     name: 'Accenture',
     logo: '/logos/accenture.svg',
-    logoScale: 0.83,
+    logoScale: 0.85,
     website: 'https://www.accenture.com/in-en',
   },
 ];

@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
-import { cn } from '@/lib/cn';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { footerRoutes } from '@/app/routes';
 import { CONTACT, LOCATION, LOCATION_URL, SITE, SOCIAL_LINKS } from '@/data/site';
+import { ContactLink } from './ContactLink';
 import { SocialLinkIcon } from './SocialLinkIcon';
 import { HoverWordmark } from '@/components/motion/HoverWordmark';
 import { ForeseMark } from './ForeseMark';
@@ -45,6 +45,16 @@ import { ForeseMark } from './ForeseMark';
  */
 
 const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
+
+/**
+ * Gmail's and Google Maps' own reds, for the contact icons on hover.
+ *
+ * Same reasoning as the social icons' brand colours, and the same reason they
+ * are not tokens: they are not the club's to choose. Both marks happen to be
+ * the same red, which is Google's, not a copy-paste.
+ */
+const GMAIL_RED = '#EA4335';
+const MAPS_RED = '#EA4335';
 const COLUMN_LINK =
   'text-text-muted hover:text-accent-blue duration-fast ease-out-brand transition-colors';
 
@@ -95,19 +105,21 @@ export function Footer() {
             {CONTACT.email || CONTACT.phone ? (
               <ul className="space-y-4">
                 {CONTACT.email && (
-                  <li className="flex items-center space-x-3">
-                    <Mail size={18} className="text-accent-blue shrink-0" aria-hidden="true" />
-                    <a href={`mailto:${CONTACT.email}`} className={COLUMN_LINK}>
+                  <li>
+                    <ContactLink href={`mailto:${CONTACT.email}`} icon={Mail} brand={GMAIL_RED}>
                       {CONTACT.email}
-                    </a>
+                    </ContactLink>
                   </li>
                 )}
                 {CONTACT.phone && (
-                  <li className="flex items-center space-x-3">
-                    <Phone size={18} className="text-accent-blue shrink-0" aria-hidden="true" />
-                    <a href={`tel:${CONTACT.phone.replace(/\s/g, '')}`} className={COLUMN_LINK}>
+                  <li>
+                    <ContactLink
+                      href={`tel:${CONTACT.phone.replace(/\s/g, '')}`}
+                      icon={Phone}
+                      brand={MAPS_RED}
+                    >
                       {CONTACT.phone}
-                    </a>
+                    </ContactLink>
                   </li>
                 )}
               </ul>
@@ -120,24 +132,24 @@ export function Footer() {
           <div>
             <h2 className={COLUMN_HEADING}>Visit us</h2>
             {LOCATION.length > 0 ? (
-              <address className="flex space-x-3 not-italic">
-                <MapPin size={18} className="text-accent-blue mt-1 shrink-0" aria-hidden="true" />
+              <address className="not-italic">
                 {/* The whole address is the link, not a separate "view on
                     map" line beneath it — an address on a site like this is
                     only ever there to be found, so making the text itself the
                     target saves a row and a redundant label. */}
-                <a
+                <ContactLink
                   href={LOCATION_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(COLUMN_LINK, 'text-small')}
+                  icon={MapPin}
+                  brand={MAPS_RED}
+                  external
+                  className="text-small"
                 >
                   {LOCATION.map((line) => (
                     <span key={line} className="block">
                       {line}
                     </span>
                   ))}
-                </a>
+                </ContactLink>
               </address>
             ) : (
               <Pending what="Address" />
