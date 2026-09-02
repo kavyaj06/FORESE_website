@@ -16,6 +16,14 @@ import {
  * and nothing else.
  */
 
+/** The page's own hero. The club's wording, not a paraphrase of it. */
+export const MOCK_PLACEMENTS_HERO = {
+  eyebrow: 'FORESE',
+  title: 'FORESE Mock Placements',
+  description:
+    'Our flagship event dedicated to preparing pre-final year students for the rigors of the professional world through simulated placement drives.',
+} as const;
+
 export const MOCK_PLACEMENTS_INTRO = {
   eyebrow: 'How it works',
   title: 'From first call to final interview',
@@ -39,7 +47,7 @@ export const MOCK_PLACEMENTS_ABOUT = {
   eyebrow: 'What it is',
   title: 'Bridging talent with opportunity',
   paragraphs: [
-    "FORESE's Mock Placements is the flagship annual initiative of Sri Venkateswara College of Engineering, built to prepare pre-final year students from every discipline for the challenges of their placement journey. Run in both online and offline modes, it is a full simulation of the recruitment process: aptitude tests, group discussions and personal interviews, giving students a real placement dynamics in a competitive but supportive environment.",
+    "FORESE's Mock Placements, the flagship annual initiative of Sri Venkateswara College of Engineering, is designed to prepare pre-final year students from all disciplines for the challenges of their placement journey. Conducted in both online and offline modes, the event provides a complete simulation of the recruitment process through aptitude tests, group discussions, and personal interviews, offering students an authentic taste of real placement dynamics in a competitive yet supportive environment.",
   ],
   /** Figures pulled out of the prose so they register without being read for. */
   figures: [

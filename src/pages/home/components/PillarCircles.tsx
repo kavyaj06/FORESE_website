@@ -24,7 +24,8 @@ const SPAN = 0.34;
 
 /** The ring's geometry, in the SVG's own units. */
 const R = 46;
-const CIRCUMFERENCE = 2 * Math.PI * R;
+/** What a pillar is before the scroll reaches it: a bead sitting on the wire. */
+const BEAD = 4.5;
 
 const FILL_SPRING = { type: 'spring', stiffness: 320, damping: 26 } as const;
 
@@ -46,13 +47,21 @@ function Pillar({
   const from = START + (index / count) * (END - START - SPAN);
   const to = from + SPAN;
 
-  const draw = useTransform(progress, [from, to], [CIRCUMFERENCE, 0]);
-  const scale = useTransform(progress, [from, to], [0.72, 1]);
-  const opacity = useTransform(progress, [from, from + SPAN * 0.45], [0, 1]);
+  // One value drives the whole pillar, so nothing can arrive out of step with
+  // anything else: the bead swells, turns hollow, and its contents fade up.
+  const grow = useTransform(progress, [from, to], [0, 1]);
+  const radius = useTransform(grow, [0, 1], [BEAD, R]);
+  // The solid bead fades out over the first half of its own growth and the
+  // ring fades in over the second, so there is a moment where it is neither
+  // quite a dot nor quite a ring — which is what makes it read as one thing
+  // opening rather than two things crossfading.
+  const beadOpacity = useTransform(grow, [0, 0.45], [1, 0]);
+  const ringOpacity = useTransform(grow, [0.2, 0.65], [0, 1]);
+  const contentOpacity = useTransform(grow, [0.6, 1], [0, 1]);
   const Icon = pillar.icon;
 
   return (
-    <motion.li style={{ scale, opacity }} className="shrink-0">
+    <motion.li className="shrink-0">
       <motion.button
         type="button"
         // Hover, focus and tap all select. Hover alone left every sentence
@@ -66,47 +75,63 @@ function Pillar({
         transition={FILL_SPRING}
         className="group relative flex aspect-square w-[clamp(6rem,10vw,10.5rem)] items-center justify-center rounded-full"
       >
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 100 100"
-          className="absolute inset-0 size-full -rotate-90 overflow-visible"
-        >
+        {/* No `-rotate-90` any more: nothing is traced from twelve o'clock, so
+            there is no dash start to place. */}
+        <svg aria-hidden="true" viewBox="0 0 100 100" className="absolute inset-0 size-full">
           {/* Opaque, and painted first. It is what the connecting thread runs
               behind rather than through — the same trick the process timeline
-              uses to make its spine read as running between the stages. */}
-          <circle cx="50" cy="50" r={R} fill="currentColor" className="text-surface" />
-
-          {/* The selected disc. Scaling out from the centre rather than fading
-              gives the fill somewhere to come from. */}
+              uses to make its spine read as running between the stages. It
+              grows with the ring, so a bead that has not opened yet does not
+              punch a hole in the wire it is sitting on. */}
           <motion.circle
             cx="50"
             cy="50"
-            r={R}
+            r={radius}
+            fill="currentColor"
+            className="text-surface"
+            style={{ opacity: ringOpacity }}
+          />
+
+          {/* The bead. A solid dot on the wire that swells into the ring. */}
+          <motion.circle
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="currentColor"
+            className="text-text"
+            style={{ opacity: beadOpacity }}
+          />
+
+          {/* The selected disc. Radius follows the growth as well, so selecting
+              a pillar mid-scroll cannot paint a full-size disc inside a ring
+              that is still opening. */}
+          <motion.circle
+            cx="50"
+            cy="50"
+            r={radius}
             fill="currentColor"
             className="text-accent"
+            // Opacity is animated, never also given as a motion value here:
+            // a `style` motion value overrides the same key in `animate`, so
+            // setting both painted this disc on every ring as it opened
+            // instead of on the selected one.
             style={{ transformOrigin: '50% 50%' }}
             initial={false}
             animate={{ scale: active ? 1 : 0.55, opacity: active ? 1 : 0 }}
             transition={FILL_SPRING}
           />
 
-          {/* The ring is an SVG stroke rather than a CSS border because a
-              border can only appear, where a stroke can be drawn. `-rotate-90`
-              puts the start of the dash at the top, so it draws clockwise from
-              twelve o'clock instead of from three. */}
           <motion.circle
             cx="50"
             cy="50"
-            r={R}
+            r={radius}
             fill="none"
             stroke="currentColor"
             strokeWidth="0.8"
-            strokeLinecap="round"
             className={`duration-base ease-out-brand transition-colors ${
               active ? 'text-accent' : 'text-border-strong group-hover:text-text'
             }`}
-            strokeDasharray={CIRCUMFERENCE}
-            style={{ strokeDashoffset: draw }}
+            style={{ opacity: ringOpacity }}
           />
         </svg>
 
@@ -115,7 +140,8 @@ function Pillar({
             box that grows in one axis stops being square — the ring rendered
             as an ellipse. Measured at 1024px: a 102px-wide ring 198px tall.
             Out of flow, nothing inside can change the box. */}
-        <span
+        <motion.span
+          style={{ opacity: contentOpacity }}
           className={`duration-base ease-out-brand absolute inset-0 flex flex-col items-center justify-center px-[11%] text-center transition-colors ${
             active ? 'text-accent-fg' : ''
           }`}
@@ -127,7 +153,7 @@ function Pillar({
             className={active ? '' : 'text-text-muted group-hover:text-text'}
           />
           <span className="text-caption wide:text-label mt-2 block">{pillar.title}</span>
-        </span>
+        </motion.span>
 
         {/* The sentence is shown once, below the row, for whichever pillar is
             selected. Every pillar still carries its own copy here, because
@@ -140,15 +166,22 @@ function Pillar({
 }
 
 /**
- * The five pillars, as rings that draw themselves as the section is scrolled.
+ * The five pillars, as beads on a wire that open into rings as it is scrolled.
  *
  * The reference this came from cycles one circle at a time behind paging dots.
  * That is the wrong shape for this page twice over: it hides four of five
  * things at any moment, and it runs on a timer inside a section whose entire
  * argument is already tied to scroll position. Here all five are present and
- * the scroll draws them — each ring traced clockwise from twelve o'clock, one
- * beginning before the last has finished so the row fills as a wave. Scroll
- * back and they un-draw.
+ * the scroll opens them, one beginning before the last has finished so the row
+ * fills as a wave. Scroll back and they close again.
+ *
+ * They open by growing, not by tracing. The previous version drew each ring's
+ * stroke clockwise from twelve o'clock, which is a well-worn effect and said
+ * nothing about what these are — a traced ring reads as a progress meter, and
+ * none of these five is a measure of anything. Growing from a dot on the wire
+ * says the opposite and the true thing: the thread comes first and each pillar
+ * is something on it. It also means every pillar exists on screen before its
+ * turn, as a bead waiting, rather than five gaps that fill in.
  *
  * A hairline runs behind the row and fills on the same progress, so the five
  * arrive as one system being threaded rather than five objects appearing near

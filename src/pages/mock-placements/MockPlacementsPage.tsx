@@ -2,7 +2,7 @@ import { PageHero } from '@/components/sections/PageHero';
 import { AboutMocks } from './sections/AboutMocks';
 import { PrepBoard } from './sections/PrepBoard';
 import { ProcessTimeline } from './sections/ProcessTimeline';
-import { PROCESS_STEPS } from './data';
+import { MOCK_PLACEMENTS_HERO, PROCESS_STEPS } from './data';
 
 /**
  * Mock Placements.
@@ -14,9 +14,9 @@ export default function MockPlacementsPage() {
   return (
     <>
       <PageHero
-        eyebrow="FORESE"
-        title="Mock Placements"
-        description="A full placement rehearsal: aptitude, group discussion and interviews with HRs from real companies, so the first time you sit in front of a recruiter is not the first time that matters."
+        eyebrow={MOCK_PLACEMENTS_HERO.eyebrow}
+        title={MOCK_PLACEMENTS_HERO.title}
+        description={MOCK_PLACEMENTS_HERO.description}
         meta={[
           `${PROCESS_STEPS.length} stages`,
           'Run every academic year',
