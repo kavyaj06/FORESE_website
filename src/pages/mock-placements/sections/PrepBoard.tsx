@@ -52,7 +52,11 @@ export function PrepBoard() {
         </Reveal>
       </Container>
 
-      <div className="mt-2xl">
+      {/* Tighter on a phone: the board is pinned and centres its card in a
+          full-height viewport, so this margin is added to whatever the
+          centring already leaves. Together they put 142px of empty page under
+          the heading. */}
+      <div className="mt-md tablet:mt-2xl">
         <CaseStudyStack slides={SLIDES} tablistLabel={PREP_BOARD.tablistLabel} />
       </div>
     </section>

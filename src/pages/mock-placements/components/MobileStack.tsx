@@ -90,7 +90,10 @@ export function MobileStack({ slides, tablistLabel }: MobileStackProps) {
   const tabs = slides.map((slide) => ({ id: slide.id, label: slide.category }));
 
   const bar = (
-    <div className="px-gutter mt-lg flex justify-center">
+    // `mt-2xl`, not `mt-lg`. The gap is measured from the top card, but the
+    // deck peeks 9% of a card below it — at 24px the bar cleared the lowest
+    // card edge by 2px and read as stuck to the stack.
+    <div className="px-gutter mt-2xl flex justify-center">
       <SegmentedTabs
         tabs={tabs}
         value={slides[index]?.id ?? slides[0].id}

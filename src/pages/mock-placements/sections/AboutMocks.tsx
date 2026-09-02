@@ -68,7 +68,10 @@ export function AboutMocks() {
               </RevealItem>
             ))}
 
-            <RevealItem className="gap-md pt-xs desktop:mt-auto tablet:grid-cols-2 grid grid-cols-1">
+            {/* Two across at every width. Stacked, the pair stops being a pair — the
+                eye compares two figures side by side and reads two in a column
+                as a list. */}
+            <RevealItem className="gap-md pt-xs desktop:mt-auto grid grid-cols-2">
               {figures
                 .filter((figure) => figure.value !== '2')
                 .map((figure) => (
