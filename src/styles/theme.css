@@ -13,9 +13,12 @@
  *
  * DESIGN LANGUAGE — decided, Phase 0b.
  *
- *   Palette    black and white. Not an omission, a choice. Adding a brand
- *              colour later means editing the four `--color-accent-*` values
- *              below and nothing else anywhere in the codebase.
+ *   Palette    black, white, and the club's crimson-to-amber ramp. Black and
+ *              white still do the structural work — ground, ink, surfaces —
+ *              and the ramp is the energy on top of it, which is how the brand
+ *              lockup is built: a black field, white type, one hot bar of
+ *              colour. Colour is never load-bearing on its own; nothing on
+ *              this site is distinguishable only by hue.
  *   Character  refined minimal — hairline borders, soft radii, restrained
  *              shadows, generous whitespace.
  *   Type       Plus Jakarta Sans headings, Inter body.
@@ -51,18 +54,40 @@
   --color-text-subtle: #6e6e6e;
   --color-text-inverse: #ffffff;
 
-  /* Brand actions */
+  /* The brand ramp, left to right off the lockup's bar.
+     Five stops, and they are the only place a raw brand colour is named.
+     Everything downstream reads `--color-accent` or the gradient built from
+     these, so re-tuning the brand means editing these five lines. */
+  --color-brand-crimson: #e5124c;
+  --color-brand-red: #ff2d46;
+  --color-brand-flame: #ff6b2c;
+  --color-brand-amber: #ffa05c;
+  --color-brand-mist: #e7dce8;
+
+  /* Brand actions.
+     Primary stays black on purpose. In the lockup the black field is the
+     structure and the bar is the energy; making every button crimson too
+     would leave the accent nothing to be. */
   --color-primary: #000000;
   --color-primary-hover: #262626;
   --color-primary-fg: #ffffff;
 
-  /* Accent — monochrome today, and THE hook for a brand colour later.
-     Set these four values and every eyebrow, badge, highlight and active
-     state across the site picks the colour up. Nothing else gets edited. */
-  --color-accent: #000000;
-  --color-accent-hover: #262626;
+  /* Accent — the crimson end of the ramp, and the hook the whole palette
+     hangs on. Every eyebrow, badge, active tab, filled card and focus mark
+     reads this.
+
+     `#e5124c` rather than the lockup's brighter pink-red, and the difference
+     is measured: it clears 4.64:1 against white and 4.52:1 against black,
+     so it works both as a fill under white text and as text on the page.
+     `#ff2d46` looks closer to the bar but drops to 3.67:1 on white, which
+     fails as soon as the accent is a word rather than a shape.
+
+     `accent-subtle` is a wash of the same hue, for a tint behind text that
+     must stay black. */
+  --color-accent: #e5124c;
+  --color-accent-hover: #c80540;
   --color-accent-fg: #ffffff;
-  --color-accent-subtle: #f0f0f0;
+  --color-accent-subtle: #fff1f4;
 
   /* Feedback — the sanctioned exception to black and white. A danger state
      rendered in grey is not a danger state. */
@@ -81,7 +106,11 @@
      the one chromatic colour on an otherwise monochrome site, and it lives
      here as a token rather than as raw hex scattered through the footer and
      the wordmark, so retiring or re-tinting it is a one-line change. */
-  --color-accent-blue: #3ca2fa;
+  /* The footer's own accent used to be a one-off blue, named after what it
+     looked like — the thing the top of this file says never to do, and off
+     the palette entirely. It is gone: the footer runs `data-theme="inverse"`,
+     so it now reads `--color-accent` like everything else, and that token is
+     set to the ramp's flame further down. */
 
   /* Focus ring. Kept separate from accent so it stays high-contrast whatever
      accent becomes. Flipped to white inside `[data-theme='inverse']` (see
@@ -305,10 +334,14 @@
   --color-primary-hover: #e0e0e0;
   --color-primary-fg: #000000;
 
-  --color-accent: #ffffff;
-  --color-accent-hover: #e0e0e0;
+  /* Flame, not crimson. On black the crimson end of the ramp reads at only
+     2.9:1 and goes muddy; the flame stop is 7.4:1 and is the colour the
+     lockup's bar actually shows against a black field. Black on top of it
+     rather than white, for the same reason. */
+  --color-accent: #ff6b2c;
+  --color-accent-hover: #ffa05c;
   --color-accent-fg: #000000;
-  --color-accent-subtle: #1f1f1f;
+  --color-accent-subtle: #2a1408;
 
   --color-focus: var(--color-focus-inverse);
 

@@ -56,7 +56,7 @@ const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
 const GMAIL_RED = '#EA4335';
 const MAPS_RED = '#EA4335';
 const COLUMN_LINK =
-  'text-text-muted hover:text-accent-blue duration-fast ease-out-brand transition-colors';
+  'text-text-muted hover:text-accent duration-fast ease-out-brand transition-colors';
 
 function Pending({ what }: { what: string }) {
   return <p className="text-small text-text-subtle italic">{what} to be added</p>;

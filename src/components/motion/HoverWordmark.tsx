@@ -59,7 +59,11 @@ export function HoverWordmark({ text, className }: HoverWordmarkProps) {
     >
       <defs>
         {/* -------------------------------------------------
-            COLORFUL HOVER GRADIENT
+            BRAND RAMP, revealed under the cursor.
+            The stops are the tokens, not literals: this file used to carry a
+            five-colour rainbow — yellow, red, mint, cyan, violet — which was
+            the reference's palette and never ours. Reading the variables means
+            the wordmark re-tints itself when the brand does.
         ------------------------------------------------- */}
         <linearGradient
           id="foreseTextGradient"
@@ -69,11 +73,11 @@ export function HoverWordmark({ text, className }: HoverWordmarkProps) {
           x2="1000"
           y2="300"
         >
-          <stop offset="0%" stopColor="#eab308" />
-          <stop offset="25%" stopColor="#ef4444" />
-          <stop offset="50%" stopColor="#80eeb4" />
-          <stop offset="75%" stopColor="#06b6d4" />
-          <stop offset="100%" stopColor="#8b5cf6" />
+          <stop offset="0%" stopColor="var(--color-brand-crimson)" />
+          <stop offset="30%" stopColor="var(--color-brand-red)" />
+          <stop offset="58%" stopColor="var(--color-brand-flame)" />
+          <stop offset="78%" stopColor="var(--color-brand-amber)" />
+          <stop offset="100%" stopColor="var(--color-brand-mist)" />
         </linearGradient>
 
         {/* -------------------------------------------------
@@ -105,7 +109,7 @@ export function HoverWordmark({ text, className }: HoverWordmarkProps) {
 
       {/* =================================================
           LAYER 1
-          Permanent subtle blue outline
+          Permanent outline, in the footer's own accent
       ================================================= */}
       <text
         x="500"
@@ -113,10 +117,13 @@ export function HoverWordmark({ text, className }: HoverWordmarkProps) {
         textAnchor="middle"
         dominantBaseline="middle"
         fill="transparent"
-        stroke="#3ca2fa"
+        stroke="var(--color-accent)"
         strokeWidth="1.4"
         vectorEffect="non-scaling-stroke"
-        opacity="0.8"
+        // 0.45, not the 0.8 this was: the accent is a hot flame rather than
+        // the soft blue it replaced, and at 0.8 a wordmark this size stopped
+        // being a watermark and started being the loudest thing on the page.
+        opacity="0.45"
         style={{
           fontFamily: 'Helvetica, Arial, sans-serif',
           fontSize: '185px',
@@ -137,7 +144,7 @@ export function HoverWordmark({ text, className }: HoverWordmarkProps) {
         textAnchor="middle"
         dominantBaseline="middle"
         fill="transparent"
-        stroke="#3ca2fa"
+        stroke="var(--color-accent)"
         strokeWidth="1.6"
         vectorEffect="non-scaling-stroke"
         pathLength={1000}
