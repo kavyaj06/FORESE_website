@@ -13,13 +13,16 @@
  *
  * DESIGN LANGUAGE — decided, Phase 0b.
  *
- *   Palette    black, white, and the club's crimson-to-amber ramp. Black and
- *              white still do the structural work — ground, ink, surfaces —
- *              and the ramp is the energy on top of it, which is how the brand
- *              lockup is built: a black field, white type, one hot bar of
- *              colour. Colour is never load-bearing on its own; nothing on
- *              this site is distinguishable only by hue.
- *   Character  refined minimal — hairline borders, soft radii, restrained
+ *   Palette    a cream ground, black ink, and the club's crimson-to-amber
+ *              ramp. Colour is never load-bearing on its own; nothing on this
+ *              site is distinguishable only by hue.
+ *   Tone       the page is a SEQUENCE, not a surface. Sections declare a tone
+ *              — see the `[data-tone]` blocks at the foot of this file — and
+ *              a page alternates through them so no reader gets a long
+ *              undifferentiated run. Which tone a section may take is decided
+ *              by how much text it carries, and the rule is written down with
+ *              the tones.
+ *   Character  blocks on a warm ground: soft radii, warm hairlines, warm
  *              shadows, generous whitespace.
  *   Type       Plus Jakarta Sans headings, Inter body.
  * ==========================================================================*/
@@ -32,9 +35,19 @@
    * be swapped without renaming anything downstream.
    * ------------------------------------------------------------------*/
 
-  /* Page + surfaces */
-  --color-bg: #ffffff;
-  --color-surface: #f4f4f5;
+  /* Page + surfaces.
+
+     The ground is cream, not white, and that is the difference between a page
+     with depth and a flat sheet. `bg` and `surface-raised` were BOTH #ffffff:
+     every card on the site was white on white, told apart only by a hairline,
+     so nothing lifted and nothing receded. Moving the ground down 0.09 in
+     luminance leaves white cards genuinely raised without touching a single
+     component.
+
+     Warm rather than a cool grey, because the brand ramp is crimson through
+     amber — a blue-grey ground fights it, and #f4f4f5 was fighting it. */
+  --color-bg: #f7f4f0;
+  --color-surface: #efeae4;
   --color-surface-raised: #ffffff;
   --color-surface-inverse: #000000;
 
@@ -44,14 +57,19 @@
      jump to black. Card's `hover:border-border-strong` is why: going hairline
      to near-black on hover reads as a glitch, not as emphasis. Where a genuine
      black rule is wanted, that is `border-text`. */
-  --color-border: #e4e4e4;
-  --color-border-strong: #c4c4c4;
+  --color-border: #e6ded4;
+  --color-border-strong: #c9bfb4;
 
-  /* Text. Every value below passes AA on white:
-     text 21:1, muted 7.7:1, subtle 5.2:1. */
+  /* Text. Measured against the darkest ground these sit on, which is the
+     `panel` tone at #efeae4, not white:
+       text 17.6:1   muted 6.53:1   subtle 4.90:1
+
+     `subtle` moved from #6e6e6e, which passed on white and measured 4.19:1 on
+     the panel — below AA. Every ground got darker when the page stopped being
+     white, so the faintest text had to get darker with it. */
   --color-text: #000000;
   --color-text-muted: #525252;
-  --color-text-subtle: #6e6e6e;
+  --color-text-subtle: #616161;
   --color-text-inverse: #ffffff;
 
   /* The brand ramp, left to right off the lockup's bar.
@@ -87,7 +105,7 @@
   --color-accent: #e5124c;
   --color-accent-hover: #c80540;
   --color-accent-fg: #ffffff;
-  --color-accent-subtle: #fff1f4;
+  --color-accent-subtle: #fbeae9;
 
   /* Feedback — the sanctioned exception to black and white. A danger state
      rendered in grey is not a danger state. */
@@ -99,13 +117,9 @@
      Specified as exact values by the board's brief, so they live here rather
      than in the component — this file is the only place a raw colour is
      allowed, and a number handed down by a design spec is still a raw colour. */
-  --color-board-canvas: #f5f5f3;
+  --color-board-canvas: #f2ece5;
   --color-board-dot: rgba(0, 0, 0, 0.07);
 
-  /* The blue carried over from the footer reference design (Nur UI). It is
-     the one chromatic colour on an otherwise monochrome site, and it lives
-     here as a token rather than as raw hex scattered through the footer and
-     the wordmark, so retiring or re-tinting it is a one-line change. */
   /* The footer's own accent used to be a one-off blue, named after what it
      looked like — the thing the top of this file says never to do, and off
      the palette entirely. It is gone: the footer runs `data-theme="inverse"`,
@@ -257,17 +271,23 @@
    * ------------------------------------------------------------------*/
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
-  --radius-lg: 1rem;
+  --radius-lg: 1.25rem;
   --radius-xl: 1.5rem;
+  /* For full-width panels. A block reads as a block partly through how soft
+     its corners are, and 1.5rem is not enough at 1400px wide. */
+  --radius-2xl: 2rem;
   --radius-pill: 9999px;
 
   /* --------------------------------------------------------------------
    * SHADOW — restrained by default. Depth carries meaning (raised, hover,
    * overlay) rather than being decoration.
    * ------------------------------------------------------------------*/
-  --shadow-sm: 0 1px 2px 0 rgb(16 16 18 / 0.05);
-  --shadow-md: 0 4px 16px -2px rgb(16 16 18 / 0.08), 0 2px 4px -2px rgb(16 16 18 / 0.04);
-  --shadow-lg: 0 12px 32px -8px rgb(16 16 18 / 0.12), 0 4px 8px -4px rgb(16 16 18 / 0.06);
+  /* Warm-tinted, because they now fall on a cream ground. A neutral grey
+     shadow on cream reads as a dirty smudge; the same shadow mixed toward
+     brown reads as light. */
+  --shadow-sm: 0 1px 2px 0 rgb(60 40 25 / 0.06);
+  --shadow-md: 0 4px 16px -2px rgb(60 40 25 / 0.09), 0 2px 4px -2px rgb(60 40 25 / 0.05);
+  --shadow-lg: 0 12px 32px -8px rgb(60 40 25 / 0.13), 0 4px 8px -4px rgb(60 40 25 / 0.07);
 
   /* --------------------------------------------------------------------
    * MOTION — see animations.css. Durations stay short; the easing curve is
