@@ -81,7 +81,7 @@ export function ConvergeSection() {
 
   if (prefersReducedMotion) {
     return (
-      <section className="border-border bg-surface py-section border-y">
+      <section data-tone="panel" className="border-border py-section border-y">
         <Container>
           <Heading />
           <PillarCircles progress={progress} reduced />
@@ -94,7 +94,8 @@ export function ConvergeSection() {
     <div ref={sectionRef} className="relative h-[260vh]">
       <section
         ref={panelRef}
-        className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
+        data-tone="panel"
+        className="border-border sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
       >
         <motion.div
           aria-hidden="true"
@@ -206,7 +207,8 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
   return (
     <section
       ref={sectionRef}
-      className="border-border bg-surface py-section overflow-hidden border-y"
+      data-tone="panel"
+      className="border-border py-section overflow-hidden border-y"
     >
       <Container>
         <Heading />

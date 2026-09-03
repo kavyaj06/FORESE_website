@@ -64,7 +64,7 @@ export function PageHero({
 
   return (
     <header
-      data-theme={tone === 'inverse' ? 'inverse' : undefined}
+      data-tone={tone === 'inverse' ? 'ink' : undefined}
       className={cn(
         'border-border relative isolate overflow-hidden border-b',
         size === 'display' ? 'py-section tablet:py-3xl' : 'py-section',

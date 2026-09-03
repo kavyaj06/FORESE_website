@@ -20,7 +20,10 @@ import type { SocialLink } from '@/data/site';
 const BRAND: Partial<Record<SocialIconName, string>> = {
   instagram: '#E1306C',
   linkedin: '#0A66C2',
-  github: '#FFFFFF',
+  // GitHub's mark is black on light and white on dark, so it is the one entry
+  // here that cannot be a fixed value. `currentColor` keeps it whatever the
+  // surrounding tone has already set the text to.
+  github: 'currentColor',
   youtube: '#FF0000',
   mail: undefined,
 };

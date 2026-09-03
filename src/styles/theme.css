@@ -368,3 +368,196 @@
   background-color: var(--color-bg);
   color: var(--color-text);
 }
+
+/* ============================================================================
+ * SECTION TONES
+ * ----------------------------------------------------------------------------
+ * A page is a SEQUENCE, not a surface. Before this, four of the five pages ran
+ * black hero -> one long undifferentiated white body -> black footer, and the
+ * body of a page had no rhythm at all.
+ *
+ * Put `data-tone` on any section:
+ *
+ *   <section data-tone="mist" className="py-section">
+ *
+ * It works exactly the way `data-theme="inverse"` above does, and for the same
+ * reason: the tokens are overridden for the subtree, so everything inside
+ * keeps using `bg-surface-raised`, `text-text-muted`, `border-border` and
+ * `<Button variant="primary">` with no tone-specific variant of its own. A
+ * component dropped into a toned section is simply correct.
+ *
+ * WHICH TONE A SECTION MAY TAKE IS DECIDED BY ITS COPY, and the numbers decide
+ * it, not taste. Measured against each ground:
+ *
+ *              white   black   text-muted (#525252)
+ *   crimson     4.64    4.52    1.68  <- fails
+ *   ember       2.84    7.39    2.75  <- fails
+ *   mist        1.33   15.80    5.88
+ *
+ * So:
+ *   `brand`  short text only, always pure white. No muted variant passes on
+ *            crimson — #ffe3ea is 3.85 — so figures, headings and labels only,
+ *            never a paragraph.
+ *   `ember`  can hold a paragraph, in near-black, with no grey.
+ *   `mist`   can hold anything, muted body text included. It is the one colour
+ *            panel that carries long copy, which makes it the workhorse.
+ *
+ * Each tone keeps a full text ladder — text darker than muted darker than
+ * subtle — so nothing inside has to know which tone it landed in.
+ * ==========================================================================*/
+
+/* `ink` is the inverse theme under the tone system's name, so a page's tone
+   map reads as one vocabulary instead of two. */
+[data-tone='ink'] {
+  --color-bg: #000000;
+  --color-surface: #121212;
+  --color-surface-raised: #1a1a1a;
+  --color-surface-inverse: #ffffff;
+
+  --color-border: #2e2e2e;
+  --color-border-strong: #f0f0f0;
+
+  --color-text: #ffffff;
+  --color-text-muted: #b0b0b0;
+  --color-text-subtle: #909090;
+  --color-text-inverse: #000000;
+
+  --color-primary: #ffffff;
+  --color-primary-hover: #e0e0e0;
+  --color-primary-fg: #000000;
+
+  --color-accent: #ff6b2c;
+  --color-accent-hover: #ffa05c;
+  --color-accent-fg: #000000;
+  --color-accent-subtle: #2a1408;
+
+  --color-board-canvas: #141414;
+  --color-board-dot: rgba(255, 255, 255, 0.08);
+
+  --color-focus: var(--color-focus-inverse);
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Pure white. For long reading, and for the places a card should sit flush
+   with its section rather than lift off it. */
+[data-tone='paper'] {
+  --color-bg: #ffffff;
+  --color-surface: #f4f2ee;
+  --color-surface-raised: #ffffff;
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* The quiet contrast band. One step down from the ground, still neutral. */
+[data-tone='panel'] {
+  --color-bg: #efeae4;
+  --color-surface: #e6dfd6;
+  --color-surface-raised: #ffffff;
+
+  --color-border: #ddd3c7;
+  --color-border-strong: #bfb3a5;
+
+  /* 17.6 / 6.53 / 5.18 */
+  --color-text-subtle: #616161;
+
+  --color-board-canvas: #e9e2d9;
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* The ramp's cool end. The only colour on the site that is not warm, which is
+   exactly what it is for: a page of cream and crimson needs somewhere for the
+   eye to rest that is still colour. */
+[data-tone='mist'] {
+  --color-bg: #e7dce8;
+  --color-surface: #dccfe0;
+  --color-surface-raised: #ffffff;
+
+  --color-border: #d3c4d6;
+  --color-border-strong: #b09fb5;
+
+  /* 15.8 / 5.88 / 4.66 */
+  --color-text: #000000;
+  --color-text-muted: #525252;
+  --color-text-subtle: #616161;
+
+  --color-board-canvas: #ded2e1;
+  --color-board-dot: rgba(0, 0, 0, 0.09);
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* Loud, and still readable. Everything on ember is near-black: the ladder is
+   7.39 / 6.20 / 5.55, which is a real hierarchy without a single grey — grey
+   on orange is 2.75 and fails. */
+[data-tone='ember'] {
+  --color-bg: #ff6b2c;
+  --color-surface: #f05f22;
+  --color-surface-raised: #ffe0cd;
+  --color-surface-inverse: #000000;
+
+  --color-border: rgba(0, 0, 0, 0.18);
+  --color-border-strong: rgba(0, 0, 0, 0.42);
+
+  --color-text: #000000;
+  --color-text-muted: #2b1206;
+  --color-text-subtle: #3a1a08;
+  --color-text-inverse: #ff6b2c;
+
+  --color-primary: #000000;
+  --color-primary-hover: #262626;
+  --color-primary-fg: #ffffff;
+
+  /* On an orange field the accent is black, not more orange. */
+  --color-accent: #000000;
+  --color-accent-hover: #262626;
+  --color-accent-fg: #ffffff;
+  --color-accent-subtle: rgba(0, 0, 0, 0.1);
+
+  --color-focus: #000000;
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* The loudest block. SHORT TEXT ONLY — see the note above. Every text token
+   is pure white because nothing else clears AA on crimson, so the usual
+   ladder collapses here on purpose: if a section needs muted text, it needed
+   a different tone.
+ *
+ * `surface-raised` is a deeper crimson rather than white, so a card dropped
+ * on this panel is still legible. A white card would inherit this tone's
+ * white text and disappear. */
+[data-tone='brand'] {
+  --color-bg: #e5124c;
+  --color-surface: #c80540;
+  --color-surface-raised: #c80540;
+  --color-surface-inverse: #ffffff;
+
+  --color-border: rgba(255, 255, 255, 0.28);
+  --color-border-strong: rgba(255, 255, 255, 0.55);
+
+  --color-text: #ffffff;
+  --color-text-muted: #ffffff;
+  --color-text-subtle: #ffffff;
+  --color-text-inverse: #e5124c;
+
+  --color-primary: #ffffff;
+  --color-primary-hover: #ffe3ea;
+  --color-primary-fg: #e5124c;
+
+  --color-accent: #ffffff;
+  --color-accent-hover: #ffe3ea;
+  --color-accent-fg: #e5124c;
+  --color-accent-subtle: rgba(255, 255, 255, 0.14);
+
+  --color-focus: #ffffff;
+
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}

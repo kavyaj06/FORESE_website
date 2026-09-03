@@ -33,7 +33,11 @@ export interface StackSlide {
  * printed card and a soft UI panel.
  */
 export const CHROME = {
-  border: '1px solid rgba(0,0,0,0.08)',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+  // Tokens, not literals. These were `rgba(0,0,0,0.08)` and
+  // `rgba(0,0,0,0.06)` — black alphas that stay black inside a dark or
+  // coloured section, so a card on the `ink` or `mist` tone drew a border
+  // nobody could see and a shadow that did nothing.
+  border: '1px solid var(--color-border)',
+  boxShadow: 'var(--shadow-sm)',
   borderRadius: 12,
 } as const;

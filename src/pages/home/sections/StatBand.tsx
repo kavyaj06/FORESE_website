@@ -31,7 +31,7 @@ export function StatBand() {
   // A panel that has to carry text is a flat colour, and crimson under white
   // is 4.64:1.
   return (
-    <section className="bg-accent text-accent-fg py-section relative isolate overflow-hidden">
+    <section data-tone="brand" className="py-section relative isolate overflow-hidden">
       <div aria-hidden="true" className="bg-dot-grid mask-radial-fade absolute inset-0 -z-10" />
 
       <Container>

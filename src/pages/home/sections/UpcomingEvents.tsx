@@ -60,7 +60,12 @@ export function UpcomingEvents() {
   ].sort((a, b) => (a.date === '' ? 1 : b.date === '' ? -1 : a.date.localeCompare(b.date)));
 
   return (
-    <section className="py-section">
+    // Ember, and it is the only hot tone that could take this section: it
+    // carries three paragraphs, and crimson fails every muted variant while
+    // ember's ladder holds at 7.39 / 6.20 / 5.55. The `next` card inside
+    // reads `bg-accent`, which on ember resolves to black — a black card on
+    // orange, which is the arrangement the brand references use.
+    <section data-tone="ember" className="py-section">
       <Container>
         <Reveal>
           <SectionHeading

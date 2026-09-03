@@ -96,15 +96,26 @@ export function EventsBoard() {
   };
 
   return (
-    <section className="py-section">
-      <Container>
-        {featured.length > 0 && (
-          <Reveal motionStyle="scale">
-            <FeaturedCarousel events={featured} />
-          </Reveal>
-        )}
+    <section className={featured.length > 0 ? 'pb-section' : 'py-section'}>
+      {/* The carousel gets a band of its own. It is the one thing on this page
+          that is a picture rather than a list, and on the same cream as the
+          rows below it the page ran as a single undifferentiated field from
+          the hero to the footer.
+          Mist rather than ink: the hero above is already black, and a dark
+          band directly under it merged with it into one long black field
+          instead of reading as a second beat. */}
+      {featured.length > 0 && (
+        <div data-tone="mist" className="py-2xl mb-3xl">
+          <Container>
+            <Reveal motionStyle="scale">
+              <FeaturedCarousel events={featured} />
+            </Reveal>
+          </Container>
+        </div>
+      )}
 
-        <Reveal className={featured.length > 0 ? 'mt-3xl' : ''}>
+      <Container>
+        <Reveal>
           <EventFilterTabs value={filter} onChange={changeFilter} counts={counts} />
         </Reveal>
 
