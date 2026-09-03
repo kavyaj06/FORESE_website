@@ -10,10 +10,19 @@ import { cn } from '@/lib/cn';
  * be both. It stays one or two words, so it reads as stress rather than as a
  * second typeface competing with the first.
  *
- * `text-accent` rather than a literal, so it is crimson on a white section and
- * flame on a black one without either being written down here. Colour is never
- * the only signal — the face change already carried this, and still does, so
- * the emphasis survives for anyone who cannot see the hue.
+ * A filled block, not coloured letters. Coloured text is the timid version of
+ * this and it reads as a link; the brand references all do the same thing —
+ * a marker laid behind one word — and that is what makes a headline feel
+ * designed rather than merely tinted.
+ *
+ * `bg-accent` with `text-accent-fg`, so it inverts itself: crimson under white
+ * on a light section, flame under black on a dark one. Neither is written
+ * down here, and both clear AA.
+ *
+ * Inside `TextReveal` the block belongs on the outer tag, which is not the
+ * element that clips the rising word — so the marker lands first and the word
+ * rises into it. Colour is never the only signal: the face change already
+ * carried this emphasis and still does.
  *
  * Purely visual — it carries no semantic weight, so it is a `span` and not an
  * `<em>`. If a word ever needs real emphasis for a screen reader, that is a
@@ -28,7 +37,8 @@ import { cn } from '@/lib/cn';
  * other word is held down and this one would sit there alone. Callers in that
  * position pass this class to `TextReveal` instead of nesting this component.
  */
-export const ACCENT_WORD_CLASS = 'text-accent pr-[0.06em] font-serif italic';
+export const ACCENT_WORD_CLASS =
+  'bg-accent text-accent-fg rounded-[0.18em] px-[0.16em] pb-[0.04em] font-serif italic';
 
 export function AccentWord({ children, className }: { children: ReactNode; className?: string }) {
   return <span className={cn(ACCENT_WORD_CLASS, className)}>{children}</span>;

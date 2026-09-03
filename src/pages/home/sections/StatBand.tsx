@@ -21,8 +21,17 @@ import { HOME_STATS } from '../data';
  * and the gaps between them become even.
  */
 export function StatBand() {
+  // A solid brand panel rather than the black band this was. Three figures
+  // across the full width is the one place on the home page that is already a
+  // block, so it is the place the palette can be a block too — and it gives
+  // the page a band of colour between two white sections instead of a second
+  // run of black.
+  //
+  // Flat crimson, not the gradient: white over the ramp's amber end is 2.0:1.
+  // A panel that has to carry text is a flat colour, and crimson under white
+  // is 4.64:1.
   return (
-    <section data-theme="inverse" className="py-section relative isolate overflow-hidden">
+    <section className="bg-accent text-accent-fg py-section relative isolate overflow-hidden">
       <div aria-hidden="true" className="bg-dot-grid mask-radial-fade absolute inset-0 -z-10" />
 
       <Container>

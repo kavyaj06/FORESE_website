@@ -231,7 +231,12 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
 function Heading() {
   return (
     <div className="gap-md mx-auto flex max-w-[52rem] flex-col items-center text-center">
-      <p className="text-eyebrow text-text-subtle uppercase">{HOME_CONVERGE.eyebrow}</p>
+      {/* Matches `SectionHeading`'s chip. This section builds its own heading
+          because it is scroll-scrubbed, and that is exactly how a label ends
+          up as the one on the site still set in plain grey type. */}
+      <p className="text-eyebrow bg-text text-text-inverse rounded-pill w-fit px-3 py-1 uppercase">
+        {HOME_CONVERGE.eyebrow}
+      </p>
       {/* Two lines, broken where the sentence breaks — after the comma —
           rather than wherever the measure happens to run out. Left to wrap on
           its own it made three ragged lines at the narrower desktop widths,
