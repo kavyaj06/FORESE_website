@@ -38,7 +38,8 @@ import type { TeamId } from './teamIds';
  * them as one body, and the page divides only `member` by team.
  */
 
-export type MemberRank = 'senior-core' | 'junior-core' | 'lead' | 'senior-member' | 'member';
+export type MemberRank =
+  'senior-core' | 'junior-core' | 'lead' | 'senior-executive' | 'senior-member' | 'member';
 
 export interface ClubMember {
   id: string;
@@ -125,7 +126,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     id: 'visvajith',
     name: 'Visvajith',
     rank: 'senior-core',
-    role: 'Communications Chair',
+    role: 'General Secretary',
     photo: '/images/c17.jpg',
     quote: 'Tech enthusiast with a love for watches, cars, and creating cool projects',
     linkedin: 'https://www.linkedin.com/in/visvajith-logasuresh-796a4b329/',
@@ -142,6 +143,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'pragadeesh',
     name: 'Pragadeesh',
+    photo: '/images/c1.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
     quote: 'Nobody tells you how much of this is logistics until you are doing it.',
@@ -151,6 +153,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'sai-shruthe',
     name: 'Sai Shruthe',
+    photo: '/images/c2.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
     quote: 'The first mock placement I ran went wrong in ways I now plan for.',
@@ -169,6 +172,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'ananya-ed',
     name: 'Ananya',
+    photo: '/images/c3.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
     quote: 'I learnt to ask for things clearly, which is most of the work.',
@@ -187,6 +191,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'pranaya',
     name: 'Pranaya',
+    photo: '/images/c4.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
     quote: 'Being on the other side of the table changes how you prepare for it.',
@@ -214,6 +219,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'shrenik',
     name: 'Shrenik',
+    photo: '/images/c5.jpg',
     rank: 'junior-core',
     role: 'Communications Chair',
     quote: 'Writing the newsletter made me read far more than I planned to.',
@@ -230,48 +236,47 @@ export const CLUB_MEMBERS: ClubMember[] = [
     email: 'nikhil-abhishek@example.com',
   },
   /**
-   * ⚠️ DUMMY placeholders — four invented people standing in until the club
-   * supplies its real leads. Same unusable-on-purpose convention as the core
-   * above: `example.com` never resolves and every slug ends `-placeholder`.
-   * `role` is the bare word "Lead" rather than a specific title, because
-   * inventing "Design Lead" would be a claim about how the club is organised
-   * that this file has no way to know.
+   * The three leads and the three senior executives, as the club gave them.
+   *
+   * Real names, so nothing here is invented: no quote, no LinkedIn and no
+   * email until the club supplies them. An absent field renders as nothing;
+   * a plausible-looking one ships unnoticed and points at a stranger.
    */
   {
-    id: 'lead-1',
-    name: 'Aravind Krishnan',
+    id: 'pooja-dharshini',
+    name: 'Pooja Dharshini',
     rank: 'lead',
-    role: 'Lead',
-    quote: 'A lead is mostly the person who notices what nobody has picked up.',
-    linkedin: 'https://www.linkedin.com/in/aravind-krishnan-placeholder',
-    email: 'aravind-krishnan@example.com',
+    role: 'Marketing Lead',
   },
   {
-    id: 'lead-2',
-    name: 'Divya Ramesh',
+    id: 'tharani-pillai',
+    name: 'Tharani Pillai',
     rank: 'lead',
-    role: 'Lead',
-    quote: 'You stop measuring a week by what you finished and start by what moved.',
-    linkedin: 'https://www.linkedin.com/in/divya-ramesh-placeholder',
-    email: 'divya-ramesh@example.com',
+    role: 'Design Lead',
   },
   {
-    id: 'lead-3',
-    name: 'Karthik Subramanian',
+    id: 'nithesh-kumar',
+    name: 'Nithesh Kumar',
     rank: 'lead',
-    role: 'Lead',
-    quote: 'The handover notes I resented writing are the ones I now reread.',
-    linkedin: 'https://www.linkedin.com/in/karthik-subramanian-placeholder',
-    email: 'karthik-subramanian@example.com',
+    role: 'Videography Lead',
   },
   {
-    id: 'lead-4',
-    name: 'Nithya Balaji',
-    rank: 'lead',
-    role: 'Lead',
-    quote: 'Running one round taught me more than sitting through ten.',
-    linkedin: 'https://www.linkedin.com/in/nithya-balaji-placeholder',
-    email: 'nithya-balaji@example.com',
+    id: 'lathika',
+    name: 'Lathika',
+    rank: 'senior-executive',
+    role: 'Senior Marketing Executive',
+  },
+  {
+    id: 'vishwanathan',
+    name: 'Vishwanathan',
+    rank: 'senior-executive',
+    role: 'Senior Design Executive',
+  },
+  {
+    id: 'kishore-natarajan',
+    name: 'Kishore Natarajan',
+    rank: 'senior-executive',
+    role: 'Senior Videography Executive',
   },
   {
     id: 'aadhithya-narayanan-a',

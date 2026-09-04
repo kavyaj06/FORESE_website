@@ -7,12 +7,12 @@ import { SegmentedTabs } from '@/components/sections/SegmentedTabs';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { TeamId } from '@/data/teamIds';
 import { CLUB_MEMBERS, type ClubMember, type MemberRank } from '@/data/team';
-import { CLUB_TEAMS } from '@/data/teams';
+import { byRole, CLUB_TEAMS, CORE_RANKS } from '@/data/teams';
 import { MemberCard } from '../components/MemberCard';
 import { TEAM_CORE_TABS, TEAM_GROUP_TABS } from '../data';
 
 type Group = 'core' | 'senior-member' | 'member';
-type CoreRank = Extract<MemberRank, 'senior-core' | 'junior-core' | 'lead'>;
+type CoreRank = Extract<MemberRank, 'senior-core' | 'junior-core' | 'lead' | 'senior-executive'>;
 type TeamFilter = 'all' | TeamId;
 
 /**
@@ -49,6 +49,10 @@ export function TeamBrowser() {
   const byRank = useMemo(() => {
     const map = {} as Record<MemberRank, ClubMember[]>;
     for (const member of CLUB_MEMBERS) (map[member.rank] ??= []).push(member);
+    // Sorted by role, not left in roster order — see `byRole`. The roster's
+    // order is the order people were typed in, which put the President sixth
+    // in the senior core, between two general secretaries.
+    for (const group of Object.values(map)) group.sort(byRole);
     return map;
   }, []);
 
@@ -56,9 +60,7 @@ export function TeamBrowser() {
     ...tab,
     count:
       tab.id === 'core'
-        ? (byRank['senior-core']?.length ?? 0) +
-          (byRank['junior-core']?.length ?? 0) +
-          (byRank.lead?.length ?? 0)
+        ? CORE_RANKS.reduce((total, rank) => total + (byRank[rank]?.length ?? 0), 0)
         : (byRank[tab.id]?.length ?? 0),
   }));
 

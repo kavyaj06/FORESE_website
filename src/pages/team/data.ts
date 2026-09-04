@@ -28,4 +28,5 @@ export const TEAM_CORE_TABS = [
   { id: 'senior-core', label: 'Senior Core' },
   { id: 'junior-core', label: 'Junior Core' },
   { id: 'lead', label: 'Leads' },
+  { id: 'senior-executive', label: 'Senior Executives' },
 ] as const;

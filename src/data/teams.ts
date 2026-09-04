@@ -55,7 +55,39 @@ export function findTeam(id: TeamId): ClubTeam | undefined {
 }
 
 /** Everyone in one of the core ranks, in the order the page shows them. */
-export const CORE_RANKS = ['senior-core', 'junior-core', 'lead'] as const;
+export const CORE_RANKS = ['senior-core', 'junior-core', 'lead', 'senior-executive'] as const;
+
+/**
+ * How the roles inside one rank are ordered on the page.
+ *
+ * Sorted rather than hand-arranged in `CLUB_MEMBERS`, because the array's
+ * order is the order people were typed in and nothing keeps that meaningful:
+ * the senior core rendered with the President sixth, between two general
+ * secretaries. A precedence list cannot drift when somebody is added.
+ *
+ * A role missing from this list sorts last, in the order the roster gives it.
+ * That is deliberate — an unknown role should appear, not vanish.
+ */
+const ROLE_ORDER = [
+  'President',
+  'Vice President',
+  'General Secretary',
+  'Executive Director',
+  'Marketing Lead',
+  'Design Lead',
+  'Videography Lead',
+  'Senior Marketing Executive',
+  'Senior Design Executive',
+  'Senior Videography Executive',
+];
+
+export function byRole(a: ClubMember, b: ClubMember): number {
+  const rank = (member: ClubMember) => {
+    const at = member.role ? ROLE_ORDER.indexOf(member.role) : -1;
+    return at === -1 ? ROLE_ORDER.length : at;
+  };
+  return rank(a) - rank(b);
+}
 
 /** The two ranks that sit on a working team. */
 export const MEMBER_RANKS = ['senior-member', 'member'] as const;
