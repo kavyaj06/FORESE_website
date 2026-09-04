@@ -168,6 +168,18 @@ export const EVENTS: ForeseEvent[] = [
     blurb: 'Recruiters and alumni on what they actually look for in a candidate.',
   },
   {
+    id: 'fored-2026',
+    slug: 'fored-2026',
+    // The cover is one of the album's own photographs rather than a separate
+    // file in `/events/`: there is no point maintaining two copies of the
+    // same picture so that one of them can be the thumbnail.
+    cover: '/gallery/fored-2026/02.jpg',
+    name: 'FORED (Foreign Universities Education Fair)',
+    date: '2026-08-07',
+    blurb:
+      'Representatives from overseas universities met students for one-to-one sessions on studying abroad.',
+  },
+  {
     id: 'mock-placement-drive-2025',
     slug: 'mock-placement-drive-2025',
     cover: '/events/mock-placement-drive-2025.jpg',

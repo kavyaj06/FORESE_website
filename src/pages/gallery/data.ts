@@ -4,17 +4,20 @@
  * Photographs are grouped under the shared event list in `@/data/events.ts`;
  * this file only says which pictures belong to which event.
  *
- * ⚠️ DUMMY IMAGES IN PLACE. `public/gallery/` currently holds generated
- * abstracts so the layout, motion and lightbox can be judged against real
- * image files. To swap in the club's photographs:
+ * The generated placeholder abstracts are gone; every photograph below is a
+ * real one. To add an event's album:
  *
- *   1. Replace the files in `public/gallery/<event-slug>/`
- *   2. Put each photograph's true `width`/`height` in
+ *   1. Put the files in `public/gallery/<event-slug>/NN.jpg`
+ *   2. Add an entry here with each photograph's true `width`/`height`
  *   3. Write a real `alt` describing what the picture shows
  *
- * `width` and `height` are required even before the file exists. They reserve
- * the tile's box, which is what stops the whole grid reflowing as pictures
- * arrive — the single biggest cause of layout shift on a gallery page.
+ * `width` and `height` are not optional. They reserve the tile's box, which is
+ * what stops the whole grid reflowing as pictures load — the single biggest
+ * cause of layout shift on a gallery page.
+ *
+ * Order is not set here. The index reads `EVENTS_BY_RECENCY`, so albums appear
+ * newest-event-first and an album added out of order still lands in the right
+ * place. Nothing needs rearranging by hand when an event is added.
  */
 
 import { EVENTS_BY_RECENCY, type ForeseEvent } from '@/data/events';
@@ -57,50 +60,54 @@ export interface GalleryAlbum {
   photos: GalleryPhoto[];
 }
 
-/** Varied shapes on purpose — a masonry grid of identical rectangles is a
-    spreadsheet. Matches the dummy files currently in `public/gallery/`. */
-const PLACEHOLDER_SHAPES: Array<[number, number]> = [
-  [1100, 733],
-  [825, 1100],
-  [1100, 733],
-  [1100, 1100],
-  [1100, 619],
-  [825, 1100],
-  [1100, 733],
-  [1100, 1100],
-  [1100, 733],
-];
-
-/**
- * ⚠️ DUMMY IMAGES. `public/gallery/<slug>/NN.jpg` are generated abstracts, not
- * photographs, so the layout can be judged against real files. Replace the
- * folder contents and the `alt` text below; the shape table above then needs
- * updating to each real photograph's true dimensions.
- */
-function placeholderPhotos(slug: string, count: number): GalleryPhoto[] {
-  return Array.from({ length: count }, (_, index) => {
-    const [width, height] = PLACEHOLDER_SHAPES[index % PLACEHOLDER_SHAPES.length];
-    return {
-      id: `${slug}-${index + 1}`,
-      src: `/gallery/${slug}/${String(index + 1).padStart(2, '0')}.jpg`,
-      width,
-      height,
-      alt: `Placeholder image ${index + 1}`,
-    };
-  });
-}
-
 export const GALLERY_ALBUMS: GalleryAlbum[] = [
   {
-    eventId: 'mock-placement-drive-2025',
-    photos: placeholderPhotos('mock-placement-drive-2025', 9),
+    eventId: 'fored-2026',
+    photos: [
+      {
+        id: 'fored-2026-1',
+        src: '/gallery/fored-2026/01.jpg',
+        width: 1400,
+        height: 921,
+        alt: 'A university representative talking with four students across a table laid with a University of Strathclyde cloth.',
+      },
+      {
+        id: 'fored-2026-2',
+        src: '/gallery/fored-2026/02.jpg',
+        width: 1400,
+        height: 933,
+        alt: 'Students and staff gathered together under the Waiting Hall sign at the end of the fair.',
+      },
+      {
+        id: 'fored-2026-3',
+        src: '/gallery/fored-2026/03.jpg',
+        width: 1400,
+        height: 928,
+        alt: 'Two visiting representatives in conversation with students outside the building.',
+      },
+      {
+        id: 'fored-2026-4',
+        src: '/gallery/fored-2026/04.jpg',
+        width: 1400,
+        height: 922,
+        alt: 'A representative talking with two students across a meeting table.',
+      },
+      {
+        id: 'fored-2026-5',
+        src: '/gallery/fored-2026/05.jpg',
+        width: 1400,
+        height: 930,
+        alt: 'Students waiting their turn, going over their slips with a member of staff.',
+      },
+      {
+        id: 'fored-2026-6',
+        src: '/gallery/fored-2026/06.jpg',
+        width: 1400,
+        height: 926,
+        alt: "A representative at a laptop talking with a student, the day's schedule on the whiteboard behind.",
+      },
+    ],
   },
-  { eventId: 'corporate-connect-2025', photos: placeholderPhotos('corporate-connect-2025', 6) },
-  {
-    eventId: 'guest-lecture-series-2025',
-    photos: placeholderPhotos('guest-lecture-series-2025', 7),
-  },
-  { eventId: 'orientation-2025', photos: placeholderPhotos('orientation-2025', 5) },
 ];
 
 /**
