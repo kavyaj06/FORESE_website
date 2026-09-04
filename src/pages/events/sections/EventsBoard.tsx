@@ -4,7 +4,7 @@ import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { Tilt3D } from '@/components/motion/Tilt3D';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { eventStatus, groupEventsByStatus, type ForeseEvent } from '@/data/events';
+import { EVENTS_BY_RECENCY, eventStatus, groupEventsByStatus } from '@/data/events';
 import { albumFor } from '@/pages/gallery/data';
 import { EventFilterTabs, type EventFilter } from '../components/EventFilterTabs';
 import { EventRow } from '../components/EventRow';
@@ -67,10 +67,10 @@ export function EventsBoard() {
     [groups],
   );
 
-  const all = useMemo<ForeseEvent[]>(
-    () => [...groups.ongoing, ...groups.upcoming, ...groups.completed],
-    [groups],
-  );
+  // "All" is one date-ordered list, not the three status groups concatenated.
+  // Grouped, a completed event from last year sat below an undated upcoming
+  // one, which is the opposite of what the tab promises: newest first.
+  const all = EVENTS_BY_RECENCY;
 
   const counts: Record<EventFilter, number> = {
     all: all.length,

@@ -62,6 +62,95 @@ export interface GalleryAlbum {
 
 export const GALLERY_ALBUMS: GalleryAlbum[] = [
   {
+    eventId: 'mock-placement-drive-2026',
+    photos: [
+      {
+        id: 'mock-placement-drive-2026-1',
+        src: '/gallery/mock-placement-drive-2026/01.jpg',
+        width: 1400,
+        height: 779,
+        alt: "A panellist going through a student's paperwork across a classroom desk.",
+      },
+      {
+        id: 'mock-placement-drive-2026-2',
+        src: '/gallery/mock-placement-drive-2026/02.jpg',
+        width: 1400,
+        height: 779,
+        alt: 'A panellist talking a student through her answers, notes spread between them.',
+      },
+      {
+        id: 'mock-placement-drive-2026-3',
+        src: '/gallery/mock-placement-drive-2026/03.jpg',
+        width: 1400,
+        height: 770,
+        alt: 'A student sitting an interview across a desk, the panellist reading from a sheet.',
+      },
+      {
+        id: 'mock-placement-drive-2026-4',
+        src: '/gallery/mock-placement-drive-2026/04.jpg',
+        width: 1400,
+        height: 783,
+        alt: 'A panellist working from a laptop while a student answers.',
+      },
+      {
+        id: 'mock-placement-drive-2026-5',
+        src: '/gallery/mock-placement-drive-2026/05.jpg',
+        width: 1400,
+        height: 782,
+        alt: 'A one-to-one interview under way in a bare classroom.',
+      },
+      {
+        id: 'mock-placement-drive-2026-6',
+        src: '/gallery/mock-placement-drive-2026/06.jpg',
+        width: 1400,
+        height: 924,
+        alt: 'Volunteers running the day from a table outside, radios and lists to hand.',
+      },
+      {
+        id: 'mock-placement-drive-2026-7',
+        src: '/gallery/mock-placement-drive-2026/07.jpg',
+        width: 1400,
+        height: 927,
+        alt: 'A student carrying documents across campus with a member of the team.',
+      },
+      {
+        id: 'mock-placement-drive-2026-8',
+        src: '/gallery/mock-placement-drive-2026/08.jpg',
+        width: 1400,
+        height: 925,
+        alt: 'Staff and volunteers talking between rounds on the campus path.',
+      },
+      {
+        id: 'mock-placement-drive-2026-9',
+        src: '/gallery/mock-placement-drive-2026/09.jpg',
+        width: 1400,
+        height: 927,
+        alt: 'An interview in the seminar room, a second panellist observing from the far end.',
+      },
+      {
+        id: 'mock-placement-drive-2026-10',
+        src: '/gallery/mock-placement-drive-2026/10.jpg',
+        width: 1400,
+        height: 929,
+        alt: 'A panellist taking a student through her feedback at the end of a round.',
+      },
+      {
+        id: 'mock-placement-drive-2026-11',
+        src: '/gallery/mock-placement-drive-2026/11.jpg',
+        width: 1400,
+        height: 921,
+        alt: 'A panellist and a student mid-conversation across a desk.',
+      },
+      {
+        id: 'mock-placement-drive-2026-12',
+        src: '/gallery/mock-placement-drive-2026/12.jpg',
+        width: 1400,
+        height: 922,
+        alt: 'A panellist making notes while a student answers.',
+      },
+    ],
+  },
+  {
     eventId: 'fored-2026',
     photos: [
       {

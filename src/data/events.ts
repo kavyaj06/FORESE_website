@@ -6,8 +6,8 @@
  * under them), the Events page, and the Home page's upcoming panel. Three
  * copies of the same list would drift apart within a term.
  *
- * ⚠️ PLACEHOLDER — the events below are stand-ins so the gallery can be
- * designed and reviewed. Replace the whole list with the club's real events.
+ * Both events below are the club's own, with real dates and real photographs.
+ * The invented stand-ins that used to fill this list are gone.
  */
 
 export interface ForeseEvent {
@@ -59,7 +59,19 @@ export function eventStatus(event: ForeseEvent, now: Date = new Date()): EventSt
   return 'completed';
 }
 
-/** Every event split by status: upcoming soonest first, completed newest first. */
+/**
+ * Every event split by status, each group newest first.
+ *
+ * One rule for all three, at the club's request: whichever tab a reader opens,
+ * the most recent event is at the top. Upcoming used to run the other way —
+ * soonest first, which is the more usual reading of a schedule — and the cost
+ * of the change is that the nearest upcoming event is now at the bottom of its
+ * own tab. That is the trade the club asked for, and consistency across the
+ * tabs is what they wanted from it.
+ *
+ * Undated events sort last everywhere: `date ?? ''` is smaller than any real
+ * date, so a descending sort puts them at the end without a special case.
+ */
 export function groupEventsByStatus(now: Date = new Date()): Record<EventStatus, ForeseEvent[]> {
   const groups: Record<EventStatus, ForeseEvent[]> = {
     ongoing: [],
@@ -71,15 +83,11 @@ export function groupEventsByStatus(now: Date = new Date()): Record<EventStatus,
     groups[eventStatus(event, now)].push(event);
   }
 
-  // Undated events sort last within Upcoming — a confirmed date is more useful
-  // to a student than one that is still being arranged.
-  groups.upcoming.sort((a, b) => {
-    if (!a.date) return 1;
-    if (!b.date) return -1;
-    return a.date.localeCompare(b.date);
-  });
-  groups.ongoing.sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''));
-  groups.completed.sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''));
+  const newestFirst = (a: ForeseEvent, b: ForeseEvent) =>
+    (b.date ?? '').localeCompare(a.date ?? '');
+  groups.ongoing.sort(newestFirst);
+  groups.upcoming.sort(newestFirst);
+  groups.completed.sort(newestFirst);
 
   return groups;
 }
@@ -126,53 +134,12 @@ export function relativeWhen(event: ForeseEvent, now: Date = new Date()): string
 }
 
 export const EVENTS: ForeseEvent[] = [
-  // DUMMY entries covering every state the events page has to render: one
-  // running now, one dated and ahead, and one announced without a date. The
-  // real list is all in the past, so none of these states could be designed
-  // against otherwise.
-  {
-    id: 'resume-clinic-2026',
-    slug: 'resume-clinic-2026',
-    cover: '/events/resume-clinic-2026.jpg',
-    venue: 'CEG Placement Cell',
-    name: 'Resume Clinic',
-    date: '2026-08-27',
-    endDate: '2026-08-31',
-    blurb: 'Drop-in sessions where seniors and alumni review your CV line by line.',
-  },
-  {
-    id: 'alumni-interaction-2026',
-    slug: 'alumni-interaction-2026',
-    cover: '/events/alumni-interaction-2026.jpg',
-    venue: 'To be confirmed',
-    name: 'Alumni Interaction',
-    date: null,
-    blurb: 'A panel of recent graduates on their first year in industry. Date being confirmed.',
-  },
-  {
-    id: 'mock-placement-drive-2026',
-    slug: 'mock-placement-drive-2026',
-    cover: '/events/mock-placement-drive-2026.jpg',
-    venue: 'Vivekananda Auditorium, CEG',
-    name: 'Mock Placements 2026',
-    date: '2026-09-19',
-    blurb: 'The full rehearsal: aptitude, group discussion and interview panels.',
-  },
-  {
-    id: 'corporate-connect-2026',
-    slug: 'corporate-connect-2026',
-    cover: '/events/corporate-connect-2026.jpg',
-    venue: 'Red Building Seminar Hall, CEG',
-    name: 'Corporate Connect 2026',
-    date: '2026-10-10',
-    blurb: 'Recruiters and alumni on what they actually look for in a candidate.',
-  },
   {
     id: 'fored-2026',
     slug: 'fored-2026',
-    // The cover is one of the album's own photographs rather than a separate
-    // file in `/events/`: there is no point maintaining two copies of the
-    // same picture so that one of them can be the thumbnail.
+    // Covers point at one of the event's own gallery photographs rather than a
+    // separate file under `/events/`, so there is only ever one copy of a
+    // picture to keep.
     cover: '/gallery/fored-2026/02.jpg',
     name: 'FORED (Foreign Universities Education Fair)',
     date: '2026-08-07',
@@ -180,40 +147,12 @@ export const EVENTS: ForeseEvent[] = [
       'Representatives from overseas universities met students for one-to-one sessions on studying abroad.',
   },
   {
-    id: 'mock-placement-drive-2025',
-    slug: 'mock-placement-drive-2025',
-    cover: '/events/mock-placement-drive-2025.jpg',
-    venue: 'Vivekananda Auditorium, CEG',
-    name: 'Mock Placements 2025',
-    date: '2025-09-20',
-    blurb: 'Aptitude, group discussions and interview panels run across a single weekend.',
-  },
-  {
-    id: 'corporate-connect-2025',
-    slug: 'corporate-connect-2025',
-    cover: '/events/corporate-connect-2025.jpg',
-    venue: 'Red Building Seminar Hall, CEG',
-    name: 'Corporate Connect',
-    date: '2025-08-02',
-    blurb: 'Recruiters and alumni on what they actually look for in a candidate.',
-  },
-  {
-    id: 'guest-lecture-series-2025',
-    slug: 'guest-lecture-series-2025',
-    cover: '/events/guest-lecture-series-2025.jpg',
-    venue: 'CEG Campus',
-    name: 'Guest Lecture Series',
-    date: '2025-04-12',
-    blurb: 'Industry speakers hosted through the term.',
-  },
-  {
-    id: 'orientation-2025',
-    slug: 'orientation-2025',
-    cover: '/events/orientation-2025.jpg',
-    venue: 'Tag Auditorium, CEG',
-    name: 'Freshers Orientation',
-    date: '2025-02-08',
-    blurb: 'Introducing the club and the year ahead to the incoming batch.',
+    id: 'mock-placement-drive-2026',
+    slug: 'mock-placement-drive-2026',
+    cover: '/gallery/mock-placement-drive-2026/01.jpg',
+    name: 'Mock Placements 2026',
+    date: '2026-02-15',
+    blurb: 'The full rehearsal: aptitude, group discussion and interview panels.',
   },
 ];
 
