@@ -273,10 +273,15 @@ export const CLUB_MEMBERS: ClubMember[] = [
     role: 'Senior Design Executive',
   },
   {
-    id: 'kishore-natarajan',
-    name: 'Kishore Natarajan',
+    // Spelled as the club's own roster and his LinkedIn slug have it —
+    // "Natrajan", not the "Natarajan" of the spoken instruction.
+    id: 'kishore-natrajan',
+    name: 'Kishore Natrajan',
     rank: 'senior-executive',
     role: 'Senior Videography Executive',
+    photo: '/images/m23.jpg',
+    quote: 'Quiet energy until it’s my scene',
+    linkedin: 'https://www.linkedin.com/in/kishore-natrajan-569566331/',
   },
   {
     id: 'aadhithya-narayanan-a',
@@ -439,14 +444,6 @@ export const CLUB_MEMBERS: ClubMember[] = [
     photo: '/images/m21.jpg',
     quote: 'Be the change that you wish to see in the world',
     linkedin: 'https://www.linkedin.com/in/kailash-s-832501236/',
-  },
-  {
-    id: 'kishore-natrajan',
-    name: 'Kishore Natrajan',
-    rank: 'senior-member',
-    photo: '/images/m23.jpg',
-    quote: 'Quiet energy until it’s my scene',
-    linkedin: 'https://www.linkedin.com/in/kishore-natrajan-569566331/',
   },
   {
     id: 'lathika-r',

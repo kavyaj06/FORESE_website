@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
@@ -88,6 +88,28 @@ export function EventsBoard() {
   const safePage = Math.min(page, pageCount - 1);
   const visible = filtered.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
+  const listRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Turning a page takes the reader back to the top of the list.
+   *
+   * Without it `setPage` swapped the rows underneath them and left the scroll
+   * where it was — halfway down page two, looking at rows four and five of a
+   * list they had just asked to start again. The pagination sits at the
+   * bottom, so the reader is always at the bottom when they press it, and the
+   * top of the new page is the one part of it they never saw.
+   *
+   * `scroll-mt` on the target rather than arithmetic here, so the offset that
+   * clears the sticky header lives next to the thing being cleared.
+   */
+  const goToPage = (next: number) => {
+    setPage(next);
+    listRef.current?.scrollIntoView({
+      block: 'start',
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  };
+
   const changeFilter = (next: EventFilter) => {
     setFilter(next);
     // Back to the first page: staying on page 3 of a filter that now has one
@@ -118,7 +140,12 @@ export function EventsBoard() {
              the taller of the two. Without that the old list unmounts, the
              section collapses to nothing for the length of the swap, and the
              pagination and footer jump up the screen and back. */
-          <div data-events-stack className="mt-2xl grid" style={{ perspective: 1200 }}>
+          <div
+            data-events-stack
+            ref={listRef}
+            className="mt-2xl grid scroll-mt-28"
+            style={{ perspective: 1200 }}
+          >
             {/* No `initial={false}` here. It suppresses the mount animation
                 for the whole subtree, which silently defeated the rows'
                 scroll reveal: they rendered already-visible and only ever
@@ -169,7 +196,7 @@ export function EventsBoard() {
               <button
                 key={i}
                 type="button"
-                onClick={() => setPage(i)}
+                onClick={() => goToPage(i)}
                 aria-current={i === safePage ? 'page' : undefined}
                 aria-label={`Page ${i + 1}`}
                 className={cnPage(i === safePage)}
