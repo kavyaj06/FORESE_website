@@ -116,10 +116,7 @@ export function ProcessTimeline() {
   }, [prefersReducedMotion]);
 
   return (
-    <section
-      data-tone="panel"
-      className="border-border pt-2xl pb-section relative isolate overflow-hidden border-b"
-    >
+    <section className="border-border bg-surface pt-2xl pb-section relative isolate overflow-hidden border-b">
       <Container>
         <Reveal>
           <SectionHeading

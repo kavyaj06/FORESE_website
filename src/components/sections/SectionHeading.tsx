@@ -39,23 +39,7 @@ export function SectionHeading({
         className,
       )}
     >
-      {/* A filled pill, not a line of coloured type. Every reference sets its
-          section label this way, and the reason is hierarchy: a label and a
-          title stacked in two weights of the same treatment read as one lump,
-          where a solid chip above a large title reads as a tag on a thing.
-          Black rather than brand — the brand is spent on the marker and the
-          panels, and a crimson chip on every section would leave those
-          nothing to be. `bg-text` inverts itself on a dark section. */}
-      {eyebrow && (
-        <p
-          className={cn(
-            'text-eyebrow bg-text text-text-inverse rounded-pill w-fit px-3 py-1 uppercase',
-            align === 'center' && 'mx-auto',
-          )}
-        >
-          {eyebrow}
-        </p>
-      )}
+      {eyebrow && <p className="text-eyebrow text-accent uppercase">{eyebrow}</p>}
 
       <Tag className={cn(Tag === 'h2' ? 'text-h2' : 'text-h3')}>{title}</Tag>
 

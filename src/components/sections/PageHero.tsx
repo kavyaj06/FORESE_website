@@ -64,7 +64,7 @@ export function PageHero({
 
   return (
     <header
-      data-tone={tone === 'inverse' ? 'ink' : undefined}
+      data-theme={tone === 'inverse' ? 'inverse' : undefined}
       className={cn(
         'border-border relative isolate overflow-hidden border-b',
         size === 'display' ? 'py-section tablet:py-3xl' : 'py-section',
@@ -90,12 +90,9 @@ export function PageHero({
           {eyebrow && (
             <motion.p
               variants={prefersReducedMotion ? fadeInOnly : riseIn}
-              // Filled, not outlined with a dot inside it. An outlined chip
-              // holding a coloured dot is the site apologising for its own
-              // palette: three elements to say one word. The chip is the
-              // colour now, which is how every reference sets a label.
-              className="text-eyebrow bg-accent text-accent-fg rounded-pill inline-flex w-fit items-center px-3 py-1.5 uppercase"
+              className="text-eyebrow text-text-muted border-border bg-surface-raised gap-xs rounded-pill inline-flex items-center border px-3 py-1.5 uppercase"
             >
+              <span aria-hidden="true" className="bg-accent rounded-pill size-1.5" />
               {eyebrow}
             </motion.p>
           )}

@@ -46,7 +46,7 @@ export function HomeHero() {
 
   return (
     <header
-      data-tone="ink"
+      data-theme="inverse"
       className="py-3xl relative isolate flex min-h-[86vh] flex-col justify-center overflow-hidden"
     >
       <motion.div

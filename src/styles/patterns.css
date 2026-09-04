@@ -54,49 +54,15 @@
   );
 }
 
-/* The brand bar off the lockup: crimson holding through the first half, then
-   turning through flame and amber and washing out to mist at the right end.
-   The stops are weighted, not evenly spaced — an even ramp puts orange in the
-   middle and loses the long run of red that makes the mark read as red. */
-@utility bg-brand-gradient {
-  background-image: linear-gradient(
-    90deg,
-    var(--color-brand-crimson) 0%,
-    var(--color-brand-red) 30%,
-    var(--color-brand-flame) 58%,
-    var(--color-brand-amber) 78%,
-    var(--color-brand-mist) 100%
-  );
-}
-
-/* The same bar, but anchored to the viewport rather than to the element it
-   paints. For a progress rail that grows from nothing to full width: with a
-   normal background the ramp would be squeezed into whatever width the bar
-   currently has, so every pixel would change hue as the page scrolled. Fixed
-   to `100vw`, the bar instead uncovers the ramp left to right, and how far
-   through the colour has travelled *is* how far through the page you are. */
-@utility bg-brand-rail {
-  background-image: linear-gradient(
-    90deg,
-    var(--color-brand-crimson) 0%,
-    var(--color-brand-red) 30%,
-    var(--color-brand-flame) 58%,
-    var(--color-brand-amber) 78%,
-    var(--color-brand-mist) 100%
-  );
-  background-size: 100vw 100%;
-  background-repeat: no-repeat;
-}
-
 /* The footer card's ambient wash, carried over from the reference design: a
-   wide radial that lifts the top-centre of the card and bleeds the accent in
-   towards the edges. Kept here rather than as an inline style on the element
-   so the colours stay in the stylesheet layer with the rest. */
+   wide radial that lifts the top-centre of the card and bleeds the accent
+   blue in towards the edges. Kept here rather than as an inline style on the
+   element so the colours stay in the stylesheet layer with the rest. */
 @utility bg-footer-glow {
   background-image: radial-gradient(
     125% 125% at 50% 10%,
     color-mix(in srgb, var(--color-bg) 40%, transparent) 50%,
-    color-mix(in srgb, var(--color-accent) 20%, transparent) 100%
+    color-mix(in srgb, var(--color-accent-blue) 20%, transparent) 100%
   );
 }
 

@@ -65,7 +65,7 @@ export function ContactLink({
     >
       <motion.span
         aria-hidden="true"
-        className="text-accent mt-0.5 shrink-0"
+        className="text-accent-blue mt-0.5 shrink-0"
         variants={{ active: { color: brand } }}
         transition={{ duration: 0.18 }}
       >

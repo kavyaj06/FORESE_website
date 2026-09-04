@@ -94,50 +94,42 @@ export function TeamBrowser() {
   const featured = group === 'core';
 
   return (
-    <section className="pb-section">
-      {/* The controls get their own full-bleed band. Before this the page was
-          one unbroken run of cream from the hero to the footer — the longest
-          on the site, and the tabs floated in the middle of it with nothing
-          to sit on. A band gives them a surface and splits the run in two. */}
-      <div data-tone="panel" className="py-xl border-border border-b">
-        <Container>
-          <Reveal className="gap-md flex flex-col items-center">
-            <SegmentedTabs
-              tabs={groupTabs}
-              value={group}
-              onChange={setGroup}
-              layoutId="team-group-pill"
-              ariaLabel="Which part of the club to show"
-            />
+    <section className="pt-2xl pb-section">
+      <Container>
+        <Reveal className="gap-md flex flex-col items-center">
+          <SegmentedTabs
+            tabs={groupTabs}
+            value={group}
+            onChange={setGroup}
+            layoutId="team-group-pill"
+            ariaLabel="Which part of the club to show"
+          />
 
-            {/* Senior members get no second row. They are divided by working
+          {/* Senior members get no second row. They are divided by working
               team in the data like everyone else, but the club presents them
               as one body — so a filter here would invent a distinction the
               club does not make. Members keep it, where thirty-one cards are
               worth narrowing. */}
-            {group === 'core' && (
-              <SegmentedTabs
-                tabs={coreTabs}
-                value={coreRank}
-                onChange={setCoreRank}
-                layoutId="team-sub-pill"
-                ariaLabel="Which core rank to show"
-              />
-            )}
-            {group === 'member' && (
-              <SegmentedTabs
-                tabs={teamTabs}
-                value={team}
-                onChange={setTeam}
-                layoutId="team-sub-pill"
-                ariaLabel="Filter by working team"
-              />
-            )}
-          </Reveal>
-        </Container>
-      </div>
+          {group === 'core' && (
+            <SegmentedTabs
+              tabs={coreTabs}
+              value={coreRank}
+              onChange={setCoreRank}
+              layoutId="team-sub-pill"
+              ariaLabel="Which core rank to show"
+            />
+          )}
+          {group === 'member' && (
+            <SegmentedTabs
+              tabs={teamTabs}
+              value={team}
+              onChange={setTeam}
+              layoutId="team-sub-pill"
+              ariaLabel="Filter by working team"
+            />
+          )}
+        </Reveal>
 
-      <Container>
         <div
           key={`${group}-${group === 'core' ? coreRank : team}`}
           className={

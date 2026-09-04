@@ -45,7 +45,7 @@ const SLIDES: StackSlide[] = PREP_TOPICS.map((topic, index) => ({
  */
 export function PrepBoard() {
   return (
-    <section data-tone="mist" className="pt-2xl pb-2xl border-border border-b">
+    <section className="pt-2xl pb-2xl border-border border-b">
       <Container>
         <Reveal>
           <SectionHeading eyebrow={PREP_BOARD.eyebrow} title={PREP_BOARD.title} />

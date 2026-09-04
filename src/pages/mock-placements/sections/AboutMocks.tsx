@@ -1,5 +1,4 @@
 import { Container } from '@/components/layout/Container';
-import { cn } from '@/lib/cn';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { CountUp } from '@/components/motion/CountUp';
 import { DecodeReveal } from '@/components/motion/DecodeReveal';
@@ -54,10 +53,7 @@ export function AboutMocks() {
 
           <Reveal staggerChildren className="gap-lg flex flex-col">
             <RevealItem>
-              {/* The same filled chip `SectionHeading` sets. This section
-                  builds its heading by hand, which is how its label stayed the
-                  last outlined one on the site. */}
-              <span className="text-eyebrow bg-text text-text-inverse rounded-pill inline-flex px-3 py-1 uppercase">
+              <span className="text-label border-border bg-surface-raised rounded-pill inline-flex border px-3 py-1.5">
                 {eyebrow}
               </span>
             </RevealItem>
@@ -76,36 +72,18 @@ export function AboutMocks() {
                 eye compares two figures side by side and reads two in a column
                 as a list. */}
             <RevealItem className="gap-md pt-xs desktop:mt-auto grid grid-cols-2">
-              {/* The first figure is filled, the second is not. A pair of
-                  identical cards asks the eye to compare them; one of them
-                  filled says which is the headline number and leaves the other
-                  as its context. This is the references' move — one colour
-                  card in a row of neutral ones — and it only works while it
-                  stays one. */}
               {figures
                 .filter((figure) => figure.value !== '2')
-                .map((figure, index) => (
+                .map((figure) => (
                   <div
                     key={figure.label}
-                    className={cn(
-                      'p-lg rounded-lg border',
-                      index === 0
-                        ? 'border-accent bg-accent text-accent-fg'
-                        : 'border-border bg-surface-raised',
-                    )}
+                    className="border-border bg-surface-raised p-lg rounded-lg border"
                   >
-                    <p className="text-h2 tabular-nums">
+                    <p className="text-h2 text-text tabular-nums">
                       <CountUp value={figure.value} />
                     </p>
                     <p className="text-body mt-xs">{figure.label}</p>
-                    <p
-                      className={cn(
-                        'text-small mt-1',
-                        index === 0 ? 'text-accent-fg/80' : 'text-text-muted',
-                      )}
-                    >
-                      {figure.note}
-                    </p>
+                    <p className="text-small text-text-muted mt-1">{figure.note}</p>
                   </div>
                 ))}
             </RevealItem>

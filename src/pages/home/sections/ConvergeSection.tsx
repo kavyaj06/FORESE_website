@@ -81,7 +81,7 @@ export function ConvergeSection() {
 
   if (prefersReducedMotion) {
     return (
-      <section data-tone="panel" className="border-border py-section border-y">
+      <section className="border-border bg-surface py-section border-y">
         <Container>
           <Heading />
           <PillarCircles progress={progress} reduced />
@@ -94,8 +94,7 @@ export function ConvergeSection() {
     <div ref={sectionRef} className="relative h-[260vh]">
       <section
         ref={panelRef}
-        data-tone="panel"
-        className="border-border sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
+        className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
       >
         <motion.div
           aria-hidden="true"
@@ -207,8 +206,7 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
   return (
     <section
       ref={sectionRef}
-      data-tone="panel"
-      className="border-border py-section overflow-hidden border-y"
+      className="border-border bg-surface py-section overflow-hidden border-y"
     >
       <Container>
         <Heading />
@@ -233,12 +231,7 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
 function Heading() {
   return (
     <div className="gap-md mx-auto flex max-w-[52rem] flex-col items-center text-center">
-      {/* Matches `SectionHeading`'s chip. This section builds its own heading
-          because it is scroll-scrubbed, and that is exactly how a label ends
-          up as the one on the site still set in plain grey type. */}
-      <p className="text-eyebrow bg-text text-text-inverse rounded-pill w-fit px-3 py-1 uppercase">
-        {HOME_CONVERGE.eyebrow}
-      </p>
+      <p className="text-eyebrow text-text-subtle uppercase">{HOME_CONVERGE.eyebrow}</p>
       {/* Two lines, broken where the sentence breaks — after the comma —
           rather than wherever the measure happens to run out. Left to wrap on
           its own it made three ragged lines at the narrower desktop widths,

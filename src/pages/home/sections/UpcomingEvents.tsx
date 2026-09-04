@@ -3,7 +3,6 @@ import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Card } from '@/components/ui';
-import { cn } from '@/lib/cn';
 import { formatEventDate, formatEventWhen, groupEventsByStatus } from '@/data/events';
 import { upcomingStages } from '@/data/mockSchedule';
 import { HOME_EVENTS } from '../data';
@@ -60,12 +59,7 @@ export function UpcomingEvents() {
   ].sort((a, b) => (a.date === '' ? 1 : b.date === '' ? -1 : a.date.localeCompare(b.date)));
 
   return (
-    // Ember, and it is the only hot tone that could take this section: it
-    // carries three paragraphs, and crimson fails every muted variant while
-    // ember's ladder holds at 7.39 / 6.20 / 5.55. The `next` card inside
-    // reads `bg-accent`, which on ember resolves to black — a black card on
-    // orange, which is the arrangement the brand references use.
-    <section data-tone="ember" className="py-section">
+    <section className="py-section">
       <Container>
         <Reveal>
           <SectionHeading
@@ -79,66 +73,33 @@ export function UpcomingEvents() {
           <p className="text-body text-text-muted mt-xl">{HOME_EVENTS.emptyMessage}</p>
         ) : (
           <div className="mt-2xl gap-lg tablet:grid-cols-2 grid">
-            {/* The next thing to happen is the filled one. It is the answer to
-                the question the section asks, and a grid of identical cards
-                makes the reader find it by reading every date. */}
-            {entries.map((entry, index) => {
-              const next = index === 0;
-              return (
-                <Reveal key={entry.id} delay={index * 0.07} motionStyle="scale">
-                  <Card
-                    padding="lg"
-                    className={cn('group h-full', next && 'border-accent bg-accent text-accent-fg')}
-                  >
-                    <div className="gap-sm flex flex-wrap items-center justify-between">
-                      <p
-                        className={cn(
-                          'text-small gap-xs flex items-center',
-                          next ? 'text-accent-fg/85' : 'text-text-muted',
-                        )}
-                      >
-                        <CalendarDays size={15} strokeWidth={1.75} aria-hidden="true" />
-                        {entry.when}
-                      </p>
-                      <span
-                        className={cn(
-                          'text-label rounded-pill border px-2.5 py-0.5',
-                          next
-                            ? 'border-accent-fg/40 text-accent-fg'
-                            : 'border-border text-text-subtle',
-                        )}
-                      >
-                        {entry.kind}
-                      </span>
-                    </div>
+            {entries.map((entry, index) => (
+              <Reveal key={entry.id} delay={index * 0.07} motionStyle="scale">
+                <Card padding="lg" className="group h-full">
+                  <div className="gap-sm flex flex-wrap items-center justify-between">
+                    <p className="text-small text-text-muted gap-xs flex items-center">
+                      <CalendarDays size={15} strokeWidth={1.75} aria-hidden="true" />
+                      {entry.when}
+                    </p>
+                    <span className="text-label border-border text-text-subtle rounded-pill border px-2.5 py-0.5">
+                      {entry.kind}
+                    </span>
+                  </div>
 
-                    <h3 className="text-h3 mt-sm gap-sm flex items-start justify-between">
-                      {entry.name}
-                      <ArrowUpRight
-                        size={20}
-                        strokeWidth={2}
-                        aria-hidden="true"
-                        className={cn(
-                          'duration-base ease-out-brand mt-1 shrink-0 -translate-x-1 opacity-0 transition-[opacity,transform] group-hover:translate-x-0 group-hover:opacity-100',
-                          next ? 'text-accent-fg' : 'text-text-subtle',
-                        )}
-                      />
-                    </h3>
+                  <h3 className="text-h3 mt-sm gap-sm flex items-start justify-between">
+                    {entry.name}
+                    <ArrowUpRight
+                      size={20}
+                      strokeWidth={2}
+                      aria-hidden="true"
+                      className="text-text-subtle duration-base ease-out-brand mt-1 shrink-0 -translate-x-1 opacity-0 transition-[opacity,transform] group-hover:translate-x-0 group-hover:opacity-100"
+                    />
+                  </h3>
 
-                    {entry.blurb && (
-                      <p
-                        className={cn(
-                          'text-body mt-sm',
-                          next ? 'text-accent-fg/85' : 'text-text-muted',
-                        )}
-                      >
-                        {entry.blurb}
-                      </p>
-                    )}
-                  </Card>
-                </Reveal>
-              );
-            })}
+                  {entry.blurb && <p className="text-body text-text-muted mt-sm">{entry.blurb}</p>}
+                </Card>
+              </Reveal>
+            ))}
           </div>
         )}
       </Container>

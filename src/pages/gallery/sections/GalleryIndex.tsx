@@ -52,7 +52,7 @@ export function GalleryIndex() {
   let position = featured.length;
 
   return (
-    <section className="pt-section">
+    <section className="py-section">
       <Container>
         {/* Featured — the leading event runs full width, the next two pair up
             beneath it. An even grid of three would give the most recent event
@@ -74,15 +74,9 @@ export function GalleryIndex() {
             </div>
           )}
         </div>
-      </Container>
 
-      {/* The archive gets its own band. Gallery was the last page running one
-          unbroken field of cream from the hero to the footer, and the archive
-          is the natural seam: everything above it is this year's albums as
-          pictures, everything below is a list of older ones. */}
-      {archived.length > 0 && (
-        <div data-tone="panel" className="mt-3xl py-section border-border border-t">
-          <Container>
+        {archived.length > 0 && (
+          <div className="mt-3xl">
             <Reveal>
               <SectionHeading as="h2" eyebrow="Archive" title="Earlier events" />
             </Reveal>
@@ -113,9 +107,9 @@ export function GalleryIndex() {
                 </div>
               ))}
             </div>
-          </Container>
-        </div>
-      )}
+          </div>
+        )}
+      </Container>
     </section>
   );
 }

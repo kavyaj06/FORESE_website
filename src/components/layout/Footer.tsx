@@ -24,7 +24,7 @@ import { ForeseMark } from './ForeseMark';
  *  - The card is genuinely dark. The reference sets a 10%-opacity background
  *    and relies on the page behind it already being dark; on this site the
  *    page is white, which would have left a washed-out grey card under white
- *    text. `data-tone="ink"` makes it actually dark and flips every
+ *    text. `data-theme="inverse"` makes it actually dark and flips every
  *    token-driven child with it.
  *
  * The reference floats its card inset from every page edge; this one is
@@ -56,7 +56,7 @@ const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
 const GMAIL_RED = '#EA4335';
 const MAPS_RED = '#EA4335';
 const COLUMN_LINK =
-  'text-text-muted hover:text-accent duration-fast ease-out-brand transition-colors';
+  'text-text-muted hover:text-accent-blue duration-fast ease-out-brand transition-colors';
 
 function Pending({ what }: { what: string }) {
   return <p className="text-small text-text-subtle italic">{what} to be added</p>;
@@ -67,7 +67,7 @@ export function Footer() {
 
   return (
     <footer
-      data-tone="ink"
+      data-theme="inverse"
       className="bg-bg relative isolate mt-auto h-fit overflow-hidden rounded-t-3xl"
     >
       {/* Behind everything: the reference's radial wash. */}
