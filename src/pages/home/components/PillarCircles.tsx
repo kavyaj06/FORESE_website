@@ -95,9 +95,13 @@ export function PillarCircles({ progress, reduced }: PillarCirclesProps) {
 
       {/* The stack reserves its own height, so the section does not resize as
           the pillars change under a reader who is mid-scroll. */}
+      {/* 152–176px. The floor is what matters, not the ceiling: below 1024 the
+          clamp bottoms out and the longest title, "Real opportunities", cleared
+          the ring by 2.4px at 8.5rem. 9.5rem takes that to ~10px, which is the
+          same clearance the ring has at its widest. */}
       <div
         aria-hidden="true"
-        className="relative mx-auto flex h-[clamp(11rem,20vw,15rem)] w-[clamp(11rem,20vw,15rem)] items-center justify-center"
+        className="relative mx-auto flex h-[clamp(9.5rem,13vw,11rem)] w-[clamp(9.5rem,13vw,11rem)] items-center justify-center"
       >
         {HOME_PILLARS.map((pillar, index) => {
           const isActive = index === active;
@@ -117,8 +121,14 @@ export function PillarCircles({ progress, reduced }: PillarCirclesProps) {
               transition={{ ...SWAP, delay: isActive ? ENTER_DELAY : 0 }}
               className="border-border-strong absolute inset-0 flex flex-col items-center justify-center rounded-full border text-center"
             >
-              <Icon size={30} strokeWidth={1.4} />
-              <span className="text-h3 mt-3 block max-w-[70%] text-balance">{pillar.title}</span>
+              <Icon size={22} strokeWidth={1.5} />
+              {/* `text-body`, not `text-h3`. The title has to fit inside the
+                  ring at its smallest, and the longest of the five is
+                  "Workshops and events" — at h3 that overflowed the circle
+                  the moment the ring came down in size. */}
+              <span className="text-body mt-2 block max-w-[76%] font-semibold text-balance">
+                {pillar.title}
+              </span>
             </motion.div>
           );
         })}
