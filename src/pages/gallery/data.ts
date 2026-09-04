@@ -57,6 +57,19 @@ export interface GalleryPhoto {
 export interface GalleryAlbum {
   /** References an id in `@/data/events.ts`. */
   eventId: string;
+  /**
+   * Pins this album to the large card at the top of the index, ahead of more
+   * recent events.
+   *
+   * The one exception to date order, and it exists because Mock Placements is
+   * the club's flagship: it should lead the gallery whether it ran last month
+   * or last February. Everything else stays strictly newest-first underneath.
+   *
+   * A flag rather than an id matched in the component, so which album leads is
+   * a fact stated once in the data instead of a name a layout has to know. If
+   * two are ever pinned they keep their date order relative to each other.
+   */
+  pinned?: boolean;
   photos: GalleryPhoto[];
 }
 
@@ -110,6 +123,7 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
   },
   {
     eventId: 'mock-placement-drive-2026',
+    pinned: true,
     photos: [
       {
         id: 'mock-placement-drive-2026-1',
@@ -255,19 +269,28 @@ export interface GalleryIndexEntry {
   event: ForeseEvent;
   cover?: GalleryPhoto;
   photoCount: number;
+  pinned: boolean;
 }
 
 /**
- * Every event that actually has photographs, newest first.
+ * Every event that actually has photographs: pinned albums first, then newest
+ * first.
  *
  * An event with an empty album is dropped rather than shown as an empty card:
  * a gallery entry that leads nowhere is worse than no entry.
+ *
+ * The sort is stable and `EVENTS_BY_RECENCY` is already in date order, so
+ * moving the pinned albums to the front leaves every other album exactly where
+ * the dates put it — no second ordering rule to keep in step with the first.
  */
 export function galleryIndexEntries(): GalleryIndexEntry[] {
   return EVENTS_BY_RECENCY.map((event) => {
-    const photos = albumFor(event.id)?.photos ?? [];
-    return { event, cover: photos[0], photoCount: photos.length };
-  }).filter((entry) => entry.photoCount > 0);
+    const album = albumFor(event.id);
+    const photos = album?.photos ?? [];
+    return { event, cover: photos[0], photoCount: photos.length, pinned: album?.pinned ?? false };
+  })
+    .filter((entry) => entry.photoCount > 0)
+    .sort((a, b) => Number(b.pinned) - Number(a.pinned));
 }
 
 /** The album for an event id, if it has one. */
