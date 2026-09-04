@@ -6,7 +6,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { GALLERY_ALBUMS, type GalleryPhoto } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
-import { PillarCircles } from '../components/PillarCircles';
+import { Pillars } from '../components/Pillars';
 import { ConvergePhoto } from '../components/ConvergePhoto';
 import { ConvergeRail } from '../components/ConvergeRail';
 import { useIdleAdvance } from '../components/useIdleAdvance';
@@ -84,7 +84,7 @@ export function ConvergeSection() {
       <section className="border-border bg-surface py-section border-y">
         <Container>
           <Heading />
-          <PillarCircles progress={progress} reduced />
+          <Pillars progress={progress} reduced />
         </Container>
       </section>
     );
@@ -158,7 +158,7 @@ export function ConvergeSection() {
             grows into place as the section is scrubbed, and rings inheriting
             that scale would draw at a size that is still changing. */}
         <div className="max-w-content px-gutter desktop:max-w-[54vw] desktop:px-0 relative mx-auto w-full">
-          <PillarCircles progress={progress} reduced={false} />
+          <Pillars progress={progress} reduced={false} />
         </div>
       </section>
     </div>
@@ -216,7 +216,7 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
 
       <Container>
         <div ref={ringsRef}>
-          <PillarCircles progress={ringProgress} reduced={false} />
+          <Pillars progress={ringProgress} reduced={false} />
         </div>
       </Container>
     </section>

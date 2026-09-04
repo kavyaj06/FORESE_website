@@ -1,5 +1,3 @@
-import { Briefcase, Compass, GraduationCap, Presentation, RadioTower } from 'lucide-react';
-
 /**
  * Home — page content.
  *
@@ -63,40 +61,48 @@ export const HOME_CONVERGE = {
 /**
  * The five pillars beneath the Why-it-exists headline.
  *
- * ⚠️ Only "Gaining soft skills" is the club's own wording — it is the one card
- * that was legible in the reference. The other four are written from the
- * paragraph above them and need checking against whatever the original five
- * actually said.
+ * ⚠️ The titles and the `terms` are the club's own, given as a set. The `body`
+ * sentences beneath them are still written-from-the-paragraph and need
+ * checking — they are no longer shown on screen, but they are what assistive
+ * technology and the reduced-motion list read, so they are not decoration.
+ *
+ * ⚠️ "Soft skills" was "Gaining soft skills", which was the one title carried
+ * over verbatim from the club's own reference. The shorter form is what the
+ * club asked for; the longer phrasing survives inside its `body`.
+ *
+ * `terms` are the three or four words shown under each title. Stored as an
+ * array rather than a pre-joined string, because the separator between them
+ * is typography, not content — the component joins them.
  */
 export const HOME_PILLARS = [
   {
     id: 'opportunities',
-    icon: Compass,
     title: 'Real opportunities',
+    terms: ['Internships', 'Projects', 'Exposure'],
     body: 'Connecting what is taught in class to the work that happens outside it.',
   },
   {
     id: 'placements',
-    icon: Briefcase,
     title: 'Placement ready',
+    terms: ['Training', 'Mock interviews'],
     body: 'Preparing students for placements before the rounds that go on record.',
   },
   {
     id: 'higher-studies',
-    icon: GraduationCap,
     title: 'Higher studies',
+    terms: ['Guidance', 'Pathways'],
     body: 'Guidance for students taking the research and postgraduate route.',
   },
   {
     id: 'soft-skills',
-    icon: RadioTower,
-    title: 'Gaining soft skills',
+    title: 'Soft skills',
+    terms: ['Teamwork', 'Leadership'],
     body: 'Students gain soft skills like teamwork, leadership, and communication.',
   },
   {
     id: 'workshops',
-    icon: Presentation,
-    title: 'Workshops and events',
+    title: 'Workshops & events',
+    terms: ['Learn', 'Build', 'Participate'],
     body: 'Practical learning run through the year, not saved for placement season.',
   },
 ] as const;
