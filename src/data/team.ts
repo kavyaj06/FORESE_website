@@ -272,10 +272,17 @@ export const CLUB_MEMBERS: ClubMember[] = [
     linkedin: 'https://www.linkedin.com/in/lathika-ramachandran-b58297328/',
   },
   {
-    id: 'vishwanathan',
-    name: 'Vishwanathan',
+    // "Viswanathan L" as the roster and his LinkedIn slug have it. The roster
+    // also holds a Vishwanth CR, who is a different student — same first
+    // syllables, different name, different profile — so the club confirmed
+    // which of the two this is rather than the match being assumed.
+    id: 'viswanathan-l',
+    name: 'Viswanathan L',
     rank: 'senior-executive',
     role: 'Senior Design Executive',
+    photo: '/images/m69.jpg',
+    quote: 'Fuelled by curiosity, grounded in effort',
+    linkedin: 'https://www.linkedin.com/in/viswanathan-l-159423384/',
   },
   {
     // Spelled as the club's own roster and his LinkedIn slug have it —
@@ -731,14 +738,6 @@ export const CLUB_MEMBERS: ClubMember[] = [
     photo: '/images/m68.jpg',
     quote: 'Just a coder chasing speed, dreams, and greatness',
     linkedin: 'https://www.linkedin.com/in/vishwanth-c-r-097497327/',
-  },
-  {
-    id: 'viswanathan-l',
-    name: 'Viswanathan L',
-    rank: 'senior-member',
-    photo: '/images/m69.jpg',
-    quote: 'Fuelled by curiosity, grounded in effort',
-    linkedin: 'https://www.linkedin.com/in/viswanathan-l-159423384/',
   },
   {
     id: 'yadhunandhan-k',
