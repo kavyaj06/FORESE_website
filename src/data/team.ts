@@ -261,10 +261,15 @@ export const CLUB_MEMBERS: ClubMember[] = [
     role: 'Videography Lead',
   },
   {
-    id: 'lathika',
-    name: 'Lathika',
+    // "Lathika R" as the club's own roster has it, rather than the bare
+    // "Lathika" of the spoken instruction — the same call made for Kishore.
+    id: 'lathika-r',
+    name: 'Lathika R',
     rank: 'senior-executive',
     role: 'Senior Marketing Executive',
+    photo: '/images/m24.jpg',
+    quote: 'Make today count!',
+    linkedin: 'https://www.linkedin.com/in/lathika-ramachandran-b58297328/',
   },
   {
     id: 'vishwanathan',
@@ -444,14 +449,6 @@ export const CLUB_MEMBERS: ClubMember[] = [
     photo: '/images/m21.jpg',
     quote: 'Be the change that you wish to see in the world',
     linkedin: 'https://www.linkedin.com/in/kailash-s-832501236/',
-  },
-  {
-    id: 'lathika-r',
-    name: 'Lathika R',
-    rank: 'senior-member',
-    photo: '/images/m24.jpg',
-    quote: 'Make today count!',
-    linkedin: 'https://www.linkedin.com/in/lathika-ramachandran-b58297328/',
   },
   {
     id: 'mirthun-ks',
