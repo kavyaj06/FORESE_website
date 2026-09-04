@@ -102,12 +102,13 @@ export function formatEventWhen(event: ForeseEvent): string {
 
   const start = new Date(event.date);
   const end = new Date(event.endDate);
+  // UTC getters, for the same reason `formatEventDate` formats in UTC.
   const sameMonth =
-    start.getFullYear() === end.getFullYear() && start.getMonth() === end.getMonth();
+    start.getUTCFullYear() === end.getUTCFullYear() && start.getUTCMonth() === end.getUTCMonth();
 
   // "19–21 September 2026" rather than repeating the month and year twice.
   if (sameMonth) {
-    return `${start.getDate()}\u2013${formatEventDate(event.endDate)}`;
+    return `${start.getUTCDate()}\u2013${formatEventDate(event.endDate)}`;
   }
   return `${formatEventDate(event.date)} \u2013 ${formatEventDate(event.endDate)}`;
 }
@@ -147,6 +148,20 @@ export const EVENTS: ForeseEvent[] = [
       'Representatives from overseas universities met students for one-to-one sessions on studying abroad.',
   },
   {
+    id: 'leap-2026',
+    slug: 'leap-2026',
+    cover: '/gallery/leap-2026/04.jpg',
+    name: 'LEAP (The Learners Employability Awareness Programme)',
+    // Four session dates are burned into the photographs by the camera app:
+    // 28, 30 and 31 July and 7 August 2026, each with a weekday that checks
+    // out against the calendar. The club remembered it as "August"; the run
+    // actually opens in late July, which is why this carries a range.
+    date: '2026-07-28',
+    endDate: '2026-08-07',
+    blurb:
+      'A run of talks on employability — what employers expect of graduates, and how to prepare for it.',
+  },
+  {
     id: 'mock-placement-drive-2026',
     slug: 'mock-placement-drive-2026',
     cover: '/gallery/mock-placement-drive-2026/01.jpg',
@@ -183,5 +198,10 @@ export function formatEventDate(iso: string): string {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    // A bare `YYYY-MM-DD` parses as UTC midnight, so formatting it in the
+    // reader's own zone shows the day before for anyone west of Greenwich.
+    // An event's date is a calendar fact, not an instant, so it is read back
+    // in the zone it was written in.
+    timeZone: 'UTC',
   }).format(new Date(iso));
 }

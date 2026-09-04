@@ -62,6 +62,53 @@ export interface GalleryAlbum {
 
 export const GALLERY_ALBUMS: GalleryAlbum[] = [
   {
+    eventId: 'leap-2026',
+    photos: [
+      {
+        id: 'leap-2026-1',
+        src: '/gallery/leap-2026/01.jpg',
+        width: 1400,
+        height: 787,
+        alt: 'A student on his feet with a microphone, putting a question to the room during a session in the seminar hall.',
+      },
+      {
+        id: 'leap-2026-2',
+        src: '/gallery/leap-2026/02.jpg',
+        width: 1400,
+        height: 787,
+        alt: 'A student speaking into a microphone from the floor of a full hall.',
+      },
+      {
+        id: 'leap-2026-3',
+        src: '/gallery/leap-2026/03.jpg',
+        width: 1400,
+        height: 1050,
+        alt: 'Students turning to listen as one of them speaks, a member of staff standing at the side of the room.',
+      },
+      {
+        id: 'leap-2026-4',
+        src: '/gallery/leap-2026/04.jpg',
+        width: 1400,
+        height: 787,
+        alt: 'A speaker addressing a full hall from the front of the room.',
+      },
+      {
+        id: 'leap-2026-5',
+        src: '/gallery/leap-2026/05.jpg',
+        width: 1400,
+        height: 787,
+        alt: 'A session on what employers expect, the slide behind listing pro-activeness, time management, assertiveness and agility.',
+      },
+      {
+        id: 'leap-2026-6',
+        src: '/gallery/leap-2026/06.jpg',
+        width: 1050,
+        height: 1400,
+        alt: 'A speaker taking the room through a talk, students seated in rows facing the screen.',
+      },
+    ],
+  },
+  {
     eventId: 'mock-placement-drive-2026',
     photos: [
       {
