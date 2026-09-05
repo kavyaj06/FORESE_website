@@ -3,7 +3,7 @@ import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { CountUp } from '@/components/motion/CountUp';
 import { DecodeReveal } from '@/components/motion/DecodeReveal';
 import { LogoCarousel3D } from '@/components/motion/LogoCarousel3D';
-import { GALLERY_ALBUMS } from '@/pages/gallery/data';
+import { circulatingPhotos } from '@/pages/gallery/data';
 import {
   MOCK_PLACEMENTS_ABOUT,
   MOCK_PLACEMENTS_COMPANIES_TITLE,
@@ -11,7 +11,7 @@ import {
   MOCK_PLACEMENTS_STREAM_WORDS,
 } from '../data';
 
-const COVER = GALLERY_ALBUMS[0]?.photos[0]?.src;
+const COVER = circulatingPhotos()[0]?.src;
 
 /**
  * What Mock Placements is, as a picture beside the argument for it.

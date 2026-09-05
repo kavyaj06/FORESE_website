@@ -163,6 +163,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'mayooritha',
     name: 'Mayooritha',
+    photo: '/images/c8.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
     quote: 'Watching a nervous junior walk out grinning is the whole point.',

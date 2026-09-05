@@ -1,11 +1,11 @@
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal } from '@/components/motion/Reveal';
-import { GALLERY_ALBUMS } from '@/pages/gallery/data';
+import { circulatingPhotos } from '@/pages/gallery/data';
 import { PREP_BOARD, PREP_TOPICS } from '../data';
 import { CaseStudyStack, type StackSlide } from '../components/CaseStudyStack';
 
-const PHOTOS = GALLERY_ALBUMS.flatMap((album) => album.photos);
+const PHOTOS = circulatingPhotos();
 
 /**
  * The five topics as a deck of cards.

@@ -4,7 +4,7 @@ import { Container } from '@/components/layout/Container';
 import { AccentWord } from '@/components/motion/AccentWord';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { GALLERY_ALBUMS, type GalleryPhoto } from '@/pages/gallery/data';
+import { circulatingPhotos, type GalleryPhoto } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
 import { Pillars } from '../components/Pillars';
 import { ConvergePhoto } from '../components/ConvergePhoto';
@@ -60,7 +60,7 @@ export function ConvergeSection() {
   const headingScale = useTransform(progress, [0, 1], [0.86, 1]);
   const headingOpacity = useTransform(progress, [0, 0.4, 1], [0.35, 0.85, 1]);
 
-  const photos = GALLERY_ALBUMS.flatMap((album) => album.photos);
+  const photos = circulatingPhotos();
 
   /**
    * Every photograph in the gallery is in the pool, not just the six on screen.

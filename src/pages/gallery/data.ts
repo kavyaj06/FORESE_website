@@ -42,6 +42,18 @@ export const GALLERY_INTRO = {
 
 export interface GalleryPhoto {
   id: string;
+  /**
+   * Whether this photograph may appear outside its own album.
+   *
+   * Three other places borrow from the gallery for decoration — the mock
+   * placements cover and prep board, and the home page's converge section —
+   * and not every picture the club is happy to publish in an album is one
+   * they want turned into wallpaper elsewhere. Defaults to true, because
+   * that was the behaviour before the flag existed and most photographs are
+   * fine; it is set false on the ones the club has asked to keep to their
+   * own album.
+   */
+  circulate?: boolean;
   /** Path under `public/`. Absent until the photograph is supplied. */
   src?: string;
   /** Intrinsic pixel size. Required — it reserves the tile's box. */
@@ -79,6 +91,7 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
     photos: [
       {
         id: 'leap-2026-1',
+        circulate: false,
         src: '/gallery/leap-2026/01.jpg',
         width: 1400,
         height: 787,
@@ -86,6 +99,7 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
       },
       {
         id: 'leap-2026-2',
+        circulate: false,
         src: '/gallery/leap-2026/02.jpg',
         width: 1400,
         height: 787,
@@ -93,6 +107,7 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
       },
       {
         id: 'leap-2026-3',
+        circulate: false,
         src: '/gallery/leap-2026/03.jpg',
         width: 1400,
         height: 1050,
@@ -102,22 +117,22 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
         id: 'leap-2026-4',
         src: '/gallery/leap-2026/04.jpg',
         width: 1400,
-        height: 787,
-        alt: 'A speaker addressing a full hall from the front of the room.',
+        height: 1050,
+        alt: 'A speaker taking questions from the front of the hall, a student standing to answer.',
       },
       {
         id: 'leap-2026-5',
         src: '/gallery/leap-2026/05.jpg',
         width: 1400,
-        height: 787,
-        alt: 'A session on what employers expect, the slide behind listing pro-activeness, time management, assertiveness and agility.',
+        height: 1050,
+        alt: 'The hall from the front, most of a full room listening.',
       },
       {
         id: 'leap-2026-6',
         src: '/gallery/leap-2026/06.jpg',
-        width: 1050,
-        height: 1400,
-        alt: 'A speaker taking the room through a talk, students seated in rows facing the screen.',
+        width: 1400,
+        height: 1050,
+        alt: 'The group discussion round under way, the topic on the screen behind: is automation creating unemployment or new opportunities.',
       },
     ],
   },
@@ -187,27 +202,6 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
         width: 1400,
         height: 927,
         alt: 'An interview in the seminar room, a second panellist observing from the far end.',
-      },
-      {
-        id: 'mock-placement-drive-2026-10',
-        src: '/gallery/mock-placement-drive-2026/10.jpg',
-        width: 1400,
-        height: 929,
-        alt: 'A panellist taking a student through her feedback at the end of a round.',
-      },
-      {
-        id: 'mock-placement-drive-2026-11',
-        src: '/gallery/mock-placement-drive-2026/11.jpg',
-        width: 1400,
-        height: 921,
-        alt: 'A panellist and a student mid-conversation across a desk.',
-      },
-      {
-        id: 'mock-placement-drive-2026-12',
-        src: '/gallery/mock-placement-drive-2026/12.jpg',
-        width: 1400,
-        height: 922,
-        alt: 'A panellist making notes while a student answers.',
       },
     ],
   },
@@ -291,6 +285,20 @@ export function galleryIndexEntries(): GalleryIndexEntry[] {
   })
     .filter((entry) => entry.photoCount > 0)
     .sort((a, b) => Number(b.pinned) - Number(a.pinned));
+}
+
+/**
+ * Every photograph that may be reused on a page other than its own album.
+ *
+ * The one selector for that job, so a page cannot borrow from the gallery
+ * without going through the rule — before this, each of the three borrowers
+ * flat-mapped `GALLERY_ALBUMS` itself and would silently pick up anything
+ * added later.
+ */
+export function circulatingPhotos(): GalleryPhoto[] {
+  return GALLERY_ALBUMS.flatMap((album) =>
+    album.photos.filter((photo) => photo.circulate !== false),
+  );
 }
 
 /** The album for an event id, if it has one. */
