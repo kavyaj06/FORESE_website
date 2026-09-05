@@ -33,6 +33,14 @@ export function MemberPortrait({ member, className }: { member: ClubMember; clas
         loading="lazy"
         decoding="async"
         onError={() => setFailed(true)}
+        // Framing corrections live on the person, not here — see the fields
+        // on `ClubMember`. The zoom is a transform on the image itself rather
+        // than on the wrapper, which already carries the card's hover scale;
+        // the two would otherwise fight over one property.
+        style={{
+          objectPosition: member.photoPosition,
+          transform: member.photoZoom ? `scale(${member.photoZoom})` : undefined,
+        }}
         className={cn('h-full w-full object-cover', className)}
       />
     );

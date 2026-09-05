@@ -50,6 +50,23 @@ export interface ClubMember {
   batch?: string;
   /** Portrait under `public/`. Absent renders a monogram instead. */
   photo?: string;
+  /**
+   * How the photograph sits in its frame, when the default centre crop is
+   * wrong for it.
+   *
+   * `photoPosition` is a CSS `object-position`; a larger second value shows
+   * more of the lower part of the picture, which lifts the subject up the
+   * frame. `photoZoom` scales the image inside the frame for a tighter crop.
+   *
+   * Per person rather than one rule for everyone, because the framing that
+   * needs correcting is a property of the individual photograph — where the
+   * subject happens to stand in it and how much room is around them — and no
+   * single crop is right for a hundred pictures taken by a hundred people.
+   * Absent on almost every entry, which is the point: it is a correction, not
+   * a setting.
+   */
+  photoPosition?: string;
+  photoZoom?: number;
   /** One line, in their own words. Shown on their card. */
   quote?: string;
   linkedin?: string;
@@ -162,6 +179,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'mayooritha',
     name: 'Mayooritha',
+    photoPosition: '50% 68%',
     photo: '/images/c8.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
@@ -211,6 +229,8 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'kavya-j',
     name: 'Kavya J',
+    photoPosition: '50% 38%',
+    photoZoom: 1.35,
     photo: '/images/c21.jpg',
     rank: 'junior-core',
     role: 'Tech Head',
