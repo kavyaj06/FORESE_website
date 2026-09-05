@@ -257,7 +257,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Tharini A L',
     rank: 'lead',
     role: 'Design Lead',
-    quote: 'time is a flat circle',
+    quote: "i've got wabi sabi",
     linkedin: 'https://www.linkedin.com/in/tharini-a-l-ya88adee88a',
     email: 'tharini.pillai@gmail.com',
   },
@@ -269,6 +269,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     quote: "Zlatan doesn't do auditions",
     linkedin: 'https://www.linkedin.com/in/nithesh-kumar-rg-89b061327/',
     email: 'nitheshrg2006@gmail.com',
+    photo: '/images/c9.jpg',
   },
   {
     // "Lathika R" as the club's own roster has it, rather than the bare
@@ -277,7 +278,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Lathika R',
     rank: 'senior-executive',
     role: 'Senior Marketing Executive',
-    photo: '/images/m24.jpg',
+    photo: '/images/c19.jpg',
     quote: 'Make today count!',
     linkedin: 'https://www.linkedin.com/in/lathika-ramachandran-b58297328/',
   },
@@ -302,8 +303,9 @@ export const CLUB_MEMBERS: ClubMember[] = [
     rank: 'senior-executive',
     role: 'Senior Videography Executive',
     photo: '/images/m23.jpg',
-    quote: 'Quiet energy until it’s my scene',
+    quote: 'La pasión.',
     linkedin: 'https://www.linkedin.com/in/kishore-natrajan-569566331/',
+    email: 'kishorenatrajan138@gmail.com',
   },
   {
     id: 'aadhithya-narayanan-a',
