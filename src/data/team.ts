@@ -211,6 +211,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'kavya-j',
     name: 'Kavya J',
+    photo: '/images/c21.jpg',
     rank: 'junior-core',
     role: 'Tech Head',
     quote: 'Respectfully, we move.',
@@ -255,6 +256,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'tharani-pillai',
     name: 'Tharini A L',
+    photo: '/images/c20.jpg',
     rank: 'lead',
     role: 'Design Lead',
     quote: "i've got wabi sabi",
