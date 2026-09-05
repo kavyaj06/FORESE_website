@@ -64,6 +64,15 @@
   --color-accent-fg: #ffffff;
   --color-accent-subtle: #f0f0f0;
 
+  /* The intro's two colours — electric blue and cyan.
+     They appear nowhere else: the site is black and white, and these exist
+     only inside the WebGL intro that hands over to it. They live here anyway,
+     because this file is the only place a raw colour is allowed and a shader
+     constant is still a raw colour. The intro reads them back at start-up
+     rather than restating them in GLSL, so re-tinting it is a change here. */
+  --color-intro-blue: #1e63ff;
+  --color-intro-cyan: #35e8ff;
+
   /* Feedback — the sanctioned exception to black and white. A danger state
      rendered in grey is not a danger state. */
   --color-success: #14804a;
