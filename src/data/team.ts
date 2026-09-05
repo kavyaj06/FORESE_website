@@ -182,6 +182,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'srindhi-sarasija',
     name: 'Srindhi Sarasija',
+    photo: '/images/c6.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
     quote: 'Every year we hand over a slightly better version of the process.',
@@ -245,6 +246,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
   {
     id: 'pooja-dharshini',
     name: 'Pooja Dharshini',
+    photo: '/images/c7.jpg',
     rank: 'lead',
     role: 'Marketing Lead',
   },

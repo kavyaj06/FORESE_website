@@ -135,7 +135,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
             />
             <p
               className={cn(
-                'tablet:p-4 pointer-events-none absolute inset-x-0 bottom-0 p-3 text-white italic',
+                'tablet:p-4 pointer-events-none absolute inset-x-0 bottom-0 p-3 text-center text-white italic',
                 'hidden @[12rem]:block',
                 size === 'feature' ? 'text-body' : 'text-small',
                 'duration-base ease-out-brand translate-y-2 opacity-0 transition-[opacity,transform]',
@@ -176,7 +176,10 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
         {member.quote && (
           <p
             className={cn(
-              'text-caption text-text-muted border-border mt-sm ease-smooth group-hover:border-accent-fg/25 group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 group-data-open:border-accent-fg/25 group-data-open:text-accent-fg/80 border-l pl-3 italic transition-colors duration-[400ms]',
+              // Centred, and the left rule goes with it. A blockquote rule
+              // marks where a line starts, so it only reads against text that
+              // is flush left — beside centred text it points at nothing.
+              'text-caption text-text-muted mt-sm ease-smooth group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 group-data-open:text-accent-fg/80 text-center italic transition-colors duration-[400ms]',
               // A core member's quote belongs over their photograph — but only
               // where the photograph can hold it. Below a 14rem card the quote
               // and the link pills are both claiming the same ~160px square, and
