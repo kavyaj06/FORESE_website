@@ -92,13 +92,18 @@ export function HomeHero() {
               delay={ACCENT_DELAY}
               play={introDone}
               className={ACCENT_WORD_CLASS}
-            />{' '}
-            <TextReveal
-              as="span"
-              text={HOME_HERO.titleAfter}
-              delay={AFTER_DELAY}
-              play={introDone}
             />
+            {HOME_HERO.titleAfter && (
+              <>
+                {' '}
+                <TextReveal
+                  as="span"
+                  text={HOME_HERO.titleAfter}
+                  delay={AFTER_DELAY}
+                  play={introDone}
+                />
+              </>
+            )}
           </h1>
 
           <motion.p

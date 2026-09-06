@@ -60,7 +60,7 @@ export const MOCK_PLACEMENTS_ABOUT = {
   ],
   /** Figures pulled out of the prose so they register without being read for. */
   figures: [
-    { value: '130+', label: 'HRs and industry experts', note: 'On the 2025 panels' },
+    { value: '130+', label: 'HRs and industry experts', note: 'On the 2026 panels' },
     { value: '2', label: 'Modes it runs in', note: 'Online and offline' },
     { value: '3', label: 'Rounds, end to end', note: 'Aptitude, GD, interview' },
   ],

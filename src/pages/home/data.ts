@@ -9,10 +9,16 @@
 
 export const HOME_HERO = {
   eyebrow: 'Forum for Economic Studies by Engineers',
-  /** The word set in serif italic. Must appear in `titleAfter`'s sentence. */
-  titleBefore: 'Where students meet the people who',
-  accent: 'hire',
-  titleAfter: 'them.',
+  /**
+   * The word set in serif italic, between the two halves of the sentence.
+   *
+   * `titleAfter` may be empty when the accent ends the line, as it does here —
+   * the hero drops the trailing span rather than rendering a space with
+   * nothing after it.
+   */
+  titleBefore: 'Connecting students with industry, insight, and',
+  accent: 'opportunity.',
+  titleAfter: '',
   description:
     'FORESE runs the mock placements at Sri Venkateswara College of Engineering to connect students with HRs from leading companies through aptitude tests, group discussions and interviews, before the real ones that count.',
   actions: {
