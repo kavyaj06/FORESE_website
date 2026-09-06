@@ -53,6 +53,21 @@ export function MobileStack({ slides, tablistLabel }: MobileStackProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
+  /**
+   * The tap hint, and whether it has outlived its usefulness.
+   *
+   * Tapping a card is the only thing on this screen nothing announces — the
+   * bar and the scroll both look like what they are, and the flip does not.
+   * So it is spelled out, in the band of empty space under the bar that the
+   * layout leaves anyway.
+   *
+   * It retires on the first flip, because a hint the reader has already acted
+   * on is just clutter, and otherwise at the end of the deck: by then they
+   * have been past every card and either found it or decided not to.
+   * One-way — scrolling back up does not bring it back, since nothing has
+   * changed about what they now know.
+   */
+  const [hintDone, setHintDone] = useState(false);
 
   const steps = Math.max(1, slides.length - 1);
 
@@ -66,6 +81,7 @@ export function MobileStack({ slides, tablistLabel }: MobileStackProps) {
     return scrollYProgress.on('change', (p) => {
       const next = Math.min(slides.length - 1, Math.max(0, Math.round(p * steps)));
       setIndex((current) => (current === next ? current : next));
+      if (p > 0.995) setHintDone(true);
     });
   }, [prefersReducedMotion, scrollYProgress, steps, slides.length]);
 
@@ -89,6 +105,18 @@ export function MobileStack({ slides, tablistLabel }: MobileStackProps) {
 
   const tabs = slides.map((slide) => ({ id: slide.id, label: slide.category }));
 
+  const hint = (
+    <motion.p
+      aria-hidden="true"
+      initial={false}
+      animate={{ opacity: hintDone ? 0 : 1 }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="text-eyebrow text-text-subtle mt-md text-center uppercase"
+    >
+      Tap a card for tips
+    </motion.p>
+  );
+
   const bar = (
     // `mt-2xl`, not `mt-lg`. The gap is measured from the top card, but the
     // deck peeks 9% of a card below it — at 24px the bar cleared the lowest
@@ -109,9 +137,10 @@ export function MobileStack({ slides, tablistLabel }: MobileStackProps) {
     return (
       <div className="px-gutter">
         <div className="mx-auto w-[min(88vw,380px)]">
-          <Card slide={slides[index] ?? slides[0]} />
+          <Card slide={slides[index] ?? slides[0]} onFlip={() => setHintDone(true)} />
         </div>
         {bar}
+        {hint}
       </div>
     );
   }
@@ -130,12 +159,14 @@ export function MobileStack({ slides, tablistLabel }: MobileStackProps) {
                 total={slides.length}
                 progress={scrollYProgress}
                 isTop={i === index}
+                onFlip={() => setHintDone(true)}
               />
             ))}
           </div>
         </div>
 
         {bar}
+        {hint}
       </div>
     </div>
   );
@@ -168,6 +199,7 @@ function StackedCard({
   total,
   progress,
   isTop,
+  onFlip,
 }: {
   slide: StackSlide;
   index: number;
@@ -175,6 +207,7 @@ function StackedCard({
   total: number;
   progress: MotionValue<number>;
   isTop: boolean;
+  onFlip: () => void;
 }) {
   const y = useMotionValue('0%');
   const scale = useMotionValue(1);
@@ -233,12 +266,20 @@ function StackedCard({
       className={cn('relative w-full', index > 0 && 'absolute inset-x-0 top-0')}
       aria-hidden={!isTop}
     >
-      <Card slide={slide} interactive={isTop} />
+      <Card slide={slide} interactive={isTop} onFlip={onFlip} />
     </motion.div>
   );
 }
 
-function Card({ slide, interactive = true }: { slide: StackSlide; interactive?: boolean }) {
+function Card({
+  slide,
+  interactive = true,
+  onFlip,
+}: {
+  slide: StackSlide;
+  interactive?: boolean;
+  onFlip?: () => void;
+}) {
   const [flipped, setFlipped] = useState(false);
 
   // A card that scrolls away while turned over would come back turned over.
@@ -261,7 +302,10 @@ function Card({ slide, interactive = true }: { slide: StackSlide; interactive?: 
   return (
     <button
       type="button"
-      onClick={() => setFlipped((current) => !current)}
+      onClick={() => {
+        setFlipped((current) => !current);
+        onFlip?.();
+      }}
       aria-pressed={flipped}
       aria-label={`${slide.category}. ${flipped ? 'Show the description' : 'Show the four points'}`}
       className="focus-visible:ring-accent block w-full rounded-[12px] text-left focus-visible:ring-2"
