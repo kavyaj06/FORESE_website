@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
@@ -25,16 +26,20 @@ import { RecruiterMarquee } from '../components/RecruiterMarquee';
 /**
  * The headline's word timings, as one chain.
  *
- * `TextReveal` staggers within its own string, so three of them side by side
- * only read as one sentence if each starts where the last left off. Written
- * out here rather than inline because the accent word sits between the two
- * halves and every delay after it shifts by one — an easy thing to get subtly
- * wrong when the copy changes.
+ * `TextReveal` staggers within its own string, so segments side by side only
+ * read as one sentence if each starts where the last left off. Counted from
+ * the words ahead of it rather than written out, because hand-set delays have
+ * to be re-derived every time the copy changes and are subtly wrong when
+ * nobody remembers to.
  */
 const WORD_STEP = 0.075;
 const BEFORE_DELAY = 0.1;
-const ACCENT_DELAY = BEFORE_DELAY + HOME_HERO.titleBefore.split(' ').length * WORD_STEP;
-const AFTER_DELAY = ACCENT_DELAY + WORD_STEP;
+const SEGMENT_DELAYS = HOME_HERO.title.map((_, index) => {
+  const wordsBefore = HOME_HERO.title
+    .slice(0, index)
+    .reduce((total, segment) => total + segment.text.split(' ').length, 0);
+  return BEFORE_DELAY + wordsBefore * WORD_STEP;
+});
 
 export function HomeHero() {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -80,30 +85,18 @@ export function HomeHero() {
               through it as though it were just another word, because to the
               reader it is. */}
           <h1 className="text-display max-w-[18ch]">
-            <TextReveal
-              as="span"
-              text={HOME_HERO.titleBefore}
-              delay={BEFORE_DELAY}
-              play={introDone}
-            />{' '}
-            <TextReveal
-              as="span"
-              text={HOME_HERO.accent}
-              delay={ACCENT_DELAY}
-              play={introDone}
-              className={ACCENT_WORD_CLASS}
-            />
-            {HOME_HERO.titleAfter && (
-              <>
-                {' '}
+            {HOME_HERO.title.map((segment, index) => (
+              <Fragment key={segment.text}>
+                {index > 0 && ' '}
                 <TextReveal
                   as="span"
-                  text={HOME_HERO.titleAfter}
-                  delay={AFTER_DELAY}
+                  text={segment.text}
+                  delay={SEGMENT_DELAYS[index]}
                   play={introDone}
+                  className={segment.accent ? ACCENT_WORD_CLASS : undefined}
                 />
-              </>
-            )}
+              </Fragment>
+            ))}
           </h1>
 
           <motion.p

@@ -10,15 +10,20 @@
 export const HOME_HERO = {
   eyebrow: 'Forum for Economic Studies by Engineers',
   /**
-   * The word set in serif italic, between the two halves of the sentence.
+   * The headline, in segments. `accent` sets one in serif italic.
    *
-   * `titleAfter` may be empty when the accent ends the line, as it does here —
-   * the hero drops the trailing span rather than rendering a space with
-   * nothing after it.
+   * A list rather than the before/accent/after triple this used to be, which
+   * allowed exactly one italic phrase in exactly one place. The line now wants
+   * two of them with a roman "and" between, and the next headline will want
+   * something else again — segments cost nothing and stop the shape of the
+   * data deciding what the copy is allowed to say.
    */
-  titleBefore: 'Connecting students with industry, insight, and',
-  accent: 'opportunity.',
-  titleAfter: '',
+  title: [
+    { text: 'Connecting students with' },
+    { text: 'industry, insight,', accent: true },
+    { text: 'and' },
+    { text: 'opportunity.', accent: true },
+  ] as ReadonlyArray<{ text: string; accent?: boolean }>,
   description:
     'FORESE runs the mock placements at Sri Venkateswara College of Engineering to connect students with HRs from leading companies through aptitude tests, group discussions and interviews, before the real ones that count.',
   actions: {

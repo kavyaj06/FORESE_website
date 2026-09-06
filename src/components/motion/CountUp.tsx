@@ -48,7 +48,10 @@ export function CountUp({ value, duration = 1.6, className }: CountUpProps) {
   const parsed = parse(value);
   const nodeRef = useRef<HTMLSpanElement>(null);
   const wrapRef = useRef<HTMLSpanElement>(null);
-  const inView = useInView(wrapRef, { once: true, amount: 0.5 });
+  // Counts again on every pass, for the same reason the reveals do — a figure
+  // that sits still while everything around it animates back in reads as a
+  // number that failed to load.
+  const inView = useInView(wrapRef, { once: false, amount: 0.5 });
   const prefersReducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {

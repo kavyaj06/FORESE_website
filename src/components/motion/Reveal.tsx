@@ -16,10 +16,13 @@ interface RevealProps {
 }
 
 /**
- * Reveals its content once, the first time it scrolls into view.
+ * Reveals its content each time it scrolls into view.
  *
- * `once: true` is deliberate — re-animating on every scroll-back is the single
- * most common way scroll animation turns from polish into an irritant.
+ * `once: false` at the club's request: they want the reveal on every pass, not
+ * only the first. The trade is the usual one — a reader scrolling back over
+ * ground they have already read watches it animate again, which is the most
+ * common way scroll animation turns from polish into an irritant. It is one
+ * word here if that becomes the verdict.
  *
  * Under `prefers-reduced-motion` the movement is dropped and only opacity
  * changes, so the content still appears but nothing slides.
@@ -57,7 +60,7 @@ export function Reveal({
       // under it on a 982px one — the same page appearing or not depending on
       // how tall the browser happens to be. The negative bottom margin still
       // holds the reveal until the element is properly on screen.
-      viewport={{ once: true, amount: 'some', margin: '0px 0px -60px 0px' }}
+      viewport={{ once: false, amount: 'some', margin: '0px 0px -60px 0px' }}
       variants={variants}
       transition={{ delay }}
       className={className}
