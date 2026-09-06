@@ -3,15 +3,16 @@ import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { CountUp } from '@/components/motion/CountUp';
 import { DecodeReveal } from '@/components/motion/DecodeReveal';
 import { LogoCarousel3D } from '@/components/motion/LogoCarousel3D';
-import { circulatingPhotos } from '@/pages/gallery/data';
+import { albumFor } from '@/pages/gallery/data';
 import {
   MOCK_PLACEMENTS_ABOUT,
   MOCK_PLACEMENTS_COMPANIES_TITLE,
   MOCK_PLACEMENT_CAROUSEL_LOGOS,
+  MOCK_PLACEMENTS_EVENT_ID,
   MOCK_PLACEMENTS_STREAM_WORDS,
 } from '../data';
 
-const COVER = circulatingPhotos()[0]?.src;
+const COVER = albumFor(MOCK_PLACEMENTS_EVENT_ID)?.photos[0]?.src;
 
 /**
  * What Mock Placements is, as a picture beside the argument for it.

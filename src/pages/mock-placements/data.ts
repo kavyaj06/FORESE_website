@@ -17,6 +17,15 @@ import {
  */
 
 /** The page's own hero. The club's wording, not a paraphrase of it. */
+/**
+ * The event whose photographs illustrate this page.
+ *
+ * Named once here rather than reached for in each section, and the page uses
+ * this album alone: a mock placements page decorated with pictures from a
+ * universities fair is showing the reader the wrong day.
+ */
+export const MOCK_PLACEMENTS_EVENT_ID = 'mock-placement-drive-2026';
+
 export const MOCK_PLACEMENTS_HERO = {
   eyebrow: 'FORESE',
   title: 'FORESE Mock Placements',
@@ -107,7 +116,7 @@ export const MOCK_PLACEMENT_COMPANIES: MockPlacementCompany[] = [
     website: 'https://www.hcltech.com/',
   },
   { name: 'TCS', logo: '/logos/tcs.png', logoScale: 1, website: 'https://www.tcs.com/' },
-  { name: 'Wipro', logo: '/logos/wipro.svg', website: 'https://www.wipro.com/' },
+  { name: 'Wipro', logo: '/logos/wipro.png', logoScale: 1, website: 'https://www.wipro.com/' },
   {
     name: 'Freshworks',
     logo: '/logos/freshworks.png',
@@ -209,9 +218,15 @@ export interface PrepTopic {
   id: string;
   /** Tab label, and the card's own category. One or two words so five fit a row. */
   label: string;
-  title: string;
+  /** The topic in two sentences, printed on the featured card. */
   body: string;
-  /** Four short labels for the satellite thumbnails. Nouns, not sentences. */
+  /**
+   * The four points, as they read on the front of each preview.
+   *
+   * Short imperative phrases rather than nouns: they are advice, and "Know
+   * the process" tells a reader what to do where "Process" only tells them
+   * what it is about.
+   */
   chips: [string, string, string, string];
   /**
    * What each of those four reveals when its card is flipped, in order.
@@ -232,66 +247,66 @@ export const PREP_TOPICS: PrepTopic[] = [
   {
     id: 'tips',
     label: 'Tips',
-    title: 'Turn up knowing what happens',
-    body: 'Most of what goes wrong on the day is not a skills problem. It is not knowing the order of the rounds, what the panel is looking for, or how long you have. Everything on this board is the answer to that, gathered from the people who have run it.',
-    chips: ['Know the format', 'Time yourself', 'Ask questions', 'Read the room'],
+    body: 'A little preparation goes a long way. Know what to expect, stay composed, and make every stage count.',
+    chips: ['Know the process', 'Practice under pressure', 'Know your story', 'Listen well'],
     chipFlips: [
-      'Six stages. Three of them are yours.',
-      'The aptitude round is timed. Practise against a clock.',
-      'The panel expects one at the end. Have it ready.',
-      'In a group discussion, listening is scored too.',
-    ],
-  },
-  {
-    id: 'resume',
-    label: 'Resume',
-    title: 'One page a stranger can read',
-    body: 'The panel sees your resume for about thirty seconds before you sit down, and it sets every question that follows. The Resume Clinic reviews it one to one before the mock placements, so what you hand over is the version you meant to write.',
-    chips: ['One page', 'Projects first', 'No jargon', 'Clinic review'],
-    chipFlips: [
-      'Anything longer than a page is not read.',
-      'The panel asks about what you built, not what you listed.',
-      'If you cannot explain it out loud, cut it.',
-      'The Resume Clinic reviews it one to one, before the day.',
-    ],
-  },
-  {
-    id: 'aptitude',
-    label: 'Aptitude',
-    title: 'The round that decides the rest',
-    body: 'An aptitude test conducted by the college. Every pre-final year student writes it on the college portal, and the scores carry forward into allocation.',
-    chips: ['College portal', 'All pre-finals', 'Scored', 'Feeds allocation'],
-    chipFlips: [
-      'Written on the college portal, not here.',
-      'Every pre-final year sits it. There is no opting out.',
-      'Your score is recorded and kept.',
-      'It is what decides which panel you face.',
+      'Understand each stage before you walk in. Preparation gets easier when you know what is coming.',
+      'Timed practice turns preparation into performance. Get comfortable working against the clock.',
+      'Be ready to explain your projects, strengths, choices, and what you learned along the way.',
+      'Good communication is not just about speaking. Listen, understand, and know when to step in.',
     ],
   },
   {
     id: 'group-discussion',
     label: 'Group Discussion',
-    title: 'Judged on how you carry a group',
-    body: 'The college brings in panellists who run the discussion rounds and evaluate each participant on structure, clarity and how they carry a group.',
-    chips: ['Structure', 'Clarity', 'Panellists', 'Live rounds'],
+    body: 'It is not about speaking the most. Show that you can think clearly, communicate confidently, and make space for others.',
+    chips: ['Speak with purpose', 'Build on ideas', 'Make space', 'Stay composed'],
     chipFlips: [
-      'Open, argue, close. In that order.',
-      'Marked on being understood, not on being loudest.',
-      'Evaluated by panellists the college invites in.',
-      'Run live, in front of the people scoring it.',
+      'Enter the discussion with a meaningful point rather than speaking just to be heard.',
+      'Acknowledge good points and add your perspective to move the conversation forward.',
+      'Strong communicators know when to contribute and when to give others a chance to speak.',
+      'Disagreement is part of the discussion. Challenge ideas without making it personal.',
+    ],
+  },
+  {
+    id: 'aptitude',
+    label: 'Aptitude',
+    body: 'Think fast. Stay accurate. Build your fundamentals, practice with a timer, and learn from every mistake.',
+    chips: [
+      'Master the basics',
+      'Practice with a clock',
+      'Skip strategically',
+      'Learn from mistakes',
+    ],
+    chipFlips: [
+      'Get comfortable with percentages, ratios, averages, probability, and logical reasoning.',
+      'Speed improves when you regularly solve questions under real time limits.',
+      'Do not let one difficult question take away the time you need for easier ones.',
+      'Review every wrong answer. Understanding the mistake is where real improvement happens.',
+    ],
+  },
+  {
+    id: 'resume',
+    label: 'Resume',
+    body: 'Your resume gets you through the door. Make it clear, relevant, and strong enough to start a conversation.',
+    chips: ['Keep it focused', 'Show what you built', 'Know your resume', 'Keep it clean'],
+    chipFlips: [
+      'Highlight the skills, projects, and experiences that matter for the role.',
+      'Do not just list technologies. Explain what you created, your role, and the problem you solved.',
+      'Anything you mention can become an interview question. Be ready to talk about every detail.',
+      'A simple, readable resume makes your strongest work easier to notice.',
     ],
   },
   {
     id: 'interview',
     label: 'Interview',
-    title: 'One to one, with real HRs',
-    body: 'HRs from different companies conduct one-on-one mock interviews. Students bring their report into the room and leave with direct feedback from the people who do this for a living.',
-    chips: ['One to one', 'Real HRs', 'Your report', 'Direct feedback'],
+    body: 'Be prepared, not rehearsed. Know your work, think clearly, and let the conversation show what you can bring.',
+    chips: ['Know what you built', 'Think out loud', 'Be honest', 'End with confidence'],
     chipFlips: [
-      'One student, one HR, one room.',
-      '130+ took part in 2025.',
-      'Bring your aptitude and group discussion report in with you.',
-      'You leave knowing what to fix.',
+      'Understand your projects, your role, the decisions you made, and what you learned.',
+      'When solving a problem, explain your approach. Your reasoning matters as much as the answer.',
+      'You do not need to know everything. Show curiosity and willingness to learn when you do not have an answer.',
+      'Ask a thoughtful question and leave the conversation with a clear final impression.',
     ],
   },
 ];

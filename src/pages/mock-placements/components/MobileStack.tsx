@@ -274,7 +274,7 @@ function Card({ slide, interactive = true }: { slide: StackSlide; interactive?: 
         // different amounts of text, and a box that resized as it turned would
         // change size mid-rotation. Sized against the screen so the card and
         // the bar below it both fit the pinned viewport.
-        className="relative h-[min(56svh,420px)] w-full [transform-style:preserve-3d]"
+        className="relative h-[min(62svh,420px)] max-h-[26rem] min-h-[21rem] w-full [transform-style:preserve-3d]"
       >
         <div className={cn(face, '[transform:rotateY(0deg)]')} style={CHROME}>
           {/* The picture takes what the text leaves. `min-h-0` because a flex
@@ -308,14 +308,18 @@ function Card({ slide, interactive = true }: { slide: StackSlide; interactive?: 
         </div>
 
         <div className={cn(face, '[transform:rotateY(180deg)]')} style={CHROME}>
-          <p className="text-eyebrow text-text-subtle shrink-0 px-1 pt-1 uppercase">
-            {slide.category}
-          </p>
-          <ul className="mt-sm flex min-h-0 flex-1 flex-col justify-evenly px-1 pb-1">
+          <p className="text-eyebrow text-text-subtle shrink-0 px-1">{slide.category}</p>
+          {/* Scrollable as a safety net, not as the plan. Four points at this
+              length fit every phone above an iPhone SE, and on the SE the
+              card is 318px against 352px of text — so rather than drop a
+              point or shrink it to nothing, the shortest screens can scroll
+              the last one into view. `overscroll-contain` keeps that from
+              dragging the pinned deck along with it. */}
+          <ul className="mt-sm flex min-h-0 flex-1 flex-col justify-evenly overflow-y-auto overscroll-contain px-1 pb-1">
             {slide.thumbnails.map((thumb) => (
-              <li key={thumb.tag} className="border-border border-t py-2 first:border-t-0">
+              <li key={thumb.tag} className="border-border border-t py-1.5 first:border-t-0">
                 <p className="text-label">{thumb.tag}</p>
-                <p className="text-caption text-text-muted mt-0.5">{thumb.flipText}</p>
+                <p className="text-caption text-text-muted mt-0.5 leading-snug">{thumb.flipText}</p>
               </li>
             ))}
           </ul>

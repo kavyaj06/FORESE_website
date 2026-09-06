@@ -1,11 +1,11 @@
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal } from '@/components/motion/Reveal';
-import { circulatingPhotos } from '@/pages/gallery/data';
-import { PREP_BOARD, PREP_TOPICS } from '../data';
+import { albumFor } from '@/pages/gallery/data';
+import { MOCK_PLACEMENTS_EVENT_ID, PREP_BOARD, PREP_TOPICS } from '../data';
 import { CaseStudyStack, type StackSlide } from '../components/CaseStudyStack';
 
-const PHOTOS = circulatingPhotos();
+const PHOTOS = albumFor(MOCK_PLACEMENTS_EVENT_ID)?.photos ?? [];
 
 /**
  * The five topics as a deck of cards.
