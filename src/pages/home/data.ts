@@ -118,6 +118,56 @@ export const HOME_PILLARS = [
   },
 ] as const;
 
+export const HOME_PROGRAMME_INTRO = {
+  eyebrow: 'What we run',
+  title: 'The programme',
+  description: 'The events the club puts on, and the rounds it prepares students for.',
+} as const;
+
+/**
+ * The five entries of the programme stepper, in the order the club gave.
+ *
+ * **Ids and a picture, never prose.** Every name and blurb here already exists
+ * somewhere it is read from by more than one page — the three events in
+ * `@/data/events`, the two rounds in the mock placements page's own `data.ts` —
+ * and the section resolves them at render. Retyping them would put a second
+ * copy of every event description in the repo, and the copies drift the first
+ * time one of them is corrected. The same argument `HOME_EVENTS` above makes
+ * about dates.
+ *
+ * ⚠️ **Two of these five are not events.** Group Discussion and Aptitude are
+ * rounds *inside* Mock Placements — the Mock Placements blurb itself reads
+ * "aptitude, group discussion and interview panels" — so listed as peers of
+ * FORED and LEAP they say the club runs five separate programmes. That is the
+ * club's own list, given as such. The `kind` here is what keeps it honest: it
+ * sets the eyebrow on each panel, so a round is labelled a round on screen.
+ *
+ * ⚠️ The two rounds have no photograph of their own — the mock placements
+ * album has no picture of a written test, and only one of a group around a
+ * table. `09.jpg` is that one; `06.jpg` is the nearest thing to an aptitude
+ * round the album holds, which is papers on a desk. Both are worth replacing
+ * when the club supplies photographs of the actual rounds.
+ */
+export const HOME_PROGRAMME = [
+  { kind: 'event', id: 'mock-placement-drive-2026' },
+  { kind: 'event', id: 'fored-2026' },
+  { kind: 'event', id: 'leap-2026' },
+  {
+    kind: 'topic',
+    id: 'group-discussion',
+    image: '/gallery/mock-placement-drive-2026/09.jpg',
+  },
+  {
+    kind: 'topic',
+    id: 'aptitude',
+    image: '/gallery/mock-placement-drive-2026/06.jpg',
+  },
+] as const satisfies ReadonlyArray<{
+  kind: 'event' | 'topic';
+  id: string;
+  image?: string;
+}>;
+
 /**
  * The one panel of things coming up — mock placement stages and events
  * together. The dates themselves live in `@/data/mockSchedule` and
