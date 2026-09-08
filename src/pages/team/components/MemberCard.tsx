@@ -24,9 +24,14 @@ interface MemberCardProps {
  * That inset is what makes the fill read as a frame around the person instead
  * of the card simply changing colour behind them.
  *
- * Portraits are greyscale at rest and full colour on hover — a hundred
- * photographs taken by different people in different light look like a jumble
- * in colour, and greyscale is what makes the grid read as one deliberate set.
+ * Portraits are in colour. They were greyscale at rest and desaturated only on
+ * hover, on the argument that a hundred photographs taken by different people
+ * in different light read as one set that way. The club's own photographs are
+ * the counter-argument: they are of real events, and draining them made the
+ * roster look like an archive of people who are no longer here. The card's
+ * hover already lifts one person out of the grid — the fill, the rise and the
+ * scale — so the greyscale was a second answer to a question that was already
+ * answered.
  *
  * The links are real anchors, in the DOM at all times and revealed by opacity,
  * so keyboard users reach them and screen readers read them even though
@@ -86,7 +91,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
           size === 'feature' ? 'aspect-[4/5]' : 'aspect-square',
         )}
       >
-        <div className="duration-slow ease-out-brand h-full w-full grayscale transition-[transform,filter] group-focus-within:grayscale-0 group-hover:scale-[1.04] group-hover:grayscale-0 group-data-open:scale-[1.04] group-data-open:grayscale-0">
+        <div className="duration-slow ease-out-brand h-full w-full transition-transform group-hover:scale-[1.04] group-data-open:scale-[1.04]">
           <MemberPortrait member={member} />
         </div>
 
@@ -123,11 +128,19 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
                 AlbumCard already use elsewhere on the site, so a hovered
                 photograph reads the same way everywhere it appears. Literal
                 black: it is darkening a photograph, and has to stay dark
-                whatever the surrounding theme is doing. */}
+                whatever the surrounding theme is doing.
+
+                These are PhotoTile's exact stops, not heavier ones of their
+                own. The middle used to be black/30 against its black/15, and
+                with the photographs now in colour that band sat right across
+                the person's face — dark enough to grey out the middle of the
+                picture while the quote it exists for is at the bottom. The
+                weight belongs where the text is: the foot still carries most
+                of it, and the centre gets out of the way. */}
             <span
               aria-hidden="true"
               className={cn(
-                'pointer-events-none absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent',
+                'pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent',
                 'hidden @[12rem]:block',
                 'duration-base ease-out-brand opacity-0 transition-opacity',
                 'group-focus-within:opacity-100 group-hover:opacity-100 group-data-open:opacity-100',

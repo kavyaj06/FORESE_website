@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { animate, motion, useMotionValue, type MotionValue } from 'framer-motion';
+import { animate, motion, useMotionValue } from 'framer-motion';
 import { MOVE } from './boardLayout';
 
 interface ScrubbedTabsProps<T extends string> {
@@ -8,12 +8,6 @@ interface ScrubbedTabsProps<T extends string> {
   index: number;
   /** Scroll the reader to tab `i`. The strip never sets the index itself. */
   onSelect: (index: number) => void;
-  /**
-   * The board's scroll progress, 0 to 1 across the whole runway. Omitted under
-   * reduced motion, where there is no runway and the strip steps between whole
-   * tabs instead.
-   */
-  progress?: MotionValue<number>;
   ariaLabel: string;
 }
 
@@ -32,12 +26,19 @@ interface ScrubbedTabsProps<T extends string> {
  * of the pill rather than a highlight jumping around a row. It reads like a
  * dial rather than a set of buttons, which is what it now is.
  *
- * **The slide is continuous, the selection is not.** `x` is interpolated
- * between measured tab centres at fractional scroll progress, so the strip
- * tracks the scroll wheel exactly; the pill's width interpolates with it, so
- * it grows and shrinks into the shape of the label arriving under it. The
- * label colour, though, flips at the whole index, because a word half in the
- * accent colour is a rendering bug, not a transition.
+ * **It moves between whole topics and never rests between two.** The strip
+ * did track the scroll wheel continuously, on the theory that a readout should
+ * report the scroll exactly. It should not: the reader stops wherever they
+ * stop, and a strip driven by raw progress stops there too — pill straddling
+ * the gap between two labels, half over one word and half over the next, while
+ * the deck behind it had already committed to a card. The pill and the
+ * highlight were computed from different numbers, so most resting positions
+ * showed them disagreeing.
+ *
+ * So the strip animates to the whole index, the same number the deck uses.
+ * Every position it can come to rest in has one label centred under the pill,
+ * because those are the only positions it targets. The pill's width animates
+ * with it and arrives as the shape of that label.
  *
  * **Positions are measured, never computed from character counts.** Labels are
  * proportional text and the widths are not knowable until the font has loaded;
@@ -58,7 +59,6 @@ export function ScrubbedTabs<T extends string>({
   tabs,
   index,
   onSelect,
-  progress,
   ariaLabel,
 }: ScrubbedTabsProps<T>) {
   const rowRef = useRef<HTMLDivElement>(null);
@@ -91,37 +91,13 @@ export function ScrubbedTabs<T extends string>({
 
   useEffect(() => {
     if (metrics.length === 0) return;
-    const steps = Math.max(1, tabs.length - 1);
 
-    const at = (position: number) => {
-      const clamped = Math.min(steps, Math.max(0, position));
-      const lower = Math.min(metrics.length - 1, Math.floor(clamped));
-      const upper = Math.min(metrics.length - 1, lower + 1);
-      const t = clamped - lower;
-      return {
-        centre: metrics[lower].centre + (metrics[upper].centre - metrics[lower].centre) * t,
-        width: metrics[lower].width + (metrics[upper].width - metrics[lower].width) * t,
-      };
-    };
-
-    if (!progress) {
-      // No runway to read. Step to the selected tab under its own easing —
-      // the same decelerate the board's cards use, so the strip and the deck
-      // arrive together rather than as two separate movements.
-      const target = at(index);
-      const controls = [animate(x, -target.centre, MOVE), animate(pillWidth, target.width, MOVE)];
-      return () => controls.forEach((control) => control.stop());
-    }
-
-    const apply = (p: number) => {
-      const target = at(p * steps);
-      x.set(-target.centre);
-      pillWidth.set(target.width);
-    };
-
-    apply(progress.get());
-    return progress.on('change', apply);
-  }, [metrics, progress, index, tabs.length, x, pillWidth]);
+    const target = metrics[Math.min(metrics.length - 1, Math.max(0, index))];
+    // The board's own decelerate, so the strip and the card it names arrive
+    // together rather than as two separate movements at two speeds.
+    const controls = [animate(x, -target.centre, MOVE), animate(pillWidth, target.width, MOVE)];
+    return () => controls.forEach((control) => control.stop());
+  }, [metrics, index, x, pillWidth]);
 
   const onKeyDown = (event: React.KeyboardEvent) => {
     const last = tabs.length - 1;

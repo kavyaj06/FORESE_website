@@ -284,7 +284,6 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
           tabs={slides.map((slide) => ({ id: slide.id, label: slide.category }))}
           index={index}
           onSelect={goTo}
-          progress={prefersReducedMotion ? undefined : scrollYProgress}
           ariaLabel={tablistLabel}
         />
       </div>
