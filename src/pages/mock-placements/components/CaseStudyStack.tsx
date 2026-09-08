@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { SegmentedTabs } from '@/components/sections/SegmentedTabs';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { motion, useScroll } from 'framer-motion';
+import { ScrubbedTabs } from './ScrubbedTabs';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
@@ -24,6 +24,16 @@ import {
   TABLET_SATELLITE_COUNT,
 } from './boardLayout';
 
+/**
+ * Screen-heights of scroll each card takes to arrive.
+ *
+ * Shorter than the phone board's 0.7. There a whole card travels the height of
+ * the screen to leave; here the deck barely moves — the cards swap depth in
+ * place — so the same allowance would read as scrolling through a section that
+ * had stopped responding.
+ */
+const STEP_VH = 0.65;
+
 export type { StackSlide, StackThumb } from './stackTypes';
 
 interface CaseStudyStackProps {
@@ -34,12 +44,18 @@ interface CaseStudyStackProps {
 /**
  * A stack of project cards on a canvas, advanced two ways.
  *
- * **The stack order is state, not markup.** `order` is a list of ids whose
- * first entry is the featured card; a card's depth is its index in that list.
- * Both ways of changing the featured card are the same operation on it —
- * cutting the deck at an index — so a tab and the card itself can never
- * disagree about what is on top. A tab cuts at that slide; clicking the card
- * cuts at one.
+ * **Scroll is the only thing that changes which card is on top.** The section
+ * pins for the length of the deck and the scroll position is the index; the
+ * order is derived from it — the deck cut at that card — so nothing else holds
+ * a copy of what is featured. The tab strip and the card do not set the index,
+ * they scroll to it, which is the same rule the phone board already runs on:
+ * two writers on one piece of state is how a control ends up disagreeing with
+ * the thing it controls.
+ *
+ * That also makes the strip below a genuine readout rather than a second
+ * control. It slides its labels past a stationary pill as the deck advances —
+ * see `ScrubbedTabs` — which is only honest because the scroll really is what
+ * moves both.
  *
  * **Every card is the same size in the DOM, and scale does the rest.** This is
  * what lets the brief's rule hold: nothing animates width, height, top or left,
@@ -58,8 +74,6 @@ interface CaseStudyStackProps {
  * gestures on one target with no way to tell them apart.
  */
 export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
-  const [order, setOrder] = useState<string[]>(() => slides.map((slide) => slide.id));
-
   const prefersReducedMotion = usePrefersReducedMotion();
   const canHover = useMediaQuery('(hover: hover) and (pointer: fine)');
   const isDesktop = useMediaQuery('(min-width: 1200px)');
@@ -67,10 +81,45 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
 
   const flipEnabled = canHover && !prefersReducedMotion;
 
-  const cutAt = useCallback((index: number) => {
-    if (index <= 0) return;
-    setOrder((current) => [...current.slice(index), ...current.slice(0, index)]);
-  }, []);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+  const steps = Math.max(1, slides.length - 1);
+
+  // Declared before the phone branch returns, like every other hook here. The
+  // runway only exists on this branch, and `useScroll` on a ref that never
+  // attaches simply reports zero.
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ['start start', 'end end'],
+  });
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    return scrollYProgress.on('change', (p) => {
+      const next = Math.min(slides.length - 1, Math.max(0, Math.round(p * steps)));
+      setIndex((current) => (current === next ? current : next));
+    });
+  }, [prefersReducedMotion, scrollYProgress, steps, slides.length]);
+
+  /** Scroll so that card `i` is the one on top. */
+  const goTo = (i: number) => {
+    // Reduced motion first. That branch renders no runway, so looking for one
+    // and giving up would leave the strip inert — and it is then the only way
+    // to change card at all.
+    if (prefersReducedMotion) {
+      setIndex(i);
+      return;
+    }
+    const track = trackRef.current;
+    if (!track) return;
+    const travel = track.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: track.offsetTop + travel * (i / steps), behavior: 'smooth' });
+  };
+
+  const order = useMemo(() => {
+    const ids = slides.map((slide) => slide.id);
+    return [...ids.slice(index), ...ids.slice(0, index)];
+  }, [slides, index]);
 
   const topId = order[0];
   const top = slides.find((slide) => slide.id === topId) ?? slides[0];
@@ -138,11 +187,23 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
         )
       : 1;
 
-  return (
-    <div>
+  // The runway, and the pinned screen inside it. Under reduced motion there is
+  // neither: taking over the page's scroll for four screen-heights is exactly
+  // what that setting asks you not to do, so the board is one screen in normal
+  // flow and the strip is a plain control again.
+  const board = (
+    <div
+      className={cn(
+        'flex flex-col',
+        prefersReducedMotion ? undefined : 'sticky top-0 h-screen overflow-hidden',
+      )}
+    >
       <div
-        className="bg-board-canvas bg-board-dots relative [height:calc(100vh-145px)] overflow-hidden"
-        style={{ minHeight: CANVAS_MIN_HEIGHT }}
+        className={cn(
+          'bg-board-canvas bg-board-dots relative overflow-hidden',
+          prefersReducedMotion ? '[height:calc(100vh-145px)]' : 'min-h-0 flex-1',
+        )}
+        style={{ minHeight: prefersReducedMotion ? CANVAS_MIN_HEIGHT : undefined }}
       >
         <div
           ref={canvasRef}
@@ -207,7 +268,7 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
                         isTop={isTop}
                         card={card}
                         imageSize={imageSize}
-                        onAdvance={() => cutAt(1)}
+                        onAdvance={() => goTo((index + 1) % slides.length)}
                       />
                     </motion.div>
                   </Anchored>
@@ -218,15 +279,23 @@ export function CaseStudyStack({ slides, tablistLabel }: CaseStudyStackProps) {
         </div>
       </div>
 
-      <div className="mt-xl flex justify-center">
-        <SegmentedTabs
+      <div className="py-lg shrink-0">
+        <ScrubbedTabs
           tabs={slides.map((slide) => ({ id: slide.id, label: slide.category }))}
-          value={topId}
-          onChange={(id) => cutAt(order.indexOf(id))}
-          layoutId="case-study-tab"
+          index={index}
+          onSelect={goTo}
+          progress={prefersReducedMotion ? undefined : scrollYProgress}
           ariaLabel={tablistLabel}
         />
       </div>
+    </div>
+  );
+
+  if (prefersReducedMotion) return board;
+
+  return (
+    <div ref={trackRef} style={{ height: `${100 + steps * STEP_VH * 100}vh` }}>
+      {board}
     </div>
   );
 }
