@@ -23,11 +23,10 @@ import { UpcomingEvents } from './sections/UpcomingEvents';
  * disappearing from the programme the morning after it ran, or a "what is
  * next" list with last term's events in it.
  *
- * ⚠️ Two pinned sections in a row. `ConvergeSection` holds its own travel and
- * the stepper follows immediately with three screens more, so there is a long
- * stretch here where the wheel moves the stage rather than the document. The
- * stepper's runway is deliberately the shorter of the two; if the pair still
- * reads as too long, `STEP_VH` in `ProgrammeStepper` is the dial.
+ * The stepper does not pin. `ConvergeSection` above it does, and two pinned
+ * sections in a row would be a long stretch where the wheel moves a stage
+ * rather than the document. The stepper sticks its layers instead and lets the
+ * words scroll through them, so the page keeps moving the whole way down.
  */
 export default function HomePage() {
   return (
