@@ -114,7 +114,7 @@ export function ConvergeSection() {
   }
 
   return (
-    <div ref={sectionRef} className="relative h-[260vh]">
+    <div ref={sectionRef} className="relative h-[300vh]">
       <section
         ref={panelRef}
         className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"

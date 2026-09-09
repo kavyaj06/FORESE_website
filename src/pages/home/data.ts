@@ -100,35 +100,6 @@ export const HOME_WORKFLOW = {
   ],
 } as const;
 
-export const HOME_STORY = {
-  eyebrow: 'A year at FORESE',
-  title: 'Everything the club puts on, in one run.',
-  description:
-    'Scroll through the year — the fairs, the talks and the rehearsal that gets students ready for the rounds that count.',
-} as const;
-
-export const HOME_CANVAS = {
-  eyebrow: 'How the year connects',
-  title: 'One programme leading into the next.',
-  description:
-    'Each event feeds the one after it: awareness first, then the exposure, then the full rehearsal.',
-  /**
-   * The events drawn as connected nodes, in the order they lead into one
-   * another — which is not the order they happened. LEAP opens the year with
-   * what employers expect, FORED puts students in front of institutions, and
-   * Mock Placements is the rehearsal both build towards.
-   *
-   * Ids only: every name, date and photograph already lives in
-   * `@/data/events`, read by three pages, and a second copy here would drift
-   * the first time one was corrected.
-   */
-  nodes: [
-    { id: 'leap-2026', tag: 'Awareness' },
-    { id: 'fored-2026', tag: 'Exposure' },
-    { id: 'mock-placement-drive-2026', tag: 'Rehearsal' },
-  ],
-} as const;
-
 /**
  * The one panel of things coming up — mock placement stages and events
  * together. The dates themselves live in `@/data/mockSchedule` and

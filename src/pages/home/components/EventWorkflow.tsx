@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, type MotionValue } from 'framer-motion';
+import { motion, useMotionValue, type MotionValue } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { findEvent, formatEventWhen } from '@/data/events';
 import { albumFor } from '@/pages/gallery/data';
@@ -37,6 +37,20 @@ const CLOSED_WIDTH = 420;
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const OPEN_TRANSITION = { duration: 0.8, ease: EASE } as const;
+
+/**
+ * How far above its docking point the closed bar starts, as a share of the
+ * stage's height.
+ *
+ * The bar is not parked where it opens. It arrives under the heading as the
+ * section comes up, and the first stretch of the scroll walks it down the
+ * screen towards the board's line — so by the time it opens it has already
+ * travelled, and the opening reads as an arrival rather than as a thing that
+ * was sitting there waiting. 0.42 puts it just under the description at rest
+ * and lands it on the stage's centre line exactly at `OPEN_AT`, which is what
+ * makes the descent and the opening one continuous move instead of two.
+ */
+const DESCENT = 0.42;
 
 /** Milliseconds per character of the closed bar's typing. */
 const TYPE_MS = 45;
@@ -198,6 +212,19 @@ export function EventWorkflow({ progress, reduced, compact = false }: EventWorkf
   const [active, setActive] = useState(0);
   const [typed, setTyped] = useState(0);
 
+  /**
+   * The closed bar's descent, and its fade-in.
+   *
+   * Motion values written in the same subscription as the pan, not state and
+   * not `useTransform`: this runs on every frame of a scroll, and the descent
+   * is a function of a *measured* stage height, which a compiled scroll
+   * timeline cannot see change. Applied to a wrapper rather than to the bar
+   * itself, because the bar's own `y` is already carrying its `-50%` centring
+   * and a single transform cannot hold both.
+   */
+  const barY = useMotionValue(0);
+  const barOpacity = useMotionValue(0);
+
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLDivElement>(null);
@@ -223,8 +250,14 @@ export function EventWorkflow({ progress, reduced, compact = false }: EventWorkf
   // groups of nodes to move them all by the same amount.
   useEffect(() => {
     if (reduced) return;
-    return progress.on('change', (p) => {
+    const apply = (p: number) => {
       setOpen((current) => current || p >= OPEN_AT);
+
+      // The walk down. `t` reaches 1 at exactly the point the bar opens, so the
+      // offset is already 0 by then and the opening has nothing to undo.
+      const t = Math.min(1, Math.max(0, p / OPEN_AT));
+      barY.set(-(1 - t) * board.height * DESCENT);
+      barOpacity.set(Math.min(1, p / 0.12));
 
       const pos = eventPosition(p);
       const next = Math.round(pos);
@@ -234,8 +267,11 @@ export function EventWorkflow({ progress, reduced, compact = false }: EventWorkf
       if (canvas && board.width) {
         canvas.style.transform = `translate3d(${-pos * board.width * GROUP_SPAN}px, 0, 0)`;
       }
-    });
-  }, [progress, reduced, board.width]);
+    };
+
+    apply(progress.get());
+    return progress.on('change', apply);
+  }, [progress, reduced, board.width, board.height, barY, barOpacity]);
 
   /**
    * The typing, which runs on a clock rather than on scroll.
@@ -407,83 +443,92 @@ export function EventWorkflow({ progress, reduced, compact = false }: EventWorkf
 
   return (
     <div className="mt-xl relative h-[52vh] max-h-[30rem] min-h-[22rem] w-full">
-      {/* The bar. One element the whole way through: closed it is a prompt on
-          the centre line, open it is the panel on the left. Animating a single
-          box from one to the other is what makes it read as the same object
-          arriving somewhere, which swapping two elements at a threshold would
-          not. */}
+      {/* The descent. A wrapper the bar rides down, carrying nothing but a
+          translate and the fade-in — `pointer-events-none` because it covers
+          the board, and the board needs the pointer for its dot highlight.
+          Zero-height, so the open panel is measured from the stage. */}
       <motion.div
-        initial={false}
-        animate={
-          open
-            ? { width: '27%', height: '100%', left: '0%', x: '0%', top: 0, y: '0%' }
-            : { width: CLOSED_WIDTH, height: 64, left: '50%', x: '-50%', top: '50%', y: '-50%' }
-        }
-        transition={OPEN_TRANSITION}
-        className="border-wf-edge bg-wf-panel absolute z-20 overflow-hidden rounded-2xl border"
+        style={{ y: barY, opacity: barOpacity }}
+        className="pointer-events-none absolute inset-0 z-20"
       >
-        {/* Closed: the icon, the line being typed, and the action. */}
+        {/* The bar. One element the whole way through: closed it is a prompt
+          walking down the screen, open it is the panel on the left. Animating a
+          single box from one to the other is what makes it read as the same
+          object arriving somewhere, which swapping two elements at a threshold
+          would not. */}
         <motion.div
-          aria-hidden={open}
           initial={false}
-          animate={{ opacity: open ? 0 : 1 }}
-          transition={{ duration: 0.3 }}
-          className="gap-sm absolute inset-0 flex items-center px-4"
+          animate={
+            open
+              ? { width: '27%', height: '100%', left: '0%', x: '0%', top: 0, y: '0%' }
+              : { width: CLOSED_WIDTH, height: 64, left: '50%', x: '-50%', top: '50%', y: '-50%' }
+          }
+          transition={OPEN_TRANSITION}
+          className="border-wf-edge bg-wf-panel absolute overflow-hidden rounded-2xl border"
         >
-          <span aria-hidden="true" className="text-wf-muted shrink-0">
-            <svg viewBox="0 0 32 12" width="26" height="10" fill="none" aria-hidden="true">
-              <path
-                d="M24.5.7c2.3-.6 4.7.4 5.8 2.6.3.5.4 1.1.5 1.7v.6a5 5 0 0 1-.6 2.4c-1.2 2-3.5 3-5.8 2.4a8 8 0 0 1-.8-.3 5 5 0 0 1-.6-.3c-2.2-1.2-4.6-1.9-7.1-1.9h-.6c-2.5 0-4.9.7-7.1 1.9a5 5 0 0 1-.6.3 7 7 0 0 1-.8.3c-2.2.6-4.6-.3-5.7-2.4A5 5 0 0 1 .3 5.6l.1-.6c.1-.6.2-1.2.5-1.7C2.1 1.1 4.5.1 6.8.7l.2.1q.4.1.8.2l.3.2q.1 0 .3.1c2.1 1.2 4.5 1.8 7 1.8h.6c2.5 0 4.9-.6 7-1.8l.3-.2.3-.1z"
-                stroke="currentColor"
+          {/* Closed: the icon, the line being typed, and the action. */}
+          <motion.div
+            aria-hidden={open}
+            initial={false}
+            animate={{ opacity: open ? 0 : 1 }}
+            transition={{ duration: 0.3 }}
+            className="gap-sm absolute inset-0 flex items-center px-4"
+          >
+            <span aria-hidden="true" className="text-wf-muted shrink-0">
+              <svg viewBox="0 0 32 12" width="26" height="10" fill="none" aria-hidden="true">
+                <path
+                  d="M24.5.7c2.3-.6 4.7.4 5.8 2.6.3.5.4 1.1.5 1.7v.6a5 5 0 0 1-.6 2.4c-1.2 2-3.5 3-5.8 2.4a8 8 0 0 1-.8-.3 5 5 0 0 1-.6-.3c-2.2-1.2-4.6-1.9-7.1-1.9h-.6c-2.5 0-4.9.7-7.1 1.9a5 5 0 0 1-.6.3 7 7 0 0 1-.8.3c-2.2.6-4.6-.3-5.7-2.4A5 5 0 0 1 .3 5.6l.1-.6c.1-.6.2-1.2.5-1.7C2.1 1.1 4.5.1 6.8.7l.2.1q.4.1.8.2l.3.2q.1 0 .3.1c2.1 1.2 4.5 1.8 7 1.8h.6c2.5 0 4.9-.6 7-1.8l.3-.2.3-.1z"
+                  stroke="currentColor"
+                />
+              </svg>
+            </span>
+            <p className="text-small text-wf-text min-w-0 flex-1 truncate">
+              {promptText.slice(0, typed)}
+              <span
+                aria-hidden="true"
+                className="bg-wf-accent ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em]"
               />
-            </svg>
-          </span>
-          <p className="text-small text-wf-text min-w-0 flex-1 truncate">
-            {promptText.slice(0, typed)}
+            </p>
             <span
               aria-hidden="true"
-              className="bg-wf-accent ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em]"
-            />
-          </p>
-          <span
-            aria-hidden="true"
-            className="bg-wf-accent flex size-8 shrink-0 items-center justify-center rounded-full text-white"
-          >
-            <ArrowRight size={14} strokeWidth={2.5} />
-          </span>
-        </motion.div>
+              className="bg-wf-accent flex size-8 shrink-0 items-center justify-center rounded-full text-white"
+            >
+              <ArrowRight size={14} strokeWidth={2.5} />
+            </span>
+          </motion.div>
 
-        {/* Open: the current event. Every event is mounted and cross-faded, so
+          {/* Open: the current event. Every event is mounted and cross-faded, so
             nothing unmounts and there is no exit to wait on. */}
-        {/* Faded, not merely `aria-hidden`. Left painted, the open panel's
+          {/* Faded, not merely `aria-hidden`. Left painted, the open panel's
             "Events" eyebrow showed through the closed bar behind the line it
             was typing. */}
-        <motion.div
-          aria-hidden={!open}
-          initial={false}
-          animate={{ opacity: open ? 1 : 0 }}
-          transition={{ duration: 0.4, delay: open ? 0.25 : 0 }}
-          className="absolute inset-0 p-5"
-        >
-          <p className="text-eyebrow text-wf-muted uppercase">{HOME_WORKFLOW.eyebrow}</p>
-          <div className="relative mt-4 h-[calc(100%-2rem)]">
-            {EVENTS.map((event, i) => (
-              <motion.div
-                key={event.id}
-                initial={false}
-                animate={{ opacity: open && i === active ? 1 : 0, y: i === active ? 0 : 10 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                className="absolute inset-x-0 top-0"
-              >
-                <span className="text-caption bg-wf-accent text-wf-ink rounded-sm px-2 py-0.5">
-                  {event.tag}
-                </span>
-                <h3 className="text-h3 mt-3 text-white">{event.short}</h3>
-                <p className="text-small text-wf-muted mt-1">{event.when}</p>
-                <p className="text-small text-wf-text mt-4">{event.blurb}</p>
-              </motion.div>
-            ))}
-          </div>
+          <motion.div
+            aria-hidden={!open}
+            initial={false}
+            animate={{ opacity: open ? 1 : 0 }}
+            transition={{ duration: 0.4, delay: open ? 0.25 : 0 }}
+            className="absolute inset-0 p-5"
+          >
+            <p className="text-eyebrow text-wf-muted uppercase">{HOME_WORKFLOW.eyebrow}</p>
+            <div className="relative mt-4 h-[calc(100%-2rem)]">
+              {EVENTS.map((event, i) => (
+                <motion.div
+                  key={event.id}
+                  initial={false}
+                  animate={{ opacity: open && i === active ? 1 : 0, y: i === active ? 0 : 10 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                  className="absolute inset-x-0 top-0"
+                >
+                  <span className="text-caption bg-wf-accent text-wf-ink rounded-sm px-2 py-0.5">
+                    {event.tag}
+                  </span>
+                  <h3 className="text-h3 mt-3 text-white">{event.short}</h3>
+                  <p className="text-small text-wf-muted mt-1">{event.when}</p>
+                  <p className="text-small text-wf-text mt-4">{event.blurb}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
       </motion.div>
 
