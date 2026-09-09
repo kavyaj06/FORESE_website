@@ -237,50 +237,55 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
         <Tabs active={active} divider={false} />
       </div>
 
-      {/* The lower section, with the rule along its top edge. Anchored to the
-          foot of the bar: the cord mark and the arrow keep their place while
-          everything grows above them. Ends aligned rather than centred, so a
-          description three lines long grows upward too instead of pushing the
-          controls around. */}
-      <div className="gap-sm relative flex flex-1 items-end px-4 py-4">
+      {/* The lower section, with the rule along its top edge.
+
+          Laid out the way the reference lays it out, which is not how this had
+          it: the row is `items-center`, and the two pieces of text are
+          absolutely positioned layers inside the slot between the controls —
+          the line being typed centred in the slot, the event's description
+          top-aligned and clamped to five lines. That is what lets one replace
+          the other without the controls moving a pixel, and without the row's
+          height depending on how long the sentence happens to be. */}
+      <div className="relative flex flex-1 items-center gap-2 px-4">
         <div
           aria-hidden="true"
           style={{ opacity: 'var(--divider, 0)' } as React.CSSProperties}
           className="border-wf-edge absolute inset-x-0 top-0 border-t"
         />
 
-        <span style={{ rotate: 'var(--spin, 0deg)' }} className="inline-flex shrink-0 pb-1">
+        <span style={{ rotate: 'var(--spin, 0deg)' }} className="inline-flex shrink-0">
           <Squiggle />
         </span>
 
-        <div className="relative min-w-0 flex-1">
-          {/* The line it sets off with — two lines at most, as the reference
-              clamps its own. */}
-          <p
+        <div className="relative min-w-0 flex-1 self-stretch">
+          {/* The line it sets off with: centred in the slot, two lines at
+              most, as the reference clamps its own. */}
+          <span
             style={{ opacity: 'var(--line, 1)' } as React.CSSProperties}
-            className="text-small text-wf-text line-clamp-2"
+            className="absolute inset-0 flex items-center"
           >
-            {text.slice(0, n)}
-            <Caret />
-          </p>
+            <p className="text-small text-wf-text line-clamp-2 w-full">
+              {text.slice(0, n)}
+              <Caret />
+            </p>
+          </span>
 
-          {/* …and the event it arrives with, in the same slot so neither
-              control moves when one replaces the other. */}
-          <motion.div
+          {/* …and the event it arrives with, from the top of the slot. */}
+          <motion.span
             aria-hidden={!docked}
             initial={false}
             animate={{ opacity: docked ? 1 : 0 }}
             transition={{ duration: 0.4 }}
-            className="absolute inset-x-0 bottom-0"
+            className="absolute inset-0 flex flex-col items-start pt-5"
           >
-            <p className="text-small line-clamp-5 text-white">
+            <p className="text-small line-clamp-5 w-full text-white">
               {blurb.slice(0, typed)}
               <Caret />
             </p>
             <p className="text-caption text-wf-muted mt-2">
               {current.short} · {current.when}
             </p>
-          </motion.div>
+          </motion.span>
         </div>
 
         <ArrowButton size={32} live={docked} />

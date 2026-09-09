@@ -46,7 +46,9 @@ export const EVENTS_AT = 0.66;
 
 /** How wide the bar is before it opens, in pixels, and how tall. */
 export const CLOSED_WIDTH = 420;
-export const CLOSED_HEIGHT = 64;
+// 55px of content row plus its border, which is what the reference's own
+// markup measures: `height: 55px` on the row inside a 1px-bordered box.
+export const CLOSED_HEIGHT = 57;
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -531,7 +533,7 @@ export function Tabs({ active, divider = true }: { active: number; divider?: boo
       className={`relative ${divider ? 'border-wf-edge border-b' : ''}`}
       ref={rowRef}
     >
-      <div className="gap-xs relative flex items-center px-2 py-2.5">
+      <div className="relative flex items-center gap-2.5 px-2 py-2.5">
         <span
           ref={pillRef}
           aria-hidden="true"
@@ -570,7 +572,7 @@ export function Tabs({ active, divider = true }: { active: number; divider?: boo
 export function Squiggle() {
   return (
     <span aria-hidden="true" className="text-wf-muted shrink-0">
-      <svg viewBox="0 0 32 12" width="26" height="10" fill="none">
+      <svg viewBox="0 0 32 12" width="32" height="12" fill="none">
         <path
           d="M24.5.7c2.3-.6 4.7.4 5.8 2.6.3.5.4 1.1.5 1.7v.6a5 5 0 0 1-.6 2.4c-1.2 2-3.5 3-5.8 2.4a8 8 0 0 1-.8-.3 5 5 0 0 1-.6-.3c-2.2-1.2-4.6-1.9-7.1-1.9h-.6c-2.5 0-4.9.7-7.1 1.9a5 5 0 0 1-.6.3 7 7 0 0 1-.8.3c-2.2.6-4.6-.3-5.7-2.4A5 5 0 0 1 .3 5.6l.1-.6c.1-.6.2-1.2.5-1.7C2.1 1.1 4.5.1 6.8.7l.2.1q.4.1.8.2l.3.2q.1 0 .3.1c2.1 1.2 4.5 1.8 7 1.8h.6c2.5 0 4.9-.6 7-1.8l.3-.2.3-.1z"
           stroke="currentColor"
