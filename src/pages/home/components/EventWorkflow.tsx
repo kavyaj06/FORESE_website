@@ -44,17 +44,6 @@ export const BOARD_AT = 0.5;
 /** …and where the events start passing through it. */
 export const EVENTS_AT = 0.66;
 
-/**
- * How far the bar's path bows downward on its way across, in pixels.
- *
- * The move is one arc, not two legs. Split into a drift and then a flight it
- * decelerated to a stop at the seam between them and set off again — two
- * eases, two ends — and a bar that stops halfway is a bar that looks like it
- * finished. A single eased parameter with a sine bow gives the same "down
- * first, then across" reading with nothing to stop at.
- */
-export const SAG = 70;
-
 /** How wide the bar is before it opens, in pixels, and how tall. */
 export const CLOSED_WIDTH = 420;
 export const CLOSED_HEIGHT = 64;
@@ -107,19 +96,19 @@ const GROUP_SPAN = 1;
  */
 const SLOT_SETS = [
   [
-    { x: -6, y: 4, w: 25 },
-    { x: 50, y: 0, w: 25 },
-    { x: 22, y: 48, w: 25 },
+    { x: -6, y: 0, w: 32 },
+    { x: 52, y: 0, w: 32 },
+    { x: 22, y: 52, w: 32 },
   ],
   [
-    { x: 4, y: 0, w: 25 },
-    { x: 56, y: 8, w: 25 },
-    { x: 28, y: 52, w: 25 },
+    { x: 30, y: 0, w: 32 },
+    { x: -4, y: 52, w: 32 },
+    { x: 56, y: 52, w: 32 },
   ],
   [
-    { x: -4, y: 50, w: 25 },
-    { x: 50, y: 48, w: 25 },
-    { x: 24, y: 0, w: 25 },
+    { x: 6, y: 0, w: 32 },
+    { x: 62, y: 0, w: 32 },
+    { x: 34, y: 52, w: 32 },
   ],
 ] as const;
 
@@ -403,13 +392,12 @@ export function CompactWorkflow({ progress }: { progress: MotionValue<number> })
           transition={{ duration: 0.4, delay: open ? 0.2 : 0 }}
         >
           <Tabs active={active} />
-          <div className="relative p-4">
-            <SceneWash src={current.cover} />
-            <p className="text-body relative text-white">
+          <div className="p-4">
+            <p className="text-body text-white">
               {line.slice(0, typed)}
               <Caret />
             </p>
-            <div className="mt-md relative flex items-center justify-between">
+            <div className="mt-md flex items-center justify-between">
               <span className="text-caption text-wf-muted">
                 {current.short} · {current.when}
               </span>
@@ -497,29 +485,6 @@ export function ReducedWorkflow() {
         </li>
       ))}
     </ul>
-  );
-}
-
-/**
- * The photograph washed in behind the bar's lower half.
- *
- * The bar's two halves are meant to read differently — the top is navigation,
- * the bottom is the event being described — and the event's own picture behind
- * the words is what says which event you are reading about before you have
- * read a word of it.
- */
-export function SceneWash({ src }: { src: string }) {
-  return (
-    <span aria-hidden="true" className="absolute inset-0 overflow-hidden">
-      <img
-        src={src}
-        alt=""
-        loading="lazy"
-        decoding="async"
-        className="h-full w-full scale-105 object-cover opacity-25 blur-[2px]"
-      />
-      <span className="from-wf-panel via-wf-panel/70 absolute inset-0 bg-gradient-to-r to-transparent" />
-    </span>
   );
 }
 
@@ -616,7 +581,7 @@ function Group({
   // its width is not. Left unclamped the nodes grew with the viewport and hung
   // out of the bottom of the board at 1920 — measured, three of them. The
   // clamp is the width at which a node is 46% of the board's height.
-  const maxNodeWidth = (height * 0.46 - 34) / 0.75;
+  const maxNodeWidth = (height * 0.44 - NODE_CHROME) / 0.75;
 
   const boxes = (SLOT_SETS[index % SLOT_SETS.length] ?? SLOT_SETS[0]).map((slot) => {
     const w = Math.min((slot.w / 100) * width, maxNodeWidth);
@@ -624,7 +589,7 @@ function Group({
       x: (slot.x / 100) * width,
       y: (slot.y / 100) * height,
       w,
-      h: (w * 3) / 4 + 34,
+      h: (w * 3) / 4 + NODE_CHROME,
     };
   });
 
@@ -690,13 +655,21 @@ function Group({
           style={{ left: box.x, top: box.y, width: box.w }}
           className="absolute"
         >
-          <div className="group border-wf-edge bg-wf-panel/90 duration-base ease-out-brand rounded-lg border p-1.5 transition-transform hover:-translate-y-1">
-            <div className="mb-1.5 flex items-center justify-between gap-2 px-1">
-              <span className="text-caption bg-wf-accent text-wf-ink rounded-sm px-1.5">
-                {event.stages[i]?.tag}
-              </span>
-              <span className="text-caption text-wf-muted truncate">{event.short}</span>
-            </div>
+          {/* The label line sits *above* the card, not inside it — which is
+              where the reference puts it, and it is what makes a node read as
+              a step with a name rather than as a picture with a caption bar
+              stuck on top of it. */}
+          <div className="text-caption text-wf-muted mb-2 flex items-center justify-between gap-2 px-1">
+            <span className="truncate">{event.short}</span>
+            <span className="truncate">{event.stages[i]?.tag}</span>
+          </div>
+          <div className="group border-wf-edge bg-wf-panel/90 duration-base ease-out-brand rounded-lg border p-2 transition-transform hover:-translate-y-1">
+            {/* The media kind, where the reference puts "Video" or "Image".
+                Which stage it is already reads on the line above the card, and
+                the same word twice on one node is not a second fact. */}
+            <span className="text-caption bg-wf-accent text-wf-ink mb-2 inline-block rounded-sm px-1.5">
+              Photo
+            </span>
             <div className="bg-wf-board aspect-[4/3] overflow-hidden rounded-sm">
               {event.stages[i]?.image && (
                 <img
@@ -714,6 +687,13 @@ function Group({
     </div>
   );
 }
+
+/**
+ * Everything a node is besides its picture, in pixels: the label line above
+ * the card and the tag strip inside it. Stated once because the layout maths
+ * and the collision guarantees both depend on it.
+ */
+const NODE_CHROME = 56;
 
 interface Box {
   x: number;

@@ -6,12 +6,10 @@ import {
   CLOSED_HEIGHT,
   CLOSED_WIDTH,
   CROSS_END,
-  SAG,
   ERASE_MS,
   FADE_END,
   HOLD_MS,
   PARK_END,
-  SceneWash,
   Squiggle,
   Tabs,
   TYPE_MS,
@@ -27,8 +25,8 @@ interface JourneyBarProps {
   startRef: React.RefObject<HTMLElement | null>;
   /** Where it lands: the empty column in the second section. */
   dockRef: React.RefObject<HTMLElement | null>;
-  /** That section's sticky panel, which is what the dock's rest position is
-   *  measured against — see the flight code below. */
+  /** That section's sticky panel, which the dock's rest position is measured
+   *  against — see the flight code below. */
   panelRef: React.RefObject<HTMLElement | null>;
   active: number;
 }
@@ -45,41 +43,34 @@ const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
  * boundary, which nothing in one section's coordinate space can do. So it is
  * `position: fixed` and every frame it reads the viewport rectangles of two
  * markers — one in "Shaping futures", one in the canvas section — and
- * interpolates between them. The markers are ordinary layout, so the two
- * sections can be laid out and reflowed normally and the bar still lands
- * exactly on its dock at any width.
+ * interpolates. The markers are ordinary layout, so both sections lay out
+ * normally and the bar still lands exactly on its dock at any width.
  *
- * That also gives the docking for free: once it has arrived it is pinned to a
- * rectangle inside a sticky panel, so it holds still while that panel does,
- * and scrolls away with it when the panel releases.
+ * **One move, one width, one direction.** A single eased parameter along a
+ * straight line: no bow, no second range, nothing that could read as a bounce
+ * or a stop. The width never changes — it is the dock's width from the first
+ * frame — and the height only ever grows upward.
  *
- * **It waits its turn.** Nothing moves until `PARK_END`, which is where the
- * section it is standing in has finished its own animation. While parked it
- * types a line, holds it, erases it and types the next — one at a time, so the
- * bar has something to say without saying all of it at once.
- *
- * **Then it drifts, then it flies, and it grows upward.** The growth
- * interpolates the bar's *bottom* edge rather than its top, so the box rises
- * into its full height instead of dropping into it.
- *
- * **It arrives as a different object than it left.** The line it was typing is
- * gone before it reaches the second section; the tab row fades in during the
- * flight, the rule under it draws itself late, and the cord mark spins into
- * place in the lower half. Only once it has landed does that lower half fill
- * in with the event's own description, typed over the event's own photograph.
+ * **The controls stay at the foot.** The cord mark and the arrow are anchored
+ * to the bottom of the bar and never fade: they are the same two controls the
+ * whole way through, and the growth happens above them. What fades is the line
+ * of text between them, which is gone by the time the bar meets the section
+ * below; the tab row and then the rule under it appear in the space the growth
+ * opens up.
  */
 export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: JourneyBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
+  const [parked, setParked] = useState(true);
+  const [docked, setDocked] = useState(false);
+
   /**
-   * Where the flight starts from, frozen once the drift is done.
+   * Where the move starts from, frozen the moment it starts.
    *
-   * The marker it drifts from lives in the first section's pinned panel, so
-   * its rectangle is constant while that panel holds — and then the panel
-   * releases and the rectangle races up the screen. The flight has to leave
-   * from where the bar actually was, not from where the marker has since gone,
-   * so the last position of the drift is kept and used for the whole crossing.
-   * Cleared on resize, and recomputed live any time the drift is not finished,
-   * so scrolling backwards puts it back.
+   * The marker it leaves from lives in the first section's pinned panel, so
+   * its rectangle holds while that panel does — and then the panel releases
+   * and the rectangle races up the screen. The move has to leave from where
+   * the bar actually was. Recomputed live while the bar is still parked, so
+   * scrolling back up puts it where it belongs, and cleared on resize.
    */
   const launchRef = useRef<{ x: number; bottom: number } | null>(null);
   useEffect(() => {
@@ -89,8 +80,6 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
     window.addEventListener('resize', clear);
     return () => window.removeEventListener('resize', clear);
   }, []);
-  const [parked, setParked] = useState(true);
-  const [docked, setDocked] = useState(false);
 
   useEffect(() => {
     const apply = (p: number) => {
@@ -108,8 +97,8 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
        * a bar interpolating towards a moving target chases it downward:
        * measured, the bar's foot reached 1018px on a 900px screen. The panel
        * is `sticky top-0` and full height, so the dock's offset inside it is
-       * where it will come to rest, and that offset is the same at every
-       * scroll position.
+       * where it comes to rest, and that offset is the same at every scroll
+       * position.
        */
       const to = {
         left: dock.left,
@@ -118,27 +107,9 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
         height: dock.height,
       };
 
-      /**
-       * One parameter for the whole move, eased once.
-       *
-       * Not a drift and then a flight. Two ranges meant two eases, and an
-       * ease-in-out decelerates to a stop at the end of its range — so the bar
-       * came to rest halfway across and set off again, which reads as
-       * finishing rather than as passing through.
-       */
       const raw = clamp01((p - PARK_END) / (CROSS_END - PARK_END));
       const t = ease(raw);
 
-      /**
-       * Where the move starts from, frozen the moment it starts.
-       *
-       * The marker it leaves from lives in the first section's pinned panel,
-       * so its rectangle holds while that panel does — and then the panel
-       * releases and the rectangle races up the screen. The move has to leave
-       * from where the bar actually was. Recomputed live while the bar is
-       * still parked, so scrolling back up puts it where it belongs, and
-       * cleared on resize.
-       */
       const width = to.width;
       let launch = launchRef.current;
       if (raw <= 0 || !launch) {
@@ -146,40 +117,38 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
         launchRef.current = raw > 0 ? launch : null;
       }
 
-      // Height grows a little behind the movement, and only ever upward: the
-      // foot follows the path and the head rises away from it.
-      const grow = ease(clamp01((raw - 0.18) / 0.82));
-      const height = CLOSED_HEIGHT + (to.height - CLOSED_HEIGHT) * grow;
-
-      // The path. A sine bow, so it leaves downward and comes up into the
-      // dock without a corner anywhere.
-      const bottom =
-        launch.bottom + (to.top + to.height - launch.bottom) * t + Math.sin(Math.PI * raw) * SAG;
+      /**
+       * A straight line to the dock, and height that follows it.
+       *
+       * The path used to bow downward on a sine before coming up, which was
+       * meant to read as "down first, then across" and read as a bounce
+       * instead. There is nothing in the movement now but one eased
+       * interpolation: the foot goes where it is going, without detour, and
+       * the head rises away from it.
+       */
+      const height = CLOSED_HEIGHT + (to.height - CLOSED_HEIGHT) * t;
+      const bottom = launch.bottom + (to.top + to.height - launch.bottom) * t;
       const left = launch.x + (to.left - launch.x) * t;
 
       bar.style.transform = `translate3d(${left}px, ${bottom - height}px, 0)`;
-      // Width never changes. It is the dock's width from the first frame, so
-      // the bar that sets off is the same object, the same size across, as the
-      // one that arrives.
       bar.style.width = `${width}px`;
       bar.style.height = `${height}px`;
       bar.style.opacity = `${clamp01(p / FADE_END)}`;
 
       /**
-       * The line it was typing fades as it goes and is gone by the time it
-       * meets the section below — measured against that section's own top
+       * The line it was typing fades as it goes and is gone by the time the
+       * bar meets the section below — measured against that section's own top
        * edge rather than against a number, so it is the meeting that ends it.
+       * Only the words: the cord mark and the arrow are not touched.
        */
-      const gap = panel.top - bottom;
-      bar.style.setProperty('--line', `${clamp01(gap / 140)}`);
+      bar.style.setProperty('--line', `${clamp01((panel.top - bottom) / 140)}`);
 
-      // The parts of the two-section bar appear as the height makes room for
-      // them: the tab row once there is a row's worth, the rule between the
-      // halves once the growth is most of the way done.
+      // The two-section bar assembles in the space the growth opens: the tab
+      // row once there is a row's worth of it, and the rule between the halves
+      // later still, so the bar looks like it is dividing rather than swapping.
       const room = (height - CLOSED_HEIGHT) / Math.max(1, to.height - CLOSED_HEIGHT);
-      bar.style.setProperty('--tabs', `${clamp01((room - 0.25) / 0.35)}`);
-      bar.style.setProperty('--divider', `${clamp01((room - 0.6) / 0.3)}`);
-      bar.style.setProperty('--icon', `${clamp01((room - 0.3) / 0.35)}`);
+      bar.style.setProperty('--tabs', `${clamp01((room - 0.45) / 0.3)}`);
+      bar.style.setProperty('--divider', `${clamp01((room - 0.72) / 0.22)}`);
       // Spins with the move and stops dead on arrival. Two and a half turns:
       // enough to read as rotation, and it ends on zero so the mark is level.
       bar.style.setProperty('--spin', `${t * 900}deg`);
@@ -247,72 +216,51 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
     <div
       ref={barRef}
       style={{ width: CLOSED_WIDTH, height: CLOSED_HEIGHT, opacity: 0 }}
-      className="border-wf-edge bg-wf-panel pointer-events-none fixed top-0 left-0 z-30 flex flex-col overflow-hidden rounded-2xl border shadow-lg will-change-transform"
+      className="border-wf-edge bg-wf-panel pointer-events-none fixed top-0 left-0 z-30 overflow-hidden rounded-2xl border shadow-lg will-change-transform"
     >
-      {/* The upper section: the events, switching as the canvas does. */}
-      <div style={{ opacity: 'var(--tabs, 0)' } as React.CSSProperties} className="shrink-0">
+      {/* The upper section, and the rule under it. Both absolute at the top:
+          in the closed bar there is no room for them, and in a flex column
+          they would take their space anyway and squeeze the one row that is
+          actually there. */}
+      <div
+        style={{ opacity: 'var(--tabs, 0)' } as React.CSSProperties}
+        className="absolute inset-x-0 top-0"
+      >
         <Tabs active={active} divider={false} />
       </div>
-      {/* The rule between the two halves, drawn last and on its own. */}
       <div
         aria-hidden="true"
         style={{ opacity: 'var(--divider, 0)' } as React.CSSProperties}
-        className="bg-wf-edge h-px w-full shrink-0"
+        className="bg-wf-edge absolute inset-x-0 top-[3.25rem] h-px"
       />
 
-      {/* The line the parked bar types. Gone before the second section — the
-          first section's words do not travel into the second. */}
-      <div
-        aria-hidden={!parked}
-        style={{ opacity: 'var(--line, 1)' } as React.CSSProperties}
-        className="gap-sm absolute inset-x-0 top-0 flex h-16 items-center px-4"
-      >
-        <Squiggle />
-        <p className="text-small text-wf-text min-w-0 flex-1 truncate">
-          {text.slice(0, n)}
-          <Caret />
-        </p>
-        <ArrowButton size={32} />
-      </div>
+      {/* The lower section, anchored to the foot of the bar: the cord mark and
+          the arrow keep their place while everything grows above them. Ends
+          aligned rather than centred, so a description three lines long grows
+          upward too instead of pushing the controls around. */}
+      <div className="gap-sm absolute inset-x-0 bottom-0 flex items-end px-4 py-4">
+        <span style={{ rotate: 'var(--spin, 0deg)' }} className="inline-flex shrink-0 pb-1">
+          <Squiggle />
+        </span>
 
-      {/* The lower section: this event, over this event's photograph. The
-          photograph comes in with the two-part structure rather than on
-          arrival, so the bar is already the event's own colour as it lands. */}
-      <div className="relative flex-1">
-        <div
-          style={{ opacity: 'var(--tabs, 0)' } as React.CSSProperties}
-          className="absolute inset-0"
-        >
-          {WORKFLOW_EVENTS.map((event, i) => (
-            <motion.div
-              key={event.id}
-              initial={false}
-              animate={{ opacity: i === active ? 1 : 0 }}
-              transition={{ duration: 0.6 }}
-              className="absolute inset-0"
-            >
-              <SceneWash src={event.cover} />
-            </motion.div>
-          ))}
-        </div>
+        <div className="relative min-w-0 flex-1">
+          {/* The line it sets off with. */}
+          <p
+            style={{ opacity: 'var(--line, 1)' } as React.CSSProperties}
+            className="text-small text-wf-text truncate"
+          >
+            {text.slice(0, n)}
+            <Caret />
+          </p>
 
-        {/* Icon, words, action — one row, the way the reference sets it,
-            because the panel it lands in is a fifth of the screen tall and a
-            stacked eyebrow-title-date card does not fit in it and never
-            looked like the thing being copied. */}
-        <div className="gap-sm relative flex h-full items-center px-4 py-3">
-          <span style={{ opacity: 'var(--icon, 0)' } as React.CSSProperties} className="shrink-0">
-            <span style={{ rotate: 'var(--spin, 0deg)' }} className="inline-flex">
-              <Squiggle />
-            </span>
-          </span>
-
+          {/* …and the event it arrives with, in the same slot so neither
+              control moves when one replaces the other. */}
           <motion.div
             aria-hidden={!docked}
             initial={false}
             animate={{ opacity: docked ? 1 : 0 }}
             transition={{ duration: 0.4 }}
-            className="min-w-0 flex-1"
+            className="absolute inset-x-0 bottom-0"
           >
             <p className="text-small text-white">
               {blurb.slice(0, typed)}
@@ -322,11 +270,9 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
               {current.short} · {current.when}
             </p>
           </motion.div>
-
-          <span style={{ opacity: 'var(--icon, 0)' } as React.CSSProperties} className="shrink-0">
-            <ArrowButton size={32} />
-          </span>
         </div>
+
+        <ArrowButton size={32} />
       </div>
     </div>
   );
