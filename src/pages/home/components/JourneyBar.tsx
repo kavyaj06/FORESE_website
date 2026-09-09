@@ -31,6 +31,9 @@ interface JourneyBarProps {
   active: number;
 }
 
+/** The tab row's open height, in pixels — the reference's is 55. */
+const TABS_HEIGHT = 55;
+
 /** The lines the parked bar types, one after another. */
 const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
 
@@ -143,11 +146,17 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
        */
       bar.style.setProperty('--line', `${clamp01((panel.top - bottom) / 140)}`);
 
-      // The two-section bar assembles in the space the growth opens: the tab
-      // row once there is a row's worth of it, and the rule between the halves
-      // later still, so the bar looks like it is dividing rather than swapping.
+      /**
+       * The upper section, opened the way the reference opens it: its own
+       * **height** animates from 0, and the labels rise into it. Reading its
+       * live markup settled that — the container carries `height: 0px` and
+       * each label a `translateY(10px)`, so the row grows rather than simply
+       * appearing at full size behind a fade.
+       */
       const room = (height - CLOSED_HEIGHT) / Math.max(1, to.height - CLOSED_HEIGHT);
-      bar.style.setProperty('--tabs', `${clamp01((room - 0.45) / 0.3)}`);
+      const tabs = clamp01((room - 0.45) / 0.3);
+      bar.style.setProperty('--tabs', `${tabs}`);
+      bar.style.setProperty('--tabs-h', `${tabs * TABS_HEIGHT}px`);
       bar.style.setProperty('--divider', `${clamp01((room - 0.72) / 0.22)}`);
       // Spins with the move and stops dead on arrival. Two and a half turns:
       // enough to read as rotation, and it ends on zero so the mark is level.
@@ -216,38 +225,40 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
     <div
       ref={barRef}
       style={{ width: CLOSED_WIDTH, height: CLOSED_HEIGHT, opacity: 0 }}
-      className="border-wf-edge bg-wf-panel pointer-events-none fixed top-0 left-0 z-30 overflow-hidden rounded-2xl border shadow-lg will-change-transform"
+      className="border-wf-edge bg-wf-panel group pointer-events-none fixed top-0 left-0 z-30 flex flex-col overflow-hidden rounded-lg border shadow-lg will-change-transform"
     >
-      {/* The upper section, and the rule under it. Both absolute at the top:
-          in the closed bar there is no room for them, and in a flex column
-          they would take their space anyway and squeeze the one row that is
-          actually there. */}
+      {/* The upper section. Its own height is what opens — clipped, so the tab
+          row inside is always at its full size and is revealed by the box
+          growing rather than by being scaled or faded into place. */}
       <div
-        style={{ opacity: 'var(--tabs, 0)' } as React.CSSProperties}
-        className="absolute inset-x-0 top-0"
+        style={{ height: 'var(--tabs-h, 0px)', opacity: 'var(--tabs, 0)' } as React.CSSProperties}
+        className="shrink-0 overflow-hidden"
       >
         <Tabs active={active} divider={false} />
       </div>
-      <div
-        aria-hidden="true"
-        style={{ opacity: 'var(--divider, 0)' } as React.CSSProperties}
-        className="bg-wf-edge absolute inset-x-0 top-[3.25rem] h-px"
-      />
 
-      {/* The lower section, anchored to the foot of the bar: the cord mark and
-          the arrow keep their place while everything grows above them. Ends
-          aligned rather than centred, so a description three lines long grows
-          upward too instead of pushing the controls around. */}
-      <div className="gap-sm absolute inset-x-0 bottom-0 flex items-end px-4 py-4">
+      {/* The lower section, with the rule along its top edge. Anchored to the
+          foot of the bar: the cord mark and the arrow keep their place while
+          everything grows above them. Ends aligned rather than centred, so a
+          description three lines long grows upward too instead of pushing the
+          controls around. */}
+      <div className="gap-sm relative flex flex-1 items-end px-4 py-4">
+        <div
+          aria-hidden="true"
+          style={{ opacity: 'var(--divider, 0)' } as React.CSSProperties}
+          className="border-wf-edge absolute inset-x-0 top-0 border-t"
+        />
+
         <span style={{ rotate: 'var(--spin, 0deg)' }} className="inline-flex shrink-0 pb-1">
           <Squiggle />
         </span>
 
         <div className="relative min-w-0 flex-1">
-          {/* The line it sets off with. */}
+          {/* The line it sets off with — two lines at most, as the reference
+              clamps its own. */}
           <p
             style={{ opacity: 'var(--line, 1)' } as React.CSSProperties}
-            className="text-small text-wf-text truncate"
+            className="text-small text-wf-text line-clamp-2"
           >
             {text.slice(0, n)}
             <Caret />
@@ -262,7 +273,7 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
             transition={{ duration: 0.4 }}
             className="absolute inset-x-0 bottom-0"
           >
-            <p className="text-small text-white">
+            <p className="text-small line-clamp-5 text-white">
               {blurb.slice(0, typed)}
               <Caret />
             </p>
@@ -272,7 +283,7 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
           </motion.div>
         </div>
 
-        <ArrowButton size={32} />
+        <ArrowButton size={32} live={docked} />
       </div>
     </div>
   );

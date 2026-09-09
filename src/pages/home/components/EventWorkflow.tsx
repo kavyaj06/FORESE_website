@@ -489,31 +489,79 @@ export function ReducedWorkflow() {
 }
 
 /**
- * The category row across the top of the panel — the reference's tab strip,
- * with the club's three stages in it.
+ * The category row across the top of the panel.
+ *
+ * Built from the reference's own markup rather than from a screenshot of it,
+ * which settles two things a picture cannot. The highlight is **one pill that
+ * slides**: it carries a measured `width` and `translateX` and moves to the
+ * live tab, rather than each tab painting its own background — the same
+ * correction this repo already had to make once, on the `/mocks` strip. And
+ * the labels **rise in individually**, each from 10px below at zero opacity,
+ * driven by the same `--tabs` the row's height is driven by.
  *
  * Not clickable, and not pretending to be: the scroll is what changes it, so
  * these are labels showing where you are, marked up as such. A button that
  * looked identical and did the same thing as scrolling would be a second
- * control fighting the first, which is the rule the rest of this repo's
- * scroll-driven strips already follow.
+ * control fighting the first.
  */
 export function Tabs({ active, divider = true }: { active: number; divider?: boolean }) {
+  const rowRef = useRef<HTMLDivElement>(null);
+  const pillRef = useRef<HTMLSpanElement>(null);
+  const items = useRef<Array<HTMLSpanElement | null>>([]);
+
+  useEffect(() => {
+    const move = () => {
+      const item = items.current[active];
+      const row = rowRef.current;
+      const pill = pillRef.current;
+      if (!item || !row || !pill) return;
+      const a = item.getBoundingClientRect();
+      const b = row.getBoundingClientRect();
+      pill.style.width = `${a.width}px`;
+      pill.style.transform = `translateX(${a.left - b.left}px)`;
+    };
+    move();
+    window.addEventListener('resize', move);
+    return () => window.removeEventListener('resize', move);
+  }, [active]);
+
   return (
     <div
       role="presentation"
-      className={`gap-xs flex shrink-0 items-center px-3 py-3 ${divider ? 'border-wf-edge border-b' : ''}`}
+      className={`relative ${divider ? 'border-wf-edge border-b' : ''}`}
+      ref={rowRef}
     >
-      {EVENTS.map((event, i) => (
+      <div className="gap-xs relative flex items-center px-2 py-2.5">
         <span
-          key={event.id}
-          className={`text-caption duration-base ease-out-brand rounded-sm px-2.5 py-1 transition-colors ${
-            i === active ? 'bg-wf-accent text-wf-ink' : 'text-wf-muted'
-          }`}
-        >
-          {event.tag}
-        </span>
-      ))}
+          ref={pillRef}
+          aria-hidden="true"
+          style={{ opacity: 'var(--tabs, 1)' } as React.CSSProperties}
+          className="bg-wf-accent duration-base ease-out-brand absolute inset-y-2.5 left-0 rounded-sm transition-[transform,width]"
+        />
+        {EVENTS.map((event, i) => (
+          <span
+            key={event.id}
+            ref={(node) => {
+              items.current[i] = node;
+            }}
+            className={`text-caption relative z-10 rounded-sm px-4 py-1.5 whitespace-nowrap ${
+              i === active ? 'text-wf-ink' : 'text-wf-muted'
+            }`}
+          >
+            <span
+              className="block"
+              style={
+                {
+                  opacity: 'var(--tabs, 1)',
+                  transform: 'translateY(calc((1 - var(--tabs, 1)) * 10px))',
+                } as React.CSSProperties
+              }
+            >
+              {event.tag}
+            </span>
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -541,12 +589,18 @@ export function Caret() {
   );
 }
 
-export function ArrowButton({ size }: { size: number }) {
+export function ArrowButton({ size, live = true }: { size: number; live?: boolean }) {
   return (
     <span
       aria-hidden="true"
       style={{ width: size, height: size }}
-      className="bg-wf-accent flex shrink-0 items-center justify-center rounded-full text-white"
+      // Grey at rest and orange once the panel it sits in is the live one —
+      // which is what the reference does, where the button is `--color-gray`
+      // and goes orange on hover. It was orange from the first frame here,
+      // which spent the whole travel claiming to be the thing you could press.
+      className={`duration-base ease-out-brand flex shrink-0 items-center justify-center rounded-full text-white transition-colors ${
+        live ? 'bg-wf-accent' : 'bg-wf-button'
+      }`}
     >
       <ArrowRight size={size * 0.44} strokeWidth={2.5} />
     </span>

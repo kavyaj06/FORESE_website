@@ -101,6 +101,12 @@
   --color-wf-edge: #b9b9b966; /* melius --color-gray-light-2-faded */
   --color-wf-text: #d9d9d9; /* melius --color-gray-light-3 */
   --color-wf-muted: #b9b9b9; /* melius --color-gray-light-2 */
+  /* The circular action button's resting colour — it goes orange on hover and
+     once its panel is live. Sampled from the reference's screenshot rather
+     than read off its `:root` like the rest of this block, because the token
+     it uses (`--color-gray`) was not in the copy I read. */
+  --color-wf-button: #6b6b6b;
+
   /* The board's dot field, and the brighter dots the cursor reveals. */
   --color-wf-dot: #3e3e3e; /* melius --color-gray-dark-3 */
   --color-wf-dot-lit: #8a8a8a;
