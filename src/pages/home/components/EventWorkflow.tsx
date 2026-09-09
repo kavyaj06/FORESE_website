@@ -100,19 +100,19 @@ const GROUP_SPAN = 1;
  */
 const SLOT_SETS = [
   [
-    { x: -6, y: 4, w: 22 },
-    { x: 50, y: 0, w: 22 },
-    { x: 22, y: 48, w: 22 },
+    { x: -6, y: 4, w: 25 },
+    { x: 50, y: 0, w: 25 },
+    { x: 22, y: 48, w: 25 },
   ],
   [
-    { x: 4, y: 0, w: 22 },
-    { x: 56, y: 8, w: 22 },
-    { x: 28, y: 52, w: 22 },
+    { x: 4, y: 0, w: 25 },
+    { x: 56, y: 8, w: 25 },
+    { x: 28, y: 52, w: 25 },
   ],
   [
-    { x: -4, y: 50, w: 22 },
-    { x: 50, y: 48, w: 22 },
-    { x: 24, y: 0, w: 22 },
+    { x: -4, y: 50, w: 25 },
+    { x: 50, y: 48, w: 25 },
+    { x: 24, y: 0, w: 25 },
   ],
 ] as const;
 
@@ -221,10 +221,12 @@ export function WorkflowBoard({
   progress,
   active,
   className = '',
+  style,
 }: {
   progress: MotionValue<number>;
   active: number;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -295,8 +297,11 @@ export function WorkflowBoard({
       onPointerLeave={() => {
         if (dotsRef.current) dotsRef.current.style.opacity = '0';
       }}
-      style={{ opacity: 0 }}
-      className={`border-wf-edge bg-wf-board relative overflow-hidden rounded-2xl border will-change-transform ${className}`}
+      style={{ opacity: 0, ...style }}
+      // No `position` of its own: the caller places it, and a `relative`
+      // here would fight an `absolute` there — same specificity, so which
+      // one wins is down to the order Tailwind happens to emit them in.
+      className={`border-wf-edge bg-wf-board overflow-hidden rounded-2xl border will-change-transform ${className}`}
     >
       {/* The dot field, and the brighter one the cursor reveals through a
           circular mask. Two layers rather than one that changes colour: a

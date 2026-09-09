@@ -277,45 +277,36 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
           ))}
         </div>
 
-        <div className="relative flex h-full flex-col p-5">
+        {/* Icon, words, action — one row, the way the reference sets it,
+            because the panel it lands in is a fifth of the screen tall and a
+            stacked eyebrow-title-date card does not fit in it and never
+            looked like the thing being copied. */}
+        <div className="gap-sm relative flex h-full items-center px-4 py-3">
+          <span style={{ opacity: 'var(--icon, 0)' } as React.CSSProperties} className="shrink-0">
+            <span style={{ rotate: 'var(--spin, 0deg)' }} className="inline-flex">
+              <Squiggle />
+            </span>
+          </span>
+
           <motion.div
             aria-hidden={!docked}
             initial={false}
             animate={{ opacity: docked ? 1 : 0 }}
             transition={{ duration: 0.4 }}
+            className="min-w-0 flex-1"
           >
-            <p className="text-eyebrow text-wf-muted uppercase">{current.tag}</p>
-            <p className="text-h4 mt-3 text-white">
+            <p className="text-small text-white">
               {blurb.slice(0, typed)}
               <Caret />
             </p>
+            <p className="text-caption text-wf-muted mt-2">
+              {current.short} · {current.when}
+            </p>
           </motion.div>
 
-          <span className="flex-1" />
-
-          {/* The cord mark, in the lower half where the reference keeps it.
-              It fades in mid-flight rather than on arrival, so the spin is
-              visible while the bar is still travelling — the spin is the cue
-              that it is moving, and it stops when the bar does. */}
-          <div
-            style={{ opacity: 'var(--icon, 0)' } as React.CSSProperties}
-            className="flex items-center justify-between"
-          >
-            <span className="gap-sm flex items-center">
-              <span style={{ rotate: 'var(--spin, 0deg)' }} className="inline-flex">
-                <Squiggle />
-              </span>
-              <motion.span
-                initial={false}
-                animate={{ opacity: docked ? 1 : 0 }}
-                transition={{ duration: 0.4 }}
-                className="text-caption text-wf-muted"
-              >
-                {current.short} · {current.when}
-              </motion.span>
-            </span>
+          <span style={{ opacity: 'var(--icon, 0)' } as React.CSSProperties} className="shrink-0">
             <ArrowButton size={32} />
-          </div>
+          </span>
         </div>
       </div>
     </div>

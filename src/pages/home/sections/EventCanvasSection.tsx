@@ -69,13 +69,37 @@ export function EventCanvasSection({
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/45" />
         </div>
 
-        <div className="px-gutter desktop:max-w-[92vw] desktop:px-0 relative mx-auto w-full">
-          <div className="gap-lg flex h-[52vh] max-h-[30rem] min-h-[22rem] items-stretch">
-            {/* The dock. Empty on purpose — the bar flies in and fills it. */}
-            <div ref={dockRef} className="w-[29%] shrink-0" aria-hidden="true" />
-            <WorkflowBoard progress={progress} active={active} className="h-full flex-1" />
-          </div>
-        </div>
+        {/*
+          The composition, measured off the reference frames rather than
+          guessed at. Three things follow from them and none of them was what
+          this section had:
+
+          - the board is much larger and **runs off the right edge** — it is a
+            window onto a canvas, and a window with a margin on all four sides
+            reads as a card;
+          - the bar lands as a **small panel**, about a quarter of the screen
+            wide and a fifth of it tall, not a full-height column;
+          - it sits **left of centre with clear space to its left**, level with
+            the top of the board, floating over the photograph rather than
+            docked against the edge of the page.
+
+          Absolute rather than a flex row, because those three do not sit in
+          one line: the panel is a fifth as tall as the board and level with
+          its top, and the board is wider than the section.
+        */}
+        <div
+          ref={dockRef}
+          aria-hidden="true"
+          style={{ top: '18vh', left: '17%', width: 'min(24.5%, 34rem)', height: '13rem' }}
+          className="absolute"
+        />
+
+        <WorkflowBoard
+          progress={progress}
+          active={active}
+          className="absolute"
+          style={{ top: '18vh', left: '45%', right: '-6%', height: '70vh' }}
+        />
       </div>
     </section>
   );
