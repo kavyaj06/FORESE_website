@@ -76,11 +76,15 @@ export const HOME_CONVERGE = {
 export const HOME_PILLAR_BAR = {
   /** Shown in the bar while it is still closed. Short — the bar is narrow. */
   closedLabel: 'What we do',
-  tablistLabel: 'Which of the five to show',
+  tablistLabel: 'Which part of what we do to show',
 } as const;
 
 /**
- * The five pillars beneath the Why-it-exists headline.
+ * The pillars beneath the Why-it-exists headline.
+ *
+ * Four, not five: "Workshops & events" was dropped at the club's request. The
+ * count is nowhere in the code — every consumer derives it from this array's
+ * length — so removing an entry is the whole change.
  *
  * ⚠️ The titles and the `terms` are the club's own, given as a set. The `body`
  * sentences beneath them are still written-from-the-paragraph and need
@@ -119,12 +123,6 @@ export const HOME_PILLARS = [
     title: 'Soft skills',
     terms: ['Teamwork', 'Leadership'],
     body: 'Students gain soft skills like teamwork, leadership, and communication.',
-  },
-  {
-    id: 'workshops',
-    title: 'Workshops & events',
-    terms: ['Learn', 'Build', 'Participate'],
-    body: 'Practical learning run through the year, not saved for placement season.',
   },
 ] as const;
 

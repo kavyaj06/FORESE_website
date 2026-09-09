@@ -57,7 +57,7 @@ const BAR_OPEN = START - 0.12;
 const ENTER_DELAY = 0.22;
 
 /**
- * The five pillars as type, one at a time, changed by scrolling.
+ * The pillars as type, one at a time, changed by scrolling.
  *
  * There is no circle, no line and no row — this used to be five rings joined
  * by a hairline, which was a timeline, and these five are not a sequence:

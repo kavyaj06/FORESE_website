@@ -19,13 +19,13 @@ const CLOSED_WIDTH = 232;
 const OPEN_TRANSITION = { duration: 0.7, ease: [0.22, 1, 0.36, 1] } as const;
 
 /**
- * A bar that opens into the five pillars as the section is scrolled.
+ * A bar that opens into the pillars as the section is scrolled.
  *
  * It starts closed: a narrow pill on the centre line saying only what it is.
  * Past a point in the section's travel it grows to the full width of the
- * column and slides left as it grows, and the five names arrive inside it one
- * after another. After that it is a tab strip, and the scroll lights each name
- * in turn as its pillar comes up.
+ * column and slides left as it grows, and the names arrive inside it one after
+ * another. After that it is a tab strip, and the scroll lights each name in
+ * turn as its pillar comes up.
  *
  * The shape is taken from the reference's prompt bar, which is the same move:
  * a small dark pill that becomes the wide control holding the sections. What
