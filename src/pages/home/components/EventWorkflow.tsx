@@ -15,19 +15,38 @@ import { HOME_WORKFLOW } from '../data';
  * and everything that has to agree — the bar, the board, which event is
  * current — is a function of it.
  */
-/** The bar fades in over this. */
-export const FADE_END = 0.08;
-/** …walks down the first section until here. */
-export const DESCENT_END = 0.34;
+/** The bar fades in over this, then holds where it is. */
+export const FADE_END = 0.06;
+/**
+ * Nothing moves until here.
+ *
+ * The first section has its own animation to finish — the two columns of
+ * photographs travelling in from the edges and the headline growing into
+ * place — and a bar setting off while that is still arriving is two moves
+ * competing for the same scroll. This is where that finishes: the first
+ * section is 260vh of a 560vh journey and its columns and headline are timed
+ * to finish at half its own travel, which is 0.17 of this clock. Until then
+ * the bar stays put and types.
+ */
+export const PARK_END = 0.22;
+/**
+ * …then drifts down and grows a little, still inside the first section.
+ *
+ * It has to end before the first section unpins, which on a 260vh section in
+ * a 560vh journey is 0.35: past that the marker it is drifting from is being
+ * scrolled away at full speed, and a bar drifting *down* against a slot moving
+ * *up* travels upward — measured, 594px to 379px.
+ */
+export const DRIFT_END = 0.35;
 /** …and has arrived at its dock in the second section by here. */
-export const CROSS_END = 0.6;
+export const CROSS_END = 0.58;
 /** Where the board behind the dock begins to appear. */
 export const BOARD_AT = 0.5;
 /** …and where the events start passing through it. */
-export const EVENTS_AT = 0.64;
+export const EVENTS_AT = 0.66;
 
-/** How far the bar walks down the first section, as a share of the viewport. */
-export const DESCENT_VH = 0.24;
+/** How far the bar drifts down the first section, as a share of the viewport. */
+export const DESCENT_VH = 0.16;
 
 /** How wide the bar is before it opens, in pixels, and how tall. */
 export const CLOSED_WIDTH = 420;
@@ -35,8 +54,10 @@ export const CLOSED_HEIGHT = 64;
 
 export const EASE = [0.22, 1, 0.36, 1] as const;
 
-/** Milliseconds per character of the bar's typing. */
+/** Milliseconds per character typed, per character erased, and the hold. */
 export const TYPE_MS = 32;
+export const ERASE_MS = 16;
+export const HOLD_MS = 1400;
 
 /** Cubic ease, for the parts written by hand rather than by framer. */
 export const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -229,7 +250,12 @@ export function WorkflowBoard({
     const apply = (p: number) => {
       const node = boardRef.current;
       if (node) {
-        const reveal = clamp01((p - BOARD_AT) / (EVENTS_AT - BOARD_AT));
+        // Solid by the time the bar docks, not by the time the events start.
+        // The section behind it is a photograph at full strength now, and a
+        // board still at 40% opacity over that is a window you can see the
+        // room through — measured at the moment of docking, and it looked
+        // like a bug because it is one.
+        const reveal = clamp01((p - BOARD_AT) / (CROSS_END - BOARD_AT));
         node.style.opacity = `${reveal}`;
         node.style.transform = `translate3d(${(1 - ease(reveal)) * 60}px, 0, 0)`;
       }
@@ -495,11 +521,11 @@ export function SceneWash({ src }: { src: string }) {
  * control fighting the first, which is the rule the rest of this repo's
  * scroll-driven strips already follow.
  */
-export function Tabs({ active }: { active: number }) {
+export function Tabs({ active, divider = true }: { active: number; divider?: boolean }) {
   return (
     <div
       role="presentation"
-      className="border-wf-edge gap-xs flex shrink-0 items-center border-b px-3 py-3"
+      className={`gap-xs flex shrink-0 items-center px-3 py-3 ${divider ? 'border-wf-edge border-b' : ''}`}
     >
       {EVENTS.map((event, i) => (
         <span

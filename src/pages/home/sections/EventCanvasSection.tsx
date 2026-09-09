@@ -31,19 +31,27 @@ import {
 export function EventCanvasSection({
   progress,
   dockRef,
+  panelRef,
   active,
 }: {
   progress: MotionValue<number>;
   dockRef: React.RefObject<HTMLDivElement | null>;
+  panelRef: React.RefObject<HTMLDivElement | null>;
   active: number;
 }) {
   return (
     <section className="border-border relative h-[300vh] border-b">
-      <div className="bg-surface sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        {/* The room. Blurred and under a scrim: several of the club's
-            photographs carry a burned-in geotag caption, which is invisible at
-            thumbnail size and a paragraph of stray text across the screen at
-            full bleed. */}
+      <div
+        ref={panelRef}
+        className="bg-surface sticky top-0 flex h-screen flex-col justify-center overflow-hidden"
+      >
+        {/* The room, at full strength. Not blurred and not washed out: this
+            section is meant to be standing *in* the event, the way the
+            reference stands in its product shot, and a photograph behind a
+            85% scrim is a tint, not a place. What is left over it is a soft
+            vertical gradient — dark at the edges, clear through the middle —
+            which is only enough to keep the dark board and the panel from
+            sitting on a bright sky. */}
         <div aria-hidden="true" className="absolute inset-0">
           {WORKFLOW_EVENTS.map((event, i) => (
             <motion.img
@@ -55,10 +63,10 @@ export function EventCanvasSection({
               initial={false}
               animate={{ opacity: i === active ? 1 : 0, scale: i === active ? 1 : 1.06 }}
               transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-0 h-full w-full scale-105 object-cover blur-[3px]"
+              className="absolute inset-0 h-full w-full scale-105 object-cover"
             />
           ))}
-          <div className="bg-surface/85 absolute inset-0" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/45" />
         </div>
 
         <div className="px-gutter desktop:max-w-[92vw] desktop:px-0 relative mx-auto w-full">

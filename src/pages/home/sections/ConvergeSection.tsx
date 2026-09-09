@@ -58,8 +58,13 @@ export function ConvergeSection({
     restDelta: 0.001,
   });
 
-  const leftX = useTransform(progress, [0, 1], ['-58%', '0%']);
-  const rightX = useTransform(progress, [0, 1], ['58%', '0%']);
+  // The columns, the headline and the two of them together are done by the
+  // half-way point rather than at the very end. The section has a second job
+  // now — it is where the prompt bar stands and waits — and a bar that sets
+  // off while the photographs are still arriving is two moves competing for
+  // one scroll. Finishing early leaves the rest of the pin for the bar.
+  const leftX = useTransform(progress, [0, 0.5, 1], ['-58%', '0%', '0%']);
+  const rightX = useTransform(progress, [0, 0.5, 1], ['58%', '0%', '0%']);
   // The columns arrive, hold, and then recede once the workflow opens over
   // them. They are the section's backdrop now rather than its subject — the
   // brief's own word — and a board at full contrast over photographs at full
@@ -72,9 +77,9 @@ export function ConvergeSection({
   // photography belongs to the section below, where the canvas is. Keyframes
   // across the whole 0–1 range, not a sub-range: that is the `useTransform`
   // shape that is safe here.
-  const columnsOpacity = useTransform(progress, [0, 0.35, 1], [0, 1, 1]);
-  const headingScale = useTransform(progress, [0, 1], [0.86, 1]);
-  const headingOpacity = useTransform(progress, [0, 0.4, 1], [0.35, 0.85, 1]);
+  const columnsOpacity = useTransform(progress, [0, 0.3, 1], [0, 1, 1]);
+  const headingScale = useTransform(progress, [0, 0.5, 1], [0.86, 1, 1]);
+  const headingOpacity = useTransform(progress, [0, 0.25, 0.5, 1], [0.35, 0.9, 1, 1]);
 
   const photos = circulatingPhotos();
 

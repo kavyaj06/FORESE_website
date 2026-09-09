@@ -27,6 +27,7 @@ export function EventJourney() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const startRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const prefersReducedMotion = usePrefersReducedMotion();
   // Matches the `desktop` breakpoint. Below it the travel has nowhere to go,
@@ -75,8 +76,19 @@ export function EventJourney() {
   return (
     <div ref={wrapRef} className="relative">
       <ConvergeSection startSlotRef={startRef} />
-      <EventCanvasSection progress={progress} dockRef={dockRef} active={active} />
-      <JourneyBar progress={progress} startRef={startRef} dockRef={dockRef} active={active} />
+      <EventCanvasSection
+        progress={progress}
+        dockRef={dockRef}
+        panelRef={panelRef}
+        active={active}
+      />
+      <JourneyBar
+        progress={progress}
+        startRef={startRef}
+        dockRef={dockRef}
+        panelRef={panelRef}
+        active={active}
+      />
     </div>
   );
 }
