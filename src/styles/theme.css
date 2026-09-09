@@ -83,6 +83,20 @@
      the wordmark, so retiring or re-tinting it is a one-line change. */
   --color-accent-blue: #3ca2fa;
 
+  /* Orange, for the home page's story section and nothing else.
+     Deliberately NOT `--color-accent`. The club's standing decision is that
+     black and white are the primary palette and that highlights are not
+     orange; this is a scoped exception asked for on one section, so it gets
+     its own token rather than repainting the accent every eyebrow, pill and
+     active state on the site reads from. If it ever earns the run of the
+     place, the change is to move these values into `--color-accent-*` — and
+     if it is dropped, deleting this pair takes it out with it.
+
+     `-line` is the version that has to hold up as a 2px connector on a dark
+     panel, where the flat tone reads thin and muddy. */
+  --color-story: #e4572e;
+  --color-story-line: #ff7a4d;
+
   /* Focus ring. Kept separate from accent so it stays high-contrast whatever
      accent becomes. Flipped to white inside `[data-theme='inverse']` (see
      base.css) — a black ring on a black section is no ring at all. */

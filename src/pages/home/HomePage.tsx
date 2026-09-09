@@ -1,7 +1,8 @@
 import { HomeHero } from './sections/HomeHero';
 import { StatBand } from './sections/StatBand';
 import { ConvergeSection } from './sections/ConvergeSection';
-import { ProgrammeStepper } from './sections/ProgrammeStepper';
+import { StoryCarousel } from './sections/StoryCarousel';
+import { WorkflowCanvas } from './sections/WorkflowCanvas';
 import { UpcomingEvents } from './sections/UpcomingEvents';
 
 /**
@@ -15,18 +16,21 @@ import { UpcomingEvents } from './sections/UpcomingEvents';
  * "Upcoming" came for. Two panels meant checking both to find out what was
  * next, with no way to tell which one a given thing would be in.
  *
- * `ProgrammeStepper` sits above Upcoming rather than replacing it, because the
- * two answer different questions. The stepper is what the club runs — a
- * standing answer, as true in June as in February. Upcoming is what has not
- * happened yet, derived from the real clock at render, so it empties and
- * refills on its own. Folding them together would mean either an event
- * disappearing from the programme the morning after it ran, or a "what is
- * next" list with last term's events in it.
+ * `StoryCarousel` and `WorkflowCanvas` replaced the programme stepper that
+ * stood here — the club asked for the reference's scroll storytelling in its
+ * place. The carousel runs the gallery along a curved track as you scroll; the
+ * canvas draws the year's three events as connected nodes. Both are scrubbed
+ * by scroll position, neither loops on its own.
  *
- * The stepper does not pin. `ConvergeSection` above it does, and two pinned
- * sections in a row would be a long stretch where the wheel moves a stage
- * rather than the document. The stepper sticks its layers instead and lets the
- * words scroll through them, so the page keeps moving the whole way down.
+ * They sit above Upcoming rather than replacing it, because the two answer
+ * different questions. These are what the club runs — a standing answer, as
+ * true in June as in February. Upcoming is what has not happened yet, derived
+ * from the real clock at render, so it empties and refills on its own.
+ *
+ * ⚠️ Three pinned stretches now run back to back: `ConvergeSection`, then the
+ * carousel, then the canvas. That is a long way down the page where the wheel
+ * moves a stage rather than the document. `RUNWAY_VH` at the top of each of
+ * the two new sections is the dial if it reads as too much.
  */
 export default function HomePage() {
   return (
@@ -34,7 +38,8 @@ export default function HomePage() {
       <HomeHero />
       <StatBand />
       <ConvergeSection />
-      <ProgrammeStepper />
+      <StoryCarousel />
+      <WorkflowCanvas />
       <UpcomingEvents />
     </>
   );
