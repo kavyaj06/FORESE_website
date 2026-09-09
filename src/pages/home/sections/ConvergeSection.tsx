@@ -5,8 +5,8 @@ import { AccentWord } from '@/components/motion/AccentWord';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { circulatingPhotos, type GalleryPhoto } from '@/pages/gallery/data';
-import { HOME_CONVERGE } from '../data';
-import { Pillars } from '../components/Pillars';
+import { HOME_CONVERGE, HOME_PILLARS } from '../data';
+import { PILLAR_END, PILLAR_START, Pillars } from '../components/Pillars';
 import { ConvergePhoto } from '../components/ConvergePhoto';
 import { ConvergeRail } from '../components/ConvergeRail';
 import { useIdleAdvance } from '../components/useIdleAdvance';
@@ -59,6 +59,25 @@ export function ConvergeSection() {
   const columnsOpacity = useTransform(progress, [0, 0.35], [0, 1]);
   const headingScale = useTransform(progress, [0, 1], [0.86, 1]);
   const headingOpacity = useTransform(progress, [0, 0.4, 1], [0.35, 0.85, 1]);
+
+  /**
+   * Scroll so that pillar `i` is the one on screen.
+   *
+   * The section is the only thing that knows how long its own travel is, so
+   * the arithmetic lives here rather than in the bar that calls it. It is the
+   * inverse of the mapping `Pillars` uses to read the index back out: aim at
+   * the middle of the pillar's own slot inside the window the pillars occupy,
+   * so a click lands in the centre of that pillar's turn rather than on the
+   * boundary where the next one takes over.
+   */
+  const goToPillar = (index: number) => {
+    const node = sectionRef.current;
+    if (!node) return;
+    const slot = (index + 0.5) / HOME_PILLARS.length;
+    const target = PILLAR_START + (PILLAR_END - PILLAR_START) * slot;
+    const travel = node.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: node.offsetTop + travel * target, behavior: 'smooth' });
+  };
 
   const photos = circulatingPhotos();
 
@@ -158,7 +177,7 @@ export function ConvergeSection() {
             grows into place as the section is scrubbed, and rings inheriting
             that scale would draw at a size that is still changing. */}
         <div className="max-w-content px-gutter desktop:max-w-[54vw] desktop:px-0 relative mx-auto w-full">
-          <Pillars progress={progress} reduced={false} />
+          <Pillars progress={progress} reduced={false} onSelect={goToPillar} />
         </div>
       </section>
     </div>

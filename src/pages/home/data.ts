@@ -70,6 +70,16 @@ export const HOME_CONVERGE = {
 } as const;
 
 /**
+ * The bar under the pillars: what it says before it opens, and what it is
+ * called for anyone who cannot see it open.
+ */
+export const HOME_PILLAR_BAR = {
+  /** Shown in the bar while it is still closed. Short — the bar is narrow. */
+  closedLabel: 'What we do',
+  tablistLabel: 'Which of the five to show',
+} as const;
+
+/**
  * The five pillars beneath the Why-it-exists headline.
  *
  * ⚠️ The titles and the `terms` are the club's own, given as a set. The `body`

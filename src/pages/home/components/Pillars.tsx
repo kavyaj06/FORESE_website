@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 import { motion, type MotionValue } from 'framer-motion';
 import { HOME_PILLARS } from '../data';
+import { PillarBar } from './PillarBar';
 
 interface PillarsProps {
   /** The parent section's scroll progress, 0–1 across its pinned travel. */
   progress: MotionValue<number>;
   reduced: boolean;
+  /**
+   * Scroll the reader to pillar `i`. Owned by the section, which is the only
+   * thing that knows how long its own travel is.
+   */
+  onSelect?: (index: number) => void;
 }
 
 /**
@@ -19,7 +25,26 @@ interface PillarsProps {
 const START = 0.42;
 const END = 0.92;
 
+/**
+ * The same two numbers, for the section that owns the scroll.
+ *
+ * Exported rather than duplicated: the section needs them to turn a pillar
+ * index back into a scroll position, and two copies of a window are two
+ * numbers to keep in step.
+ */
+export { START as PILLAR_START, END as PILLAR_END };
+
 const SWAP = { duration: 0.3, ease: [0.22, 1, 0.36, 1] } as const;
+
+/**
+ * Where the bar opens — a little before the pillars begin.
+ *
+ * It has to finish opening by the time the first pillar is up, or the reader
+ * watches a control assemble itself around a name that is already lit. Twelve
+ * hundredths of the section's travel ahead of `START` is about seven hundred
+ * milliseconds of ordinary scrolling, which is the length of the opening.
+ */
+const BAR_OPEN = START - 0.12;
 
 /**
  * The incoming pillar waits for the outgoing one to clear.
@@ -61,8 +86,9 @@ const ENTER_DELAY = 0.22;
  * element is still read aloud, so the alternative was not silence: it was five
  * pillars read in a row with nothing to say only one was on screen.
  */
-export function Pillars({ progress, reduced }: PillarsProps) {
+export function Pillars({ progress, reduced, onSelect }: PillarsProps) {
   const [active, setActive] = useState(0);
+  const [barOpen, setBarOpen] = useState(false);
 
   useEffect(() => {
     if (reduced) return;
@@ -72,6 +98,11 @@ export function Pillars({ progress, reduced }: PillarsProps) {
       const within = (value - START) / (END - START);
       const next = Math.min(last, Math.max(0, Math.floor(within * HOME_PILLARS.length)));
       setActive((current) => (current === next ? current : next));
+
+      // One-way. Scrolling back up leaves the bar open: it is a table of
+      // contents once the reader has seen it, and closing it again would take
+      // away the only way to jump between the five.
+      setBarOpen((current) => current || value >= BAR_OPEN);
     });
   }, [progress, reduced]);
 
@@ -129,6 +160,18 @@ export function Pillars({ progress, reduced }: PillarsProps) {
             </motion.div>
           );
         })}
+      </div>
+
+      {/* Outside the `aria-hidden` stack above, because unlike that stack this
+          is a real control: it names all five and can be operated. The stack
+          is a picture of whichever one is current. */}
+      <div className="mt-xl">
+        <PillarBar
+          labels={HOME_PILLARS.map((pillar) => pillar.title)}
+          active={active}
+          open={barOpen}
+          onSelect={(index) => onSelect?.(index)}
+        />
       </div>
     </div>
   );
