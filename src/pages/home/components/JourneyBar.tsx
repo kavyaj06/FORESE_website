@@ -6,8 +6,7 @@ import {
   CLOSED_HEIGHT,
   CLOSED_WIDTH,
   CROSS_END,
-  DESCENT_VH,
-  DRIFT_END,
+  SAG,
   ERASE_MS,
   FADE_END,
   HOLD_MS,
@@ -82,7 +81,7 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
    * Cleared on resize, and recomputed live any time the drift is not finished,
    * so scrolling backwards puts it back.
    */
-  const launchRef = useRef<{ x: number; bottom: number; w: number; h: number } | null>(null);
+  const launchRef = useRef<{ x: number; bottom: number } | null>(null);
   useEffect(() => {
     const clear = () => {
       launchRef.current = null;
@@ -105,12 +104,12 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
        * Where the dock will be once its section has pinned.
        *
        * Not where it is. That section pins 260vh into a 460vh journey, so for
-       * the whole of the crossing the dock is still travelling up the screen —
-       * and a bar interpolating towards a moving target chases it downward:
-       * measured, the bar's foot reached 1018px on a 900px screen, a third of
-       * it below the fold. The panel is `sticky top-0` and full height, so the
-       * dock's offset inside it is what it will be at, and that offset is
-       * constant at every scroll position.
+       * the whole of the move the dock is still travelling up the screen — and
+       * a bar interpolating towards a moving target chases it downward:
+       * measured, the bar's foot reached 1018px on a 900px screen. The panel
+       * is `sticky top-0` and full height, so the dock's offset inside it is
+       * where it will come to rest, and that offset is the same at every
+       * scroll position.
        */
       const to = {
         left: dock.left,
@@ -118,59 +117,79 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
         width: dock.width,
         height: dock.height,
       };
-      const toBottom = to.top + to.height;
 
-      // Three ranges of one continuous parameter — parked, drifting, crossing
-      // — so the bar is somewhere definite at every scroll position rather
-      // than mid-animation on a clock of its own.
-      const drift = ease(clamp01((p - PARK_END) / (DRIFT_END - PARK_END)));
-      const cross = ease(clamp01((p - DRIFT_END) / (CROSS_END - DRIFT_END)));
+      /**
+       * One parameter for the whole move, eased once.
+       *
+       * Not a drift and then a flight. Two ranges meant two eases, and an
+       * ease-in-out decelerates to a stop at the end of its range — so the bar
+       * came to rest halfway across and set off again, which reads as
+       * finishing rather than as passing through.
+       */
+      const raw = clamp01((p - PARK_END) / (CROSS_END - PARK_END));
+      const t = ease(raw);
 
-      // Parked, then drifting: down a little, and a little larger.
+      /**
+       * Where the move starts from, frozen the moment it starts.
+       *
+       * The marker it leaves from lives in the first section's pinned panel,
+       * so its rectangle holds while that panel does — and then the panel
+       * releases and the rectangle races up the screen. The move has to leave
+       * from where the bar actually was. Recomputed live while the bar is
+       * still parked, so scrolling back up puts it where it belongs, and
+       * cleared on resize.
+       */
+      const width = to.width;
       let launch = launchRef.current;
-      if (drift < 1 || !launch) {
-        const w = Math.min(CLOSED_WIDTH, from.width || CLOSED_WIDTH) + drift * 64;
-        const h = CLOSED_HEIGHT + drift * 30;
-        launch = {
-          x: from.left + (from.width - w) / 2,
-          bottom: from.top + drift * window.innerHeight * DESCENT_VH + h,
-          w,
-          h,
-        };
-        launchRef.current = drift >= 1 ? launch : null;
+      if (raw <= 0 || !launch) {
+        launch = { x: from.left + (from.width - width) / 2, bottom: from.top + CLOSED_HEIGHT };
+        launchRef.current = raw > 0 ? launch : null;
       }
-      const { x: driftX, bottom: driftBottom, w: driftW, h: driftH } = launch;
 
-      // Crossing. The bottom edge is what is interpolated, so the top edge
-      // rises as the height grows and the bar reads as expanding upward.
-      const lerp = (a: number, b: number) => a + (b - a) * cross;
-      const w = lerp(driftW, to.width);
-      const h = lerp(driftH, to.height);
-      const bottom = lerp(driftBottom, toBottom);
+      // Height grows a little behind the movement, and only ever upward: the
+      // foot follows the path and the head rises away from it.
+      const grow = ease(clamp01((raw - 0.18) / 0.82));
+      const height = CLOSED_HEIGHT + (to.height - CLOSED_HEIGHT) * grow;
 
-      bar.style.transform = `translate3d(${lerp(driftX, to.left)}px, ${bottom - h}px, 0)`;
-      bar.style.width = `${w}px`;
-      bar.style.height = `${h}px`;
+      // The path. A sine bow, so it leaves downward and comes up into the
+      // dock without a corner anywhere.
+      const bottom =
+        launch.bottom + (to.top + to.height - launch.bottom) * t + Math.sin(Math.PI * raw) * SAG;
+      const left = launch.x + (to.left - launch.x) * t;
+
+      bar.style.transform = `translate3d(${left}px, ${bottom - height}px, 0)`;
+      // Width never changes. It is the dock's width from the first frame, so
+      // the bar that sets off is the same object, the same size across, as the
+      // one that arrives.
+      bar.style.width = `${width}px`;
+      bar.style.height = `${height}px`;
       bar.style.opacity = `${clamp01(p / FADE_END)}`;
 
-      // The parts, each on its own stretch of the crossing. The line it was
-      // typing goes first and is gone well before the second section; the tab
-      // row comes in behind it; the rule under the tabs draws last, which is
-      // what makes the bar look like it is dividing rather than swapping.
-      bar.style.setProperty('--line', `${1 - clamp01(cross / 0.22)}`);
-      bar.style.setProperty('--tabs', `${clamp01((cross - 0.18) / 0.42)}`);
-      bar.style.setProperty('--divider', `${clamp01((cross - 0.55) / 0.4)}`);
-      bar.style.setProperty('--icon', `${clamp01((cross - 0.32) / 0.4)}`);
-      // Spins with the flight and stops dead on arrival. Two and a half turns:
+      /**
+       * The line it was typing fades as it goes and is gone by the time it
+       * meets the section below — measured against that section's own top
+       * edge rather than against a number, so it is the meeting that ends it.
+       */
+      const gap = panel.top - bottom;
+      bar.style.setProperty('--line', `${clamp01(gap / 140)}`);
+
+      // The parts of the two-section bar appear as the height makes room for
+      // them: the tab row once there is a row's worth, the rule between the
+      // halves once the growth is most of the way done.
+      const room = (height - CLOSED_HEIGHT) / Math.max(1, to.height - CLOSED_HEIGHT);
+      bar.style.setProperty('--tabs', `${clamp01((room - 0.25) / 0.35)}`);
+      bar.style.setProperty('--divider', `${clamp01((room - 0.6) / 0.3)}`);
+      bar.style.setProperty('--icon', `${clamp01((room - 0.3) / 0.35)}`);
+      // Spins with the move and stops dead on arrival. Two and a half turns:
       // enough to read as rotation, and it ends on zero so the mark is level.
-      bar.style.setProperty('--spin', `${cross * 900}deg`);
+      bar.style.setProperty('--spin', `${t * 900}deg`);
 
       setParked((current) => {
-        const next = p < PARK_END;
+        const next = raw <= 0;
         return current === next ? current : next;
       });
       setDocked((current) => {
-        const next = cross > 0.98;
+        const next = raw > 0.99;
         return current === next ? current : next;
       });
     };

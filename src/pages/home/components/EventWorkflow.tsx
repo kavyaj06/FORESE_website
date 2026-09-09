@@ -30,23 +30,30 @@ export const FADE_END = 0.06;
  */
 export const PARK_END = 0.22;
 /**
- * …then drifts down and grows a little, still inside the first section.
+ * Where the bar has finished its move.
  *
- * It has to end before the first section unpins, which on a 260vh section in
- * a 560vh journey is 0.35: past that the marker it is drifting from is being
- * scrolled away at full speed, and a bar drifting *down* against a slot moving
- * *up* travels upward — measured, 594px to 379px.
+ * Which is where the second section pins: 260vh into a journey whose scroll
+ * travel is 460vh. The bar flies to the dock's *pinned* rectangle rather than
+ * to wherever the dock currently is, so the two arrive together instead of the
+ * bar chasing a target that is itself still sliding up the screen.
  */
-export const DRIFT_END = 0.35;
-/** …and has arrived at its dock in the second section by here. */
 export const CROSS_END = 0.58;
+
 /** Where the board behind the dock begins to appear. */
 export const BOARD_AT = 0.5;
 /** …and where the events start passing through it. */
 export const EVENTS_AT = 0.66;
 
-/** How far the bar drifts down the first section, as a share of the viewport. */
-export const DESCENT_VH = 0.16;
+/**
+ * How far the bar's path bows downward on its way across, in pixels.
+ *
+ * The move is one arc, not two legs. Split into a drift and then a flight it
+ * decelerated to a stop at the seam between them and set off again — two
+ * eases, two ends — and a bar that stops halfway is a bar that looks like it
+ * finished. A single eased parameter with a sine bow gives the same "down
+ * first, then across" reading with nothing to stop at.
+ */
+export const SAG = 70;
 
 /** How wide the bar is before it opens, in pixels, and how tall. */
 export const CLOSED_WIDTH = 420;
