@@ -87,6 +87,8 @@ export const HOME_CONVERGE = {
  */
 export const HOME_WORKFLOW = {
   eyebrow: 'Events',
+  /** Only the phone and reduced-motion arrangements show a heading. */
+  title: 'The year, one event leading into the next.',
   /** The three node labels, in the order the connectors run. */
   stages: ['Awareness', 'Exposure', 'Rehearsal'] as const,
   events: [

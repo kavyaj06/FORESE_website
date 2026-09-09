@@ -5,57 +5,42 @@ import { findEvent, formatEventWhen } from '@/data/events';
 import { albumFor } from '@/pages/gallery/data';
 import { HOME_WORKFLOW } from '../data';
 
-interface EventWorkflowProps {
-  /** The section's scroll progress, 0–1 across its pinned travel. */
-  progress: MotionValue<number>;
-  reduced: boolean;
-  /**
-   * The phone and tablet arrangement: same sequence, one column.
-   *
-   * A canvas panned sideways needs width on both sides of the board to hold
-   * the content it is panning between, and a phone has none — the board would
-   * be narrower than one node. So below the desktop breakpoint the same three
-   * nodes stack down the screen with the connectors running between them
-   * vertically. The prompt still types, still opens, and the scroll still
-   * changes the event; what goes is the sideways pan, which is the one part
-   * that cannot survive the width.
-   */
-  compact?: boolean;
-}
-
 /**
- * The scroll timeline, as fractions of the section's travel.
+ * The journey's scroll timeline, as fractions of its travel.
  *
- * Every stage of the interaction is a range on this line, and the bar's
- * geometry is read off it continuously — there is no state that says "open"
- * and animates on its own clock. That is the difference between a bar that
- * travels and a bar that jumps: driven by a threshold the move happens over
- * its own 800ms wherever the reader happens to be, and driven by the scroll it
- * happens *as* the reader scrolls, which is what makes it feel physical.
+ * One clock for two sections. The bar starts in "Shaping futures", walks down
+ * it, crosses into the canvas section below and docks there — and a bar whose
+ * position is a function of one section's progress cannot cross out of it. So
+ * the two sections sit inside one wrapper, this is that wrapper's progress,
+ * and everything that has to agree — the bar, the board, which event is
+ * current — is a function of it.
  */
-const FADE_END = 0.1;
-/** The bar walks down and then left across this stretch. */
-const MOVE_END = 0.34;
-/** …and grows into the panel across this one. */
-const EXPAND_END = 0.46;
+/** The bar fades in over this. */
+export const FADE_END = 0.08;
+/** …walks down the first section until here. */
+export const DESCENT_END = 0.34;
+/** …and has arrived at its dock in the second section by here. */
+export const CROSS_END = 0.6;
+/** Where the board behind the dock begins to appear. */
+export const BOARD_AT = 0.5;
+/** …and where the events start passing through it. */
+export const EVENTS_AT = 0.64;
 
-/** How wide the bar is before it opens, in pixels. */
-const CLOSED_WIDTH = 420;
-/** …and how tall. */
-const CLOSED_HEIGHT = 64;
+/** How far the bar walks down the first section, as a share of the viewport. */
+export const DESCENT_VH = 0.24;
 
-/** The panel's share of the stage once open, and the board's. */
-const PANEL_WIDTH = 0.29;
-const BOARD_WIDTH = 0.67;
+/** How wide the bar is before it opens, in pixels, and how tall. */
+export const CLOSED_WIDTH = 420;
+export const CLOSED_HEIGHT = 64;
 
-const EASE = [0.22, 1, 0.36, 1] as const;
+export const EASE = [0.22, 1, 0.36, 1] as const;
 
-/** Milliseconds per character of the closed bar's typing. */
-const TYPE_MS = 45;
+/** Milliseconds per character of the bar's typing. */
+export const TYPE_MS = 32;
 
 /** Cubic ease, for the parts written by hand rather than by framer. */
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
+export const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+export const clamp01 = (n: number) => Math.min(1, Math.max(0, n));
 
 /**
  * How wide one event's group is, as a multiple of the board's width.
@@ -188,188 +173,76 @@ export const WORKFLOW_EVENTS = EVENTS;
  * the same scroll value.
  */
 export function eventPosition(p: number): number {
-  const span = 1 - EXPAND_END;
-  const within = clamp01((p - EXPAND_END) / span);
+  const within = clamp01((p - EVENTS_AT) / (1 - EVENTS_AT));
   return within * (EVENTS.length - 1);
 }
 
-/** Where the scene behind the board fades in, for the section to read. */
-export const SCENE_AT = MOVE_END;
-
 /**
- * The prompt bar that travels into a workflow canvas.
+ * The board: a fixed window onto a canvas larger than itself.
  *
- * **The sequence, and all of it is scroll:** a small dark bar fades in on the
- * centre line typing a line of its own; it walks *down* the screen, then
- * *left* to the edge; there it grows into a tall prompt panel carrying the
- * event tabs; a dark board opens beside it on the right; and scrolling on pans
- * a canvas behind that board from one event's arrangement of nodes to the
- * next.
- *
- * **The panel and the board are two systems, not one card.** The panel is the
- * prompt — tabs, the line a student would ask, an arrow — and the board is a
- * window onto a canvas. Nothing crosses between them.
- *
- * **It is a canvas being panned, not a carousel.** Every event's nodes exist
- * at their own place on one wide canvas at all times, in *their own
- * arrangement* (`SLOT_SETS`), and the window onto it moves. At any point
- * between two events the tail of one and the head of the next are both on
- * screen.
- *
- * **The whole opening is scroll-driven, continuously.** The bar's position and
- * size are written frame by frame from the scroll value, not animated between
- * two states at a threshold: a threshold gives you a bar that jumps to a new
- * size on its own clock, which is precisely what "it grows in place" looks
- * like. What is still a transition is the *content* inside the bar, which
- * crossfades — text cannot usefully be interpolated.
+ * The window never changes — it is the same box for the whole section — and
+ * everything that moves is behind it. Each event has its own group of nodes at
+ * its own place along the canvas, in **its own arrangement**, and the scroll
+ * moves the canvas rather than the contents of a card: at any point between
+ * two events the tail of one and the head of the next are both on screen.
  *
  * **Written through the DOM in a subscription, never `useTransform`.** A
  * transform reading a scroll value compiles to a native scroll timeline, whose
  * sub-ranges do not clamp outside themselves; that is what put three slides'
- * text through one card on the phone board. This geometry is also a function
- * of a measured stage size, which a compiled timeline cannot see change.
+ * text through one card on the phone board. The pan is also a function of a
+ * measured board width, which a compiled timeline cannot see change.
  *
  * **No `AnimatePresence`.** Banned here — its exit callback never fires in a
- * production build and has white-screened whole pages.
+ * production build and has white-screened whole pages. Every group is mounted
+ * for the life of the section.
  */
-export function EventWorkflow({ progress, reduced, compact = false }: EventWorkflowProps) {
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(0);
-  const [typed, setTyped] = useState(0);
-
-  const stageRef = useRef<HTMLDivElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
+export function WorkflowBoard({
+  progress,
+  active,
+  className = '',
+}: {
+  progress: MotionValue<number>;
+  active: number;
+  className?: string;
+}) {
   const boardRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const dotsRef = useRef<HTMLDivElement>(null);
   const [board, setBoard] = useState({ width: 0, height: 0 });
-  const [stage, setStage] = useState({ width: 0, height: 0 });
 
-  // The board's width is fixed in CSS and never animated: the nodes are laid
-  // out against it, and a board whose width changed during the opening would
-  // relayout every node on every frame of it. What the opening animates is the
-  // board's opacity and a small slide, which cost nothing to measure.
   useEffect(() => {
-    if (reduced) return;
-    const nodes = [[boardRef.current, setBoard] as const, [stageRef.current, setStage] as const];
-    const observers = nodes.flatMap(([node, set]) => {
-      if (!node) return [];
-      const measure = () =>
-        set((current) =>
-          current.width === node.clientWidth && current.height === node.clientHeight
-            ? current
-            : { width: node.clientWidth, height: node.clientHeight },
-        );
-      measure();
-      const observer = new ResizeObserver(measure);
-      observer.observe(node);
-      return [observer];
-    });
-    return () => observers.forEach((o) => o.disconnect());
-  }, [reduced, compact]);
+    const node = boardRef.current;
+    if (!node) return;
+    const measure = () =>
+      setBoard((current) =>
+        current.width === node.clientWidth && current.height === node.clientHeight
+          ? current
+          : { width: node.clientWidth, height: node.clientHeight },
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
-  /**
-   * The whole timeline, written straight onto three elements.
-   *
-   * Not through React: a scroll would otherwise re-render three groups of
-   * nodes to move the bar a few pixels.
-   */
   useEffect(() => {
-    if (reduced || compact) return;
-
     const apply = (p: number) => {
-      setOpen((current) => {
-        const next = p >= MOVE_END + 0.04;
-        return current === next ? current : next;
-      });
-
-      const bar = barRef.current;
-      if (bar && stage.width) {
-        const closedW = Math.min(CLOSED_WIDTH, stage.width * 0.55);
-        const openW = stage.width * PANEL_WIDTH;
-        const startX = (stage.width - closedW) / 2;
-        const startY = stage.height * 0.05;
-        const dockY = (stage.height - CLOSED_HEIGHT) / 2;
-
-        let x: number;
-        let y: number;
-        let w = closedW;
-        let h = CLOSED_HEIGHT;
-
-        if (p < MOVE_END) {
-          // The walk. Down first and left second — the two legs overlap in the
-          // middle, so it is one arc rather than two moves with a corner.
-          const t = clamp01((p - FADE_END) / (MOVE_END - FADE_END));
-          const yT = ease(clamp01(t / 0.55));
-          const xT = ease(clamp01((t - 0.3) / 0.7));
-          x = startX * (1 - xT);
-          y = startY + (dockY - startY) * yT;
-        } else {
-          // The growth, from the docked bar to the panel. Still scroll: at any
-          // point in this range the bar is a definite, held size.
-          const e = ease(clamp01((p - MOVE_END) / (EXPAND_END - MOVE_END)));
-          x = 0;
-          y = dockY * (1 - e);
-          w = closedW + (openW - closedW) * e;
-          h = CLOSED_HEIGHT + (stage.height - CLOSED_HEIGHT) * e;
-        }
-
-        bar.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        bar.style.width = `${w}px`;
-        bar.style.height = `${h}px`;
-        bar.style.opacity = `${clamp01(p / FADE_END)}`;
+      const node = boardRef.current;
+      if (node) {
+        const reveal = clamp01((p - BOARD_AT) / (EVENTS_AT - BOARD_AT));
+        node.style.opacity = `${reveal}`;
+        node.style.transform = `translate3d(${(1 - ease(reveal)) * 60}px, 0, 0)`;
       }
-
-      const boardEl = boardRef.current;
-      if (boardEl) {
-        const e = clamp01((p - MOVE_END) / (EXPAND_END - MOVE_END));
-        boardEl.style.opacity = `${e}`;
-        boardEl.style.transform = `translate3d(${(1 - ease(e)) * 60}px, 0, 0)`;
-      }
-
-      const pos = eventPosition(p);
-      const next = Math.round(pos);
-      setActive((current) => (current === next ? current : next));
 
       const canvas = canvasRef.current;
       if (canvas && board.width) {
-        canvas.style.transform = `translate3d(${-pos * board.width * GROUP_SPAN}px, 0, 0)`;
+        canvas.style.transform = `translate3d(${-eventPosition(p) * board.width * GROUP_SPAN}px, 0, 0)`;
       }
     };
 
     apply(progress.get());
     return progress.on('change', apply);
-  }, [progress, reduced, compact, board.width, stage.width, stage.height]);
-
-  // The compact arrangement has no travel to drive, only an opening and an
-  // event index.
-  useEffect(() => {
-    if (reduced || !compact) return;
-    const apply = (p: number) => {
-      setOpen((current) => {
-        const next = p >= MOVE_END;
-        return current === next ? current : next;
-      });
-      const next = Math.round(eventPosition(p));
-      setActive((current) => (current === next ? current : next));
-    };
-    apply(progress.get());
-    return progress.on('change', apply);
-  }, [progress, reduced, compact]);
-
-  /**
-   * The typing, which runs on a clock rather than on scroll.
-   *
-   * The one thing here that is not scroll-driven, and deliberately: a line
-   * typed by dragging the scrollbar is a line the reader is typing, not the
-   * page. It types once, before the bar opens, and stops there.
-   */
-  const promptText = EVENTS[0]?.prompt ?? '';
-  useEffect(() => {
-    if (reduced || open || typed >= promptText.length) return;
-    const timer = window.setTimeout(() => setTyped((n) => n + 1), TYPE_MS);
-    return () => window.clearTimeout(timer);
-  }, [reduced, open, typed, promptText.length]);
+  }, [progress, board.width]);
 
   /**
    * The cursor's position on the board, as two CSS custom properties.
@@ -389,244 +262,226 @@ export function EventWorkflow({ progress, reduced, compact = false }: EventWorkf
     dots.style.opacity = '1';
   };
 
+  return (
+    <div
+      ref={boardRef}
+      onPointerMove={onPointerMove}
+      onPointerLeave={() => {
+        if (dotsRef.current) dotsRef.current.style.opacity = '0';
+      }}
+      style={{ opacity: 0 }}
+      className={`border-wf-edge bg-wf-board relative overflow-hidden rounded-2xl border will-change-transform ${className}`}
+    >
+      {/* The dot field, and the brighter one the cursor reveals through a
+          circular mask. Two layers rather than one that changes colour: a
+          gradient cannot recolour individual dots, but it can decide which of
+          two identical fields is visible where. */}
+      <div className="bg-wf-dots absolute inset-0" />
+      <div
+        ref={dotsRef}
+        aria-hidden="true"
+        className="bg-wf-dots-lit absolute inset-0 opacity-0 transition-opacity duration-300"
+        style={{
+          maskImage:
+            'radial-gradient(160px at var(--mx, -999px) var(--my, -999px), #000, transparent 70%)',
+          WebkitMaskImage:
+            'radial-gradient(160px at var(--mx, -999px) var(--my, -999px), #000, transparent 70%)',
+        }}
+      />
+
+      <div ref={canvasRef} className="absolute inset-y-0 left-0 will-change-transform">
+        {EVENTS.map((event, i) => (
+          <Group key={event.id} event={event} index={i} board={board} lit={i === active} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The phone and tablet arrangement: the same sequence in one column.
+ *
+ * A canvas panned sideways needs width on both sides of the board to hold the
+ * content it is panning between, and a phone has none — the board would be
+ * narrower than one node. So below the desktop breakpoint the same three nodes
+ * stack down the screen with the connectors running between them vertically,
+ * and the bar grows downward in place rather than travelling: there is no left
+ * to move to on a 390px screen.
+ */
+export function CompactWorkflow({ progress }: { progress: MotionValue<number> }) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const [typed, setTyped] = useState(0);
+
+  useEffect(() => {
+    const apply = (p: number) => {
+      setOpen((current) => {
+        const next = p >= 0.2;
+        return current === next ? current : next;
+      });
+      const next = Math.round(clamp01((p - 0.3) / 0.7) * (EVENTS.length - 1));
+      setActive((current) => (current === next ? current : next));
+    };
+    apply(progress.get());
+    return progress.on('change', apply);
+  }, [progress]);
+
   const current = EVENTS[active] ?? EVENTS[0];
+  const line = current?.blurb ?? '';
+
+  useEffect(() => setTyped(0), [active, open]);
+  useEffect(() => {
+    if (!open || typed >= line.length) return;
+    const timer = window.setTimeout(() => setTyped((n) => n + 1), TYPE_MS);
+    return () => window.clearTimeout(timer);
+  }, [open, typed, line.length]);
 
   if (!current) return null;
 
-  // Under reduced motion nothing opens, pans or types: the same events as a
-  // plain list of cards, in the section's normal flow.
-  if (reduced) {
-    return (
-      <ul className="gap-lg mt-2xl tablet:grid-cols-3 grid">
-        {EVENTS.map((event) => (
-          <li key={event.id}>
-            <div className="bg-line-grid aspect-[4/3] overflow-hidden rounded-lg">
-              {event.stages[0]?.image && (
-                <img
-                  src={event.stages[0].image}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                  className="h-full w-full object-cover"
-                />
-              )}
-            </div>
-            <p className="text-eyebrow text-text-subtle mt-md uppercase">{event.tag}</p>
-            <h3 className="text-h3 mt-xs">{event.short}</h3>
-            <p className="text-small text-text-muted mt-xs">{event.when}</p>
-            <p className="text-body text-text-muted mt-sm">{event.blurb}</p>
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  if (compact) {
-    return (
-      <div ref={stageRef} className="mt-xl w-full">
-        {/* The same bar, growing downward instead of travelling: there is no
-            left to move to on a 390px screen, so the move it makes is from a
-            pill to a full-width prompt panel. */}
-        <motion.div
-          initial={false}
-          animate={{ height: open ? 'auto' : CLOSED_HEIGHT }}
-          transition={{ duration: 0.8, ease: EASE }}
-          className="border-wf-edge bg-wf-panel relative overflow-hidden rounded-2xl border"
-        >
-          <motion.div
-            aria-hidden={open}
-            initial={false}
-            animate={{ opacity: open ? 0 : 1 }}
-            transition={{ duration: 0.3 }}
-            className="gap-sm absolute inset-x-0 top-0 flex h-16 items-center px-3"
-          >
-            <Squiggle />
-            <p className="text-small text-wf-text min-w-0 flex-1 truncate">
-              {promptText.slice(0, typed)}
-              <Caret />
-            </p>
-            <ArrowButton size={28} />
-          </motion.div>
-
-          <motion.div
-            aria-hidden={!open}
-            initial={false}
-            animate={{ opacity: open ? 1 : 0 }}
-            transition={{ duration: 0.4, delay: open ? 0.2 : 0 }}
-            className="p-3"
-          >
-            <Tabs active={active} />
-            <div className="gap-sm mt-4 flex items-end">
-              <Squiggle />
-              <p className="text-body min-w-0 flex-1 text-white">{current.prompt}</p>
-              <ArrowButton size={28} />
-            </div>
-            <p className="text-caption text-wf-muted mt-3">
-              {current.short} · {current.when}
-            </p>
-          </motion.div>
-        </motion.div>
-
-        {/* The board, stacked. Same dot field and the same orange connectors,
-            running down instead of across. */}
-        <motion.div
-          initial={false}
-          animate={{ opacity: open ? 1 : 0 }}
-          transition={{ duration: 0.5, delay: open ? 0.3 : 0 }}
-          className="border-wf-edge bg-wf-board mt-md relative overflow-hidden rounded-2xl border p-3"
-        >
-          <div className="bg-wf-dots absolute inset-0" />
-          <ul className="relative">
-            {current.stages.map((stageItem, i) => (
-              <li key={stageItem.tag}>
-                {i > 0 && (
-                  <div aria-hidden="true" className="flex h-8 justify-center">
-                    <svg width="12" height="32" viewBox="0 0 12 32" fill="none">
-                      <path
-                        d="M6 2 V30"
-                        stroke="var(--color-wf-accent)"
-                        strokeWidth={1.5}
-                        strokeLinecap="round"
-                      />
-                      <circle cx="6" cy="2" r="2" fill="var(--color-wf-accent)" />
-                      <circle cx="6" cy="30" r="2" fill="var(--color-wf-accent)" />
-                    </svg>
-                  </div>
-                )}
-                <div className="border-wf-edge bg-wf-panel/90 rounded-lg border p-1.5">
-                  <div className="mb-1.5 flex items-center justify-between gap-2 px-1">
-                    <span className="text-caption bg-wf-accent text-wf-ink rounded-sm px-1.5">
-                      {stageItem.tag}
-                    </span>
-                    <span className="text-caption text-wf-muted truncate">{current.short}</span>
-                  </div>
-                  <div className="bg-wf-board aspect-[4/3] overflow-hidden rounded-sm">
-                    {stageItem.image && (
-                      <img
-                        src={stageItem.image}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        className="h-full w-full object-cover"
-                      />
-                    )}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-      </div>
-    );
-  }
-
   return (
-    <div ref={stageRef} className="mt-xl relative h-[52vh] max-h-[30rem] min-h-[22rem] w-full">
-      {/* The bar. One element the whole way through: a prompt on the centre
-          line, then the same box lower and to the left, then the panel. Its
-          geometry is written from the scroll value, so it is somewhere
-          definite at every scroll position rather than mid-animation. */}
-      <div
-        ref={barRef}
-        style={{ width: CLOSED_WIDTH, height: CLOSED_HEIGHT, opacity: 0 }}
-        className="border-wf-edge bg-wf-panel absolute top-0 left-0 z-20 overflow-hidden rounded-2xl border shadow-lg will-change-transform"
+    <div className="w-full">
+      <motion.div
+        initial={false}
+        animate={{ height: open ? 'auto' : CLOSED_HEIGHT }}
+        transition={{ duration: 0.8, ease: EASE }}
+        className="border-wf-edge bg-wf-panel relative overflow-hidden rounded-2xl border"
       >
-        {/* Closed: the icon, the line being typed, and the action. */}
         <motion.div
           aria-hidden={open}
           initial={false}
           animate={{ opacity: open ? 0 : 1 }}
-          transition={{ duration: 0.25 }}
-          className="gap-sm absolute inset-x-0 top-0 flex h-16 items-center px-4"
+          transition={{ duration: 0.3 }}
+          className="gap-sm absolute inset-x-0 top-0 flex h-16 items-center px-3"
         >
           <Squiggle />
-          <p className="text-small text-wf-text min-w-0 flex-1 truncate">
-            {promptText.slice(0, typed)}
-            <Caret />
-          </p>
-          <ArrowButton size={32} />
+          <p className="text-small text-wf-text min-w-0 flex-1 truncate">{EVENTS[0]?.prompt}</p>
+          <ArrowButton size={28} />
         </motion.div>
 
-        {/* Open: the prompt panel. Tabs across the top, the line a student
-            would actually ask in the middle, the action at the foot — the
-            same three parts the closed bar had, given room. Deliberately not
-            an information card: the event's name and date are one muted line,
-            and the blurb is not here at all. */}
         <motion.div
           aria-hidden={!open}
           initial={false}
           animate={{ opacity: open ? 1 : 0 }}
-          transition={{ duration: 0.35, delay: open ? 0.15 : 0 }}
-          className="absolute inset-0 flex flex-col"
+          transition={{ duration: 0.4, delay: open ? 0.2 : 0 }}
         >
           <Tabs active={active} />
-
-          <div className="relative flex-1 px-5">
-            {EVENTS.map((event, i) => (
-              <motion.div
-                key={event.id}
-                initial={false}
-                animate={{ opacity: i === active ? 1 : 0, y: i === active ? 0 : 12 }}
-                transition={{ duration: 0.45, ease: EASE }}
-                className="absolute inset-x-5 top-5"
-              >
-                <p className="text-h4 text-white">{event.prompt}</p>
-                <p className="text-caption text-wf-muted mt-3">
-                  {event.short} · {event.when}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="gap-sm flex items-center px-5 pb-5">
-            <Squiggle />
-            <span className="flex-1" />
-            <ArrowButton size={32} />
+          <div className="relative p-4">
+            <SceneWash src={current.cover} />
+            <p className="text-body relative text-white">
+              {line.slice(0, typed)}
+              <Caret />
+            </p>
+            <div className="mt-md relative flex items-center justify-between">
+              <span className="text-caption text-wf-muted">
+                {current.short} · {current.when}
+              </span>
+              <ArrowButton size={28} />
+            </div>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
 
-      {/* The board: a fixed window, never a card that changes. Everything that
-          moves is behind it. */}
-      <div
-        ref={boardRef}
-        onPointerMove={onPointerMove}
-        onPointerLeave={() => {
-          if (dotsRef.current) dotsRef.current.style.opacity = '0';
-        }}
-        // Width set here rather than animated in the timeline: the nodes are
-        // laid out against this box, and a board whose width changed during
-        // the opening would relayout every one of them on every frame of it.
-        style={{ opacity: 0, width: `${BOARD_WIDTH * 100}%` }}
-        className="border-wf-edge bg-wf-board absolute top-0 right-0 h-full overflow-hidden rounded-2xl border will-change-transform"
+      <motion.div
+        initial={false}
+        animate={{ opacity: open ? 1 : 0 }}
+        transition={{ duration: 0.5, delay: open ? 0.3 : 0 }}
+        className="border-wf-edge bg-wf-board mt-md relative overflow-hidden rounded-2xl border p-3"
       >
-        {/* The dot field, and the brighter one the cursor reveals through a
-            circular mask. Two layers rather than one that changes colour: a
-            gradient cannot recolour individual dots, but it can decide which
-            of two identical fields is visible where. */}
         <div className="bg-wf-dots absolute inset-0" />
-        <div
-          ref={dotsRef}
-          aria-hidden="true"
-          className="bg-wf-dots-lit absolute inset-0 opacity-0 transition-opacity duration-300"
-          style={{
-            maskImage:
-              'radial-gradient(160px at var(--mx, -999px) var(--my, -999px), #000, transparent 70%)',
-            WebkitMaskImage:
-              'radial-gradient(160px at var(--mx, -999px) var(--my, -999px), #000, transparent 70%)',
-          }}
-        />
-
-        {/* The canvas: every event's group laid out side by side and panned as
-            one, each in its own arrangement. Wider than the board, which is
-            what keeps content beyond both edges at all times. */}
-        <div ref={canvasRef} className="absolute inset-y-0 left-0 will-change-transform">
-          {EVENTS.map((event, i) => (
-            <Group key={event.id} event={event} index={i} board={board} lit={i === active} />
+        <ul className="relative">
+          {current.stages.map((stage, i) => (
+            <li key={stage.tag}>
+              {i > 0 && (
+                <div aria-hidden="true" className="flex h-8 justify-center">
+                  <svg width="12" height="32" viewBox="0 0 12 32" fill="none">
+                    <path
+                      d="M6 2 V30"
+                      stroke="var(--color-wf-accent)"
+                      strokeWidth={1.5}
+                      strokeLinecap="round"
+                    />
+                    <circle cx="6" cy="2" r="2" fill="var(--color-wf-accent)" />
+                    <circle cx="6" cy="30" r="2" fill="var(--color-wf-accent)" />
+                  </svg>
+                </div>
+              )}
+              <div className="border-wf-edge bg-wf-panel/90 rounded-lg border p-1.5">
+                <div className="mb-1.5 flex items-center justify-between gap-2 px-1">
+                  <span className="text-caption bg-wf-accent text-wf-ink rounded-sm px-1.5">
+                    {stage.tag}
+                  </span>
+                  <span className="text-caption text-wf-muted truncate">{current.short}</span>
+                </div>
+                <div className="bg-wf-board aspect-[4/3] overflow-hidden rounded-sm">
+                  {stage.image && (
+                    <img
+                      src={stage.image}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
+                  )}
+                </div>
+              </div>
+            </li>
           ))}
-        </div>
-      </div>
+        </ul>
+      </motion.div>
     </div>
+  );
+}
+
+/**
+ * Under `prefers-reduced-motion`: the same events, as a plain list of cards in
+ * the page's normal flow. Nothing travels, opens, pans or types.
+ */
+export function ReducedWorkflow() {
+  return (
+    <ul className="gap-lg tablet:grid-cols-3 grid">
+      {EVENTS.map((event) => (
+        <li key={event.id}>
+          <div className="bg-line-grid aspect-[4/3] overflow-hidden rounded-lg">
+            {event.stages[0]?.image && (
+              <img
+                src={event.stages[0].image}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
+            )}
+          </div>
+          <p className="text-eyebrow text-text-subtle mt-md uppercase">{event.tag}</p>
+          <h3 className="text-h3 mt-xs">{event.short}</h3>
+          <p className="text-small text-text-muted mt-xs">{event.when}</p>
+          <p className="text-body text-text-muted mt-sm">{event.blurb}</p>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/**
+ * The photograph washed in behind the bar's lower half.
+ *
+ * The bar's two halves are meant to read differently — the top is navigation,
+ * the bottom is the event being described — and the event's own picture behind
+ * the words is what says which event you are reading about before you have
+ * read a word of it.
+ */
+export function SceneWash({ src }: { src: string }) {
+  return (
+    <span aria-hidden="true" className="absolute inset-0 overflow-hidden">
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="h-full w-full scale-105 object-cover opacity-25 blur-[2px]"
+      />
+      <span className="from-wf-panel via-wf-panel/70 absolute inset-0 bg-gradient-to-r to-transparent" />
+    </span>
   );
 }
 
@@ -640,7 +495,7 @@ export function EventWorkflow({ progress, reduced, compact = false }: EventWorkf
  * control fighting the first, which is the rule the rest of this repo's
  * scroll-driven strips already follow.
  */
-function Tabs({ active }: { active: number }) {
+export function Tabs({ active }: { active: number }) {
   return (
     <div
       role="presentation"
@@ -661,7 +516,7 @@ function Tabs({ active }: { active: number }) {
 }
 
 /** The reference's little knotted-cord mark, redrawn. */
-function Squiggle() {
+export function Squiggle() {
   return (
     <span aria-hidden="true" className="text-wf-muted shrink-0">
       <svg viewBox="0 0 32 12" width="26" height="10" fill="none">
@@ -674,7 +529,7 @@ function Squiggle() {
   );
 }
 
-function Caret() {
+export function Caret() {
   return (
     <span
       aria-hidden="true"
@@ -683,7 +538,7 @@ function Caret() {
   );
 }
 
-function ArrowButton({ size }: { size: number }) {
+export function ArrowButton({ size }: { size: number }) {
   return (
     <span
       aria-hidden="true"

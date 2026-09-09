@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { AccentWord } from '@/components/motion/AccentWord';
@@ -6,12 +6,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { circulatingPhotos, type GalleryPhoto } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
-import {
-  EventWorkflow,
-  WORKFLOW_EVENTS,
-  eventPosition,
-  SCENE_AT,
-} from '../components/EventWorkflow';
+import { CLOSED_HEIGHT, CLOSED_WIDTH } from '../components/EventWorkflow';
 import { ConvergePhoto } from '../components/ConvergePhoto';
 import { ConvergeRail } from '../components/ConvergeRail';
 
@@ -38,7 +33,12 @@ const SLOT_COUNT = 6;
 /** Between one slot's crossfade and the next, so the six do not flip as one. */
 const STAGGER_MS = 130;
 
-export function ConvergeSection() {
+export function ConvergeSection({
+  startSlotRef,
+}: {
+  /** Where the travelling bar begins — see `EventJourney`. */
+  startSlotRef?: React.RefObject<HTMLDivElement | null>;
+} = {}) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -68,50 +68,17 @@ export function ConvergeSection() {
   // Keyframe inputs must increase. Written as [0, 0.3, 0.36, SCENE_AT] this
   // was [0, 0.3, 0.36, 0.34] — a range that goes backwards, which framer
   // cannot interpolate, so the columns simply never faded.
-  const columnsOpacity = useTransform(progress, [0, 0.28, SCENE_AT, SCENE_AT + 0.08], [0, 1, 1, 0]);
-  // …and the scene takes over from them. Two columns of small pictures are the
-  // right backdrop while the section is still text; once the board opens the
-  // event wants to be *behind* the whole composition, at the size the
-  // photograph was taken at, which is what the reference does with its own
-  // imagery. Full-range keyframes, which is the `useTransform` shape that is
-  // safe here.
-  const sceneOpacity = useTransform(progress, [0, SCENE_AT, SCENE_AT + 0.08, 1], [0, 0, 1, 1]);
+  // The columns arrive and hold. They are this section's imagery; the event
+  // photography belongs to the section below, where the canvas is. Keyframes
+  // across the whole 0–1 range, not a sub-range: that is the `useTransform`
+  // shape that is safe here.
+  const columnsOpacity = useTransform(progress, [0, 0.35, 1], [0, 1, 1]);
   const headingScale = useTransform(progress, [0, 1], [0.86, 1]);
   const headingOpacity = useTransform(progress, [0, 0.4, 1], [0.35, 0.85, 1]);
 
   const photos = circulatingPhotos();
 
-  /**
-   * Which event the columns are showing.
-   *
-   * The columns used to cycle the whole gallery on an idle timer, which was
-   * the right answer when the middle of the screen was five pillars that had
-   * nothing to do with any particular event. It is the wrong answer now: the
-   * canvas in the middle is on one event at a time, and a backdrop wandering
-   * through unrelated photographs behind it would be two things saying
-   * different things at once.
-   *
-   * Read from the same `eventPosition` the canvas reads, off the same scroll
-   * value, so the two cannot disagree about which event is current.
-   */
-  const [activeEvent, setActiveEvent] = useState(0);
-  useEffect(() => {
-    if (prefersReducedMotion) return;
-    return progress.on('change', (p) => {
-      const next = Math.round(eventPosition(p));
-      setActiveEvent((current) => (current === next ? current : next));
-    });
-  }, [progress, prefersReducedMotion]);
-
-  // Six slots from the current event's own album. `ConvergePhoto` crossfades
-  // whenever it is handed a new picture, so changing event dissolves the whole
-  // backdrop without anything here having to animate it.
-  const backdrop = WORKFLOW_EVENTS[activeEvent]?.backdrop ?? [];
-  const slots = Array.from({ length: SLOT_COUNT }, (_, i) =>
-    backdrop.length
-      ? { ...photos[i % photos.length], id: `slot-${i}`, src: backdrop[i % backdrop.length] }
-      : photos[i % photos.length],
-  );
+  const slots = Array.from({ length: SLOT_COUNT }, (_, i) => photos[i % photos.length]);
 
   if (!prefersReducedMotion && !isDesktop) {
     return <ConvergeMobile photos={photos} />;
@@ -122,49 +89,17 @@ export function ConvergeSection() {
       <section className="border-border bg-surface py-section border-y">
         <Container>
           <Heading />
-          <EventWorkflow progress={progress} reduced />
         </Container>
       </section>
     );
   }
 
   return (
-    <div ref={sectionRef} className="relative h-[300vh]">
+    <div ref={sectionRef} className="relative h-[260vh]">
       <section
         ref={panelRef}
         className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
       >
-        {/* The scene: the current event's own photograph at full size behind
-            everything, crossfading and drifting as the event changes. All
-            three are mounted and faded between — there is no `AnimatePresence`
-            on this site — and the scrim above them is what keeps the headline
-            readable over a photograph rather than merely lighter. */}
-        <motion.div
-          aria-hidden="true"
-          style={{ opacity: sceneOpacity }}
-          className="absolute inset-0"
-        >
-          {WORKFLOW_EVENTS.map((event, i) => (
-            <motion.img
-              key={event.id}
-              src={event.cover}
-              alt=""
-              loading="lazy"
-              decoding="async"
-              initial={false}
-              animate={{ opacity: i === activeEvent ? 1 : 0, scale: i === activeEvent ? 1 : 1.06 }}
-              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-              // Blurred, and under a heavy scrim. Several of the club's
-              // photographs carry a burned-in geotag caption, which is
-              // invisible in a 21vw column and a paragraph of stray text
-              // across the screen at full bleed. Blur is what makes this a
-              // background rather than a picture with writing on it.
-              className="absolute inset-0 h-full w-full scale-105 object-cover blur-[3px]"
-            />
-          ))}
-          <div className="bg-surface/85 absolute inset-0" />
-        </motion.div>
-
         <motion.div
           aria-hidden="true"
           style={{ x: leftX, opacity: columnsOpacity }}
@@ -215,20 +150,18 @@ export function ConvergeSection() {
           </motion.div>
         </Container>
 
-        {/* The workflow gets nearly the full width, where the pillars it
-            replaced were capped at 54vw to clear the photograph columns. That
-            cap is no longer the right constraint: the columns dim and recede
-            once the board opens, so the board is allowed to pass over them —
-            which is what the reference does, and what "the side images become
-            the environment" asks for. At 54vw the board measured 482px, which
-            is a panel, not a canvas.
-
-            Still outside the heading's scaling wrapper: the heading grows into
-            place as the section is scrubbed, and a board inheriting that scale
-            would draw at a size that is still changing. */}
-        <div className="px-gutter desktop:max-w-[92vw] desktop:px-0 relative z-10 mx-auto w-full">
-          <EventWorkflow progress={progress} reduced={false} />
-        </div>
+        {/* Where the bar starts. Empty markup with the closed bar's own
+            dimensions: the bar itself is `position: fixed` and lives in the
+            wrapper above both sections, because it has to leave this one. All
+            this has to do is be laid out where the bar should begin, which is
+            what makes the flight land correctly at any width without a single
+            hard-coded coordinate. */}
+        <div
+          ref={startSlotRef}
+          aria-hidden="true"
+          style={{ width: CLOSED_WIDTH, height: CLOSED_HEIGHT }}
+          className="mt-2xl relative"
+        />
       </section>
     </div>
   );
@@ -254,7 +187,6 @@ export function ConvergeSection() {
  */
 function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
   const sectionRef = useRef<HTMLElement>(null);
-  const ringsRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress: sectionProgress } = useScroll({
     target: sectionRef,
@@ -267,11 +199,6 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
   // wherever the track is resting.
   const railX = useTransform(sectionProgress, [0, 1], ['3vw', '-3vw']);
 
-  const { scrollYProgress: ringProgress } = useScroll({
-    target: ringsRef,
-    offset: ['start 0.95', 'start 0.3'],
-  });
-
   return (
     <section
       ref={sectionRef}
@@ -282,12 +209,6 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
       </Container>
 
       <ConvergeRail photos={photos} drift={railX} />
-
-      <Container>
-        <div ref={ringsRef}>
-          <EventWorkflow progress={ringProgress} reduced={false} compact />
-        </div>
-      </Container>
     </section>
   );
 }

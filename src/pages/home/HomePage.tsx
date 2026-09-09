@@ -1,6 +1,6 @@
 import { HomeHero } from './sections/HomeHero';
 import { StatBand } from './sections/StatBand';
-import { ConvergeSection } from './sections/ConvergeSection';
+import { EventJourney } from './sections/EventJourney';
 import { UpcomingEvents } from './sections/UpcomingEvents';
 
 /**
@@ -14,23 +14,24 @@ import { UpcomingEvents } from './sections/UpcomingEvents';
  * "Upcoming" came for. Two panels meant checking both to find out what was
  * next, with no way to tell which one a given thing would be in.
  *
- * Two sections that stood here — a 3D image tunnel and a second node canvas —
- * have been removed at the club's request. Both told the same story as
- * `ConvergeSection` now tells in one pass: the canvas in particular drew the
- * same three events as connected nodes, so the page pinned itself twice to say
- * one thing. One pinned stretch is the whole of it now.
+ * `EventJourney` is two sections and one object: "Shaping futures, beyond the
+ * classroom." and the event canvas below it, with a prompt bar that starts in
+ * the first, walks down it, crosses the boundary and docks in the second. It
+ * is one component because the bar has to leave one section and land in the
+ * other, and because both have to agree about which event is current — one
+ * scroll clock, one writer.
  *
- * `ConvergeSection` sits above Upcoming rather than replacing it, because the
- * two answer different questions. It is what the club runs — a standing answer,
- * as true in June as in February. Upcoming is what has not happened yet,
- * derived from the real clock at render, so it empties and refills on its own.
+ * It sits above Upcoming rather than replacing it, because the two answer
+ * different questions. This is what the club runs — a standing answer, as true
+ * in June as in February. Upcoming is what has not happened yet, derived from
+ * the real clock at render, so it empties and refills on its own.
  */
 export default function HomePage() {
   return (
     <>
       <HomeHero />
       <StatBand />
-      <ConvergeSection />
+      <EventJourney />
       <UpcomingEvents />
     </>
   );
