@@ -6,7 +6,12 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { circulatingPhotos, type GalleryPhoto } from '@/pages/gallery/data';
 import { HOME_CONVERGE } from '../data';
-import { EventWorkflow, WORKFLOW_EVENTS, eventPosition } from '../components/EventWorkflow';
+import {
+  EventWorkflow,
+  WORKFLOW_EVENTS,
+  eventPosition,
+  SCENE_AT,
+} from '../components/EventWorkflow';
 import { ConvergePhoto } from '../components/ConvergePhoto';
 import { ConvergeRail } from '../components/ConvergeRail';
 
@@ -60,7 +65,17 @@ export function ConvergeSection() {
   // brief's own word — and a board at full contrast over photographs at full
   // contrast is two foregrounds. Keyframes across the whole 0–1 range, not a
   // sub-range: that is the `useTransform` shape that is safe here.
-  const columnsOpacity = useTransform(progress, [0, 0.35, 0.44, 0.6], [0, 1, 1, 0.32]);
+  // Keyframe inputs must increase. Written as [0, 0.3, 0.36, SCENE_AT] this
+  // was [0, 0.3, 0.36, 0.34] — a range that goes backwards, which framer
+  // cannot interpolate, so the columns simply never faded.
+  const columnsOpacity = useTransform(progress, [0, 0.28, SCENE_AT, SCENE_AT + 0.08], [0, 1, 1, 0]);
+  // …and the scene takes over from them. Two columns of small pictures are the
+  // right backdrop while the section is still text; once the board opens the
+  // event wants to be *behind* the whole composition, at the size the
+  // photograph was taken at, which is what the reference does with its own
+  // imagery. Full-range keyframes, which is the `useTransform` shape that is
+  // safe here.
+  const sceneOpacity = useTransform(progress, [0, SCENE_AT, SCENE_AT + 0.08, 1], [0, 0, 1, 1]);
   const headingScale = useTransform(progress, [0, 1], [0.86, 1]);
   const headingOpacity = useTransform(progress, [0, 0.4, 1], [0.35, 0.85, 1]);
 
@@ -119,6 +134,37 @@ export function ConvergeSection() {
         ref={panelRef}
         className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
       >
+        {/* The scene: the current event's own photograph at full size behind
+            everything, crossfading and drifting as the event changes. All
+            three are mounted and faded between — there is no `AnimatePresence`
+            on this site — and the scrim above them is what keeps the headline
+            readable over a photograph rather than merely lighter. */}
+        <motion.div
+          aria-hidden="true"
+          style={{ opacity: sceneOpacity }}
+          className="absolute inset-0"
+        >
+          {WORKFLOW_EVENTS.map((event, i) => (
+            <motion.img
+              key={event.id}
+              src={event.cover}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              initial={false}
+              animate={{ opacity: i === activeEvent ? 1 : 0, scale: i === activeEvent ? 1 : 1.06 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+              // Blurred, and under a heavy scrim. Several of the club's
+              // photographs carry a burned-in geotag caption, which is
+              // invisible in a 21vw column and a paragraph of stray text
+              // across the screen at full bleed. Blur is what makes this a
+              // background rather than a picture with writing on it.
+              className="absolute inset-0 h-full w-full scale-105 object-cover blur-[3px]"
+            />
+          ))}
+          <div className="bg-surface/85 absolute inset-0" />
+        </motion.div>
+
         <motion.div
           aria-hidden="true"
           style={{ x: leftX, opacity: columnsOpacity }}
@@ -163,7 +209,7 @@ export function ConvergeSection() {
             left 488px for a line that sets at about 500px, which broke
             "beyond the classroom." across two lines and the headline across
             three. */}
-        <Container className="desktop:max-w-[60vw] relative">
+        <Container className="desktop:max-w-[60vw] relative z-10">
           <motion.div style={{ scale: headingScale, opacity: headingOpacity }}>
             <Heading />
           </motion.div>
