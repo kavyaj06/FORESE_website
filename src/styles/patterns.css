@@ -74,3 +74,18 @@
   background-size: 24px 24px;
   background-position: -1px -1px;
 }
+
+/* The workflow board's dot field, and the brighter twin the cursor reveals
+   through a mask. Two utilities rather than one that changes colour: a mask
+   can decide *where* a field shows, but it cannot recolour the dots inside
+   one, so the lit state is a second identical field on top. Same geometry in
+   both, or the dots would not line up as the mask passes over them. */
+@utility bg-wf-dots {
+  background-image: radial-gradient(var(--color-wf-dot) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@utility bg-wf-dots-lit {
+  background-image: radial-gradient(var(--color-wf-dot-lit) 1px, transparent 1px);
+  background-size: 22px 22px;
+}

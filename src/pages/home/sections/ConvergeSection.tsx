@@ -1,15 +1,14 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { AccentWord } from '@/components/motion/AccentWord';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { circulatingPhotos, type GalleryPhoto } from '@/pages/gallery/data';
-import { HOME_CONVERGE, HOME_PILLARS } from '../data';
-import { PILLAR_END, PILLAR_START, Pillars } from '../components/Pillars';
+import { HOME_CONVERGE } from '../data';
+import { EventWorkflow, WORKFLOW_EVENTS, eventPosition } from '../components/EventWorkflow';
 import { ConvergePhoto } from '../components/ConvergePhoto';
 import { ConvergeRail } from '../components/ConvergeRail';
-import { useIdleAdvance } from '../components/useIdleAdvance';
 
 /**
  * The scroll-scrubbed centrepiece.
@@ -56,43 +55,48 @@ export function ConvergeSection() {
 
   const leftX = useTransform(progress, [0, 1], ['-58%', '0%']);
   const rightX = useTransform(progress, [0, 1], ['58%', '0%']);
-  const columnsOpacity = useTransform(progress, [0, 0.35], [0, 1]);
+  // The columns arrive, hold, and then recede once the workflow opens over
+  // them. They are the section's backdrop now rather than its subject — the
+  // brief's own word — and a board at full contrast over photographs at full
+  // contrast is two foregrounds. Keyframes across the whole 0–1 range, not a
+  // sub-range: that is the `useTransform` shape that is safe here.
+  const columnsOpacity = useTransform(progress, [0, 0.35, 0.44, 0.6], [0, 1, 1, 0.32]);
   const headingScale = useTransform(progress, [0, 1], [0.86, 1]);
   const headingOpacity = useTransform(progress, [0, 0.4, 1], [0.35, 0.85, 1]);
-
-  /**
-   * Scroll so that pillar `i` is the one on screen.
-   *
-   * The section is the only thing that knows how long its own travel is, so
-   * the arithmetic lives here rather than in the bar that calls it. It is the
-   * inverse of the mapping `Pillars` uses to read the index back out: aim at
-   * the middle of the pillar's own slot inside the window the pillars occupy,
-   * so a click lands in the centre of that pillar's turn rather than on the
-   * boundary where the next one takes over.
-   */
-  const goToPillar = (index: number) => {
-    const node = sectionRef.current;
-    if (!node) return;
-    const slot = (index + 0.5) / HOME_PILLARS.length;
-    const target = PILLAR_START + (PILLAR_END - PILLAR_START) * slot;
-    const travel = node.offsetHeight - window.innerHeight;
-    window.scrollTo({ top: node.offsetTop + travel * target, behavior: 'smooth' });
-  };
 
   const photos = circulatingPhotos();
 
   /**
-   * Every photograph in the gallery is in the pool, not just the six on screen.
-   * Six slots showing six fixed pictures is a decoration; six slots drawing
-   * from twenty-seven is the club's actual gallery going past.
+   * Which event the columns are showing.
+   *
+   * The columns used to cycle the whole gallery on an idle timer, which was
+   * the right answer when the middle of the screen was five pillars that had
+   * nothing to do with any particular event. It is the wrong answer now: the
+   * canvas in the middle is on one event at a time, and a backdrop wandering
+   * through unrelated photographs behind it would be two things saying
+   * different things at once.
+   *
+   * Read from the same `eventPosition` the canvas reads, off the same scroll
+   * value, so the two cannot disagree about which event is current.
    */
-  const step = useIdleAdvance({ ref: panelRef, enabled: !prefersReducedMotion });
-  const slots = Array.from({ length: SLOT_COUNT }, (_, i) => {
-    // The whole set slides by six each step, so a slot never shows a picture
-    // one of its neighbours is showing, and no slot repeats until the pool
-    // has been through.
-    return photos[(step * SLOT_COUNT + i) % photos.length];
-  });
+  const [activeEvent, setActiveEvent] = useState(0);
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    return progress.on('change', (p) => {
+      const next = Math.round(eventPosition(p));
+      setActiveEvent((current) => (current === next ? current : next));
+    });
+  }, [progress, prefersReducedMotion]);
+
+  // Six slots from the current event's own album. `ConvergePhoto` crossfades
+  // whenever it is handed a new picture, so changing event dissolves the whole
+  // backdrop without anything here having to animate it.
+  const backdrop = WORKFLOW_EVENTS[activeEvent]?.backdrop ?? [];
+  const slots = Array.from({ length: SLOT_COUNT }, (_, i) =>
+    backdrop.length
+      ? { ...photos[i % photos.length], id: `slot-${i}`, src: backdrop[i % backdrop.length] }
+      : photos[i % photos.length],
+  );
 
   if (!prefersReducedMotion && !isDesktop) {
     return <ConvergeMobile photos={photos} />;
@@ -103,7 +107,7 @@ export function ConvergeSection() {
       <section className="border-border bg-surface py-section border-y">
         <Container>
           <Heading />
-          <Pillars progress={progress} reduced />
+          <EventWorkflow progress={progress} reduced />
         </Container>
       </section>
     );
@@ -165,19 +169,19 @@ export function ConvergeSection() {
           </motion.div>
         </Container>
 
-        {/* The circles get the same 54vw cap but not the page gutter, and that
-            is the difference between five rings on one line and four with the
-            fifth wrapped underneath. Inside a `Container` the gutter comes off
-            both ends of an already tight budget: at 1024px the cap is 553px
-            and the row needs 542px, which the gutter alone was enough to
-            overflow. There is no gutter to lose here — the cap is measured
-            against the photograph columns, so clearance is already built in.
+        {/* The workflow gets nearly the full width, where the pillars it
+            replaced were capped at 54vw to clear the photograph columns. That
+            cap is no longer the right constraint: the columns dim and recede
+            once the board opens, so the board is allowed to pass over them —
+            which is what the reference does, and what "the side images become
+            the environment" asks for. At 54vw the board measured 482px, which
+            is a panel, not a canvas.
 
-            Also outside the heading's scaling wrapper on purpose: the heading
-            grows into place as the section is scrubbed, and rings inheriting
-            that scale would draw at a size that is still changing. */}
-        <div className="max-w-content px-gutter desktop:max-w-[54vw] desktop:px-0 relative mx-auto w-full">
-          <Pillars progress={progress} reduced={false} onSelect={goToPillar} />
+            Still outside the heading's scaling wrapper: the heading grows into
+            place as the section is scrubbed, and a board inheriting that scale
+            would draw at a size that is still changing. */}
+        <div className="px-gutter desktop:max-w-[92vw] desktop:px-0 relative z-10 mx-auto w-full">
+          <EventWorkflow progress={progress} reduced={false} />
         </div>
       </section>
     </div>
@@ -235,7 +239,7 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
 
       <Container>
         <div ref={ringsRef}>
-          <Pillars progress={ringProgress} reduced={false} />
+          <EventWorkflow progress={ringProgress} reduced={false} compact />
         </div>
       </Container>
     </section>

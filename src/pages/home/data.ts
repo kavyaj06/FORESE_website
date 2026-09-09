@@ -70,71 +70,36 @@ export const HOME_CONVERGE = {
 } as const;
 
 /**
- * The bar under the pillars: what it says before it opens, and what it is
- * called for anyone who cannot see it open.
+ * The events, as workflows on the canvas that replaced the pillars.
+ *
+ * That interaction — a number, a title, two terms, and a bar that opened into
+ * four names — is gone at the club's request, and `HOME_PILLARS` with it.
+ *
+ * **Ids and one line each, never prose or filenames.** The name, date and
+ * blurb come from `@/data/events` and the photographs from the event's own
+ * gallery album, both read at render. What is written here is only what does
+ * not exist anywhere else: the one-word tag on each node, and the line the
+ * prompt bar types before it opens.
+ *
+ * `prompt` is phrased as the thing a student would ask the club for, because
+ * that is what the bar it appears in looks like. It is the section's own copy,
+ * not a claim about an event, so it lives here rather than in the events file.
  */
-export const HOME_PILLAR_BAR = {
-  /** Shown in the bar while it is still closed. Short — the bar is narrow. */
-  closedLabel: 'What we do',
-  tablistLabel: 'Which part of what we do to show',
+export const HOME_WORKFLOW = {
+  eyebrow: 'Events',
+  /** The three node labels, in the order the connectors run. */
+  stages: ['Awareness', 'Exposure', 'Rehearsal'] as const,
+  events: [
+    { id: 'leap-2026', tag: 'Awareness', prompt: 'Show me what employers actually expect' },
+    { id: 'fored-2026', tag: 'Exposure', prompt: 'Put me in front of universities and recruiters' },
+    {
+      id: 'mock-placement-drive-2026',
+      tag: 'Rehearsal',
+      prompt: 'Let me rehearse the rounds before they count',
+    },
+  ],
 } as const;
 
-/**
- * The pillars beneath the Why-it-exists headline.
- *
- * Four, not five: "Workshops & events" was dropped at the club's request. The
- * count is nowhere in the code — every consumer derives it from this array's
- * length — so removing an entry is the whole change.
- *
- * ⚠️ The titles and the `terms` are the club's own, given as a set. The `body`
- * sentences beneath them are still written-from-the-paragraph and need
- * checking — they are no longer shown on screen, but they are what assistive
- * technology and the reduced-motion list read, so they are not decoration.
- *
- * ⚠️ "Soft skills" was "Gaining soft skills", which was the one title carried
- * over verbatim from the club's own reference. The shorter form is what the
- * club asked for; the longer phrasing survives inside its `body`.
- *
- * `terms` are the three or four words shown under each title. Stored as an
- * array rather than a pre-joined string, because the separator between them
- * is typography, not content — the component joins them.
- */
-export const HOME_PILLARS = [
-  {
-    id: 'opportunities',
-    title: 'Real opportunities',
-    terms: ['Internships', 'Projects', 'Exposure'],
-    body: 'Connecting what is taught in class to the work that happens outside it.',
-  },
-  {
-    id: 'placements',
-    title: 'Placement ready',
-    terms: ['Training', 'Mock interviews'],
-    body: 'Preparing students for placements before the rounds that go on record.',
-  },
-  {
-    id: 'higher-studies',
-    title: 'Higher studies',
-    terms: ['Guidance', 'Pathways'],
-    body: 'Guidance for students taking the research and postgraduate route.',
-  },
-  {
-    id: 'soft-skills',
-    title: 'Soft skills',
-    terms: ['Teamwork', 'Leadership'],
-    body: 'Students gain soft skills like teamwork, leadership, and communication.',
-  },
-] as const;
-
-/**
- * The scroll-driven story section: the carousel above, the canvas below.
- *
- * This replaced `HOME_PROGRAMME`, the five-entry stepper that stood here. The
- * two rounds it listed beside the events — Group Discussion and Aptitude — are
- * parts of Mock Placements rather than programmes of their own, which was
- * flagged when it was built; the events alone are what the club actually runs
- * across a year, and that is what the canvas now draws.
- */
 export const HOME_STORY = {
   eyebrow: 'A year at FORESE',
   title: 'Everything the club puts on, in one run.',
