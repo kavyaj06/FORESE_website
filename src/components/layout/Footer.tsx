@@ -1,42 +1,62 @@
 import { NavLink } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { footerRoutes } from '@/app/routes';
 import { CONTACT, LOCATION, LOCATION_URL, SITE, SOCIAL_LINKS } from '@/data/site';
+import { ContactLink } from './ContactLink';
+import { SocialLinkIcon } from './SocialLinkIcon';
 import { DotField } from '@/components/motion/DotField';
 import { ForeseMark } from './ForeseMark';
 
 /**
- * Site footer, rebuilt on the reference the club supplied.
+ * Site footer, rebuilt on the Nur UI "hover footer" reference.
  *
- * Its shape, one for one: a dark dotted page, the wordmark oversized and
- * centred with the panel overlapping its lower half, a rounded card carrying a
- * lead block on the left and three short link columns on the right, a rule,
- * and a status-and-copyright row beneath it.
+ * Structure is the reference's, one-for-one: a floating rounded card inset
+ * from the page edge, a four-column grid, a rule, a social + copyright row,
+ * and the oversized wordmark bleeding off the bottom, with an ambient radial
+ * wash behind everything.
  *
- * Two things are ours rather than the reference's, deliberately.
+ * Two things are ours rather than the reference's, deliberately:
  *
- * **The lead block is not a newsletter.** The reference's is an email capture
- * with a submit arrow. The club has nothing behind such a form, and a field
- * that takes an address and silently drops it is worse than no field: it is a
- * promise the site cannot keep. The same slot, the same weight on the page,
- * holds the club's own address as a `mailto:` — a control that does exactly
- * what it appears to do.
+ *  - The content. The reference ships another product's placeholder copy —
+ *    its name, its address in Sylhet, "Employee Handbook", "Careers". All of
+ *    it is replaced by the club's real data, and Quick links still derives
+ *    from the route table, so a new page appears here on its own.
+ *  - The card is genuinely dark. The reference sets a 10%-opacity background
+ *    and relies on the page behind it already being dark; on this site the
+ *    page is white, which would have left a washed-out grey card under white
+ *    text. `data-theme="inverse"` makes it actually dark and flips every
+ *    token-driven child with it.
  *
- * **The bottom right is not legal links.** The reference lists Terms, Privacy
- * and Cookie Preferences; this site has no such pages, and linking to pages
- * that do not exist to match a layout is how a footer starts lying. The club's
- * full name goes there instead.
+ * The columns, their content and the social row are the club's own and are
+ * unchanged. What the Melius reference supplied is the *shell*: a black dotted
+ * page, the wordmark oversized and centred with the panel overlapping its
+ * lower half, and the columns inside a rounded card inset from the page edges
+ * rather than running full-bleed to them.
  *
- * The links come from the route table, so a new page appears here on its own,
- * and every contact row renders only when there is something real behind it.
- *
- * `data-theme="inverse"` does the flipping — every token-driven child follows
- * it and needs no dark variant of its own.
+ * The wordmark is static and behind the panel now, where it used to be a
+ * cursor-revealed one bleeding off the bottom edge. That also retired the
+ * `<radialGradient> attribute cx: NaN%` error which had been firing on every
+ * page of the site — `HoverWordmark` was its source, and the footer was its
+ * only caller.
  */
 
-const COLUMN_HEADING = 'text-caption text-text-subtle mb-5 tracking-[0.12em] uppercase';
+const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
+
+/**
+ * Gmail's and Google Maps' own reds, for the contact icons on hover.
+ *
+ * Same reasoning as the social icons' brand colours, and the same reason they
+ * are not tokens: they are not the club's to choose. Both marks happen to be
+ * the same red, which is Google's, not a copy-paste.
+ */
+const GMAIL_RED = '#EA4335';
+const MAPS_RED = '#EA4335';
 const COLUMN_LINK =
-  'text-small text-text-muted hover:text-text duration-fast ease-out-brand transition-colors';
+  'text-text-muted hover:text-accent-blue duration-fast ease-out-brand transition-colors';
+
+function Pending({ what }: { what: string }) {
+  return <p className="text-small text-text-subtle italic">{what} to be added</p>;
+}
 
 export function Footer() {
   const quickLinks = footerRoutes('quickLinks');
@@ -45,8 +65,8 @@ export function Footer() {
     <footer data-theme="inverse" className="bg-bg relative isolate mt-auto overflow-hidden">
       <DotField />
 
-      {/* The wordmark, behind the panel and overlapped by it — the reference
-          sets its own the same way, with a soft warm wash behind the mark. */}
+      {/* The wordmark, behind the panel and overlapped by it, with a soft warm
+          wash behind the mark. */}
       <div aria-hidden="true" className="pt-3xl relative flex justify-center">
         <div className="bg-wf-glow absolute inset-x-1/4 top-1/4 h-1/2" />
         <ForeseMark className="text-border desktop:h-44 relative h-24 w-auto" />
@@ -54,35 +74,20 @@ export function Footer() {
 
       <div className="px-gutter max-w-content desktop:-mt-14 relative mx-auto -mt-8 pb-10">
         <div className="bg-surface/80 desktop:p-14 rounded-xl p-8 backdrop-blur-sm">
-          <div className="gap-2xl desktop:grid-cols-[1.2fr_repeat(3,minmax(0,0.6fr))] grid grid-cols-1">
-            {/* The lead block. */}
-            <div>
-              <h2 className="text-h3">Get in touch</h2>
-              <p className="text-small text-text-muted mt-sm max-w-[36ch]">
-                Questions about the mock placements, or an organisation that would like to take
-                part? Write to us.
-              </p>
-
-              <a
-                href={`mailto:${CONTACT.email}`}
-                // Width in rem, not `max-w-sm`. This repo's spacing scale
-                // defines `sm` as 0.75rem and it shadows Tailwind's sizing
-                // scale, so `max-w-sm` capped the field at 12px — it rendered
-                // as a white blob with the address clipped out of it.
-                className="bg-surface-inverse text-text-inverse gap-md mt-lg group flex w-full max-w-[24rem] items-center justify-between rounded-lg px-5 py-4"
-              >
-                <span className="text-small truncate">{CONTACT.email}</span>
-                <ArrowRight
-                  size={18}
-                  strokeWidth={2}
-                  aria-hidden="true"
-                  className="duration-fast ease-out-brand shrink-0 transition-transform group-hover:translate-x-1"
-                />
-              </a>
+          <div className="tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-4 desktop:gap-16 grid grid-cols-1 gap-12 pb-6">
+            {/* Brand */}
+            <div className="flex flex-col space-y-4">
+              {/* `self-start` matters: in a stretched flex column the SVG fills
+                the column's width and `preserveAspectRatio` then centres the
+                artwork inside it, so the mark drifts to the middle of the
+                column instead of sitting at its left edge. */}
+              <ForeseMark className="h-10 w-auto self-start" />
+              <p className="text-small text-text-muted leading-relaxed">{SITE.description}</p>
             </div>
 
-            <nav aria-label="Pages">
-              <h3 className={COLUMN_HEADING}>Pages</h3>
+            {/* Quick links — from the route table, not a hand-kept list. */}
+            <nav aria-label="Quick links">
+              <h2 className={COLUMN_HEADING}>Quick links</h2>
               <ul className="space-y-3">
                 {quickLinks.map((route) => (
                   <li key={route.path}>
@@ -94,64 +99,83 @@ export function Footer() {
               </ul>
             </nav>
 
+            {/* Contact */}
             <div>
-              <h3 className={COLUMN_HEADING}>Contact</h3>
-              <ul className="space-y-3">
-                <li>
-                  <a href={`mailto:${CONTACT.email}`} className={COLUMN_LINK}>
-                    {CONTACT.email}
-                  </a>
-                </li>
-                {CONTACT.phone && (
-                  <li>
-                    <a href={`tel:${CONTACT.phone.replace(/\s/g, '')}`} className={COLUMN_LINK}>
-                      {CONTACT.phone}
-                    </a>
-                  </li>
-                )}
-                {LOCATION.length > 0 && (
-                  <li>
-                    <a href={LOCATION_URL} target="_blank" rel="noreferrer" className={COLUMN_LINK}>
-                      {LOCATION.map((address) => (
-                        <span key={address} className="block">
-                          {address}
-                        </span>
-                      ))}
-                    </a>
-                  </li>
-                )}
-              </ul>
+              <h2 className={COLUMN_HEADING}>Contact Us</h2>
+              {CONTACT.email || CONTACT.phone ? (
+                <ul className="space-y-4">
+                  {CONTACT.email && (
+                    <li>
+                      <ContactLink href={`mailto:${CONTACT.email}`} icon={Mail} brand={GMAIL_RED}>
+                        {CONTACT.email}
+                      </ContactLink>
+                    </li>
+                  )}
+                  {CONTACT.phone && (
+                    <li>
+                      <ContactLink
+                        href={`tel:${CONTACT.phone.replace(/\s/g, '')}`}
+                        icon={Phone}
+                        brand={MAPS_RED}
+                      >
+                        {CONTACT.phone}
+                      </ContactLink>
+                    </li>
+                  )}
+                </ul>
+              ) : (
+                <Pending what="Contact details" />
+              )}
             </div>
 
-            {SOCIAL_LINKS.length > 0 && (
-              <nav aria-label="Community">
-                <h3 className={COLUMN_HEADING}>Community</h3>
-                <ul className="space-y-3">
-                  {SOCIAL_LINKS.map((social) => (
-                    <li key={social.label}>
-                      <a
-                        href={social.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={COLUMN_LINK}
-                      >
-                        {social.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            )}
+            {/* Location */}
+            <div>
+              <h2 className={COLUMN_HEADING}>Visit us</h2>
+              {LOCATION.length > 0 ? (
+                <address className="not-italic">
+                  {/* The whole address is the link, not a separate "view on
+                    map" line beneath it — an address on a site like this is
+                    only ever there to be found, so making the text itself the
+                    target saves a row and a redundant label. */}
+                  <ContactLink
+                    href={LOCATION_URL}
+                    icon={MapPin}
+                    brand={MAPS_RED}
+                    external
+                    className="text-small"
+                  >
+                    {LOCATION.map((line) => (
+                      <span key={line} className="block">
+                        {line}
+                      </span>
+                    ))}
+                  </ContactLink>
+                </address>
+              ) : (
+                <Pending what="Address" />
+              )}
+            </div>
           </div>
 
-          <hr className="border-border mt-2xl mb-lg border-t" />
+          <hr className="border-border my-8 border-t" />
 
-          <div className="text-small text-text-muted gap-md tablet:flex-row tablet:items-center flex flex-col justify-between">
-            <p className="gap-sm flex items-center">
-              <span aria-hidden="true" className="bg-wf-accent size-1.5 rounded-full" />©{' '}
-              {new Date().getFullYear()} {SITE.name.toUpperCase()}. All rights reserved.
+          <div className="text-small tablet:flex-row tablet:space-y-0 flex flex-col items-center justify-between space-y-4">
+            {SOCIAL_LINKS.length > 0 && (
+              <ul className="text-text-muted flex space-x-6">
+                {SOCIAL_LINKS.map((social) => (
+                  <li key={social.label}>
+                    <SocialLinkIcon social={social} />
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <p className="text-text-muted tablet:text-left text-center">
+              {/* The wordmark is set in caps in the artwork, so the copyright
+                line matches it rather than the sentence-case `SITE.name` used
+                for document titles. */}
+              © {new Date().getFullYear()} {SITE.name.toUpperCase()}. All rights reserved.
             </p>
-            <p>{SITE.fullName}</p>
           </div>
         </div>
       </div>
