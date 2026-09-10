@@ -38,7 +38,7 @@ export function TimelineStep({ step, index, active, nodeRef }: TimelineStepProps
           'tablet:size-12 relative flex size-10 shrink-0 items-center justify-center rounded-lg border',
           'duration-base ease-out-brand transition-[background-color,border-color,color,box-shadow]',
           active
-            ? 'bg-accent border-accent text-accent-fg shadow-md'
+            ? 'bg-wf-accent border-wf-accent text-wf-ink shadow-md'
             : 'bg-surface-raised border-border text-text-muted shadow-sm',
         )}
       >
@@ -59,7 +59,9 @@ export function TimelineStep({ step, index, active, nodeRef }: TimelineStepProps
           className={cn(
             'relative overflow-hidden',
             'duration-base ease-out-brand transition-[border-color,box-shadow]',
-            active ? 'border-border-strong shadow-lg' : 'shadow-sm',
+            // The reached stage takes the accent ring and its glow — the
+            // reference's treatment for the one card it wants read.
+            active ? 'border-wf-accent shadow-lit' : 'shadow-sm',
           )}
         >
           {/* Ghost numeral. Decorative — the <ol> carries the real ordering, so

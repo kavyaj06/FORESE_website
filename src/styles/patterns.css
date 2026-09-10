@@ -89,3 +89,15 @@
   background-image: radial-gradient(var(--color-wf-dot-lit) 1px, transparent 1px);
   background-size: 22px 22px;
 }
+
+/* The warm wash behind the footer's wordmark, as the reference sets its own:
+   a soft ellipse of the workflow accent, well below full strength, so the mark
+   is lit rather than coloured. */
+@utility bg-wf-glow {
+  background-image: radial-gradient(
+    ellipse at center,
+    color-mix(in oklab, var(--color-wf-accent) 28%, transparent),
+    transparent 70%
+  );
+  filter: blur(48px);
+}

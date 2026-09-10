@@ -4,6 +4,7 @@ import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal } from '@/components/motion/Reveal';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { DotField } from '@/components/motion/DotField';
 import { TimelineStep } from '../components/TimelineStep';
 import { MOCK_PLACEMENTS_INTRO, PROCESS_STEPS } from '../data';
 
@@ -20,10 +21,12 @@ const SPINE_HEAD = 0.65;
 /**
  * The six-stage vertical timeline.
  *
- * The section sits on `surface` while the cards stay `surface-raised`, so the
- * cards are lifted by the background being darker than they are rather than by
- * a heavy drop shadow. In a monochrome palette that contrast *is* the
- * elevation — shadows only confirm it.
+ * The band is dark and dotted, and the stage the line has reached lights
+ * orange — the same surface and the same accent as the home page's event
+ * canvas, so the two scroll-driven pieces on this site read as one idea rather
+ * than two. `data-theme="inverse"` does the flipping: the cards, the heading
+ * and the rules all follow it without a dark variant of their own, which is
+ * what that convention exists for.
  *
  * Two pieces of motion, doing different jobs:
  *
@@ -116,8 +119,14 @@ export function ProcessTimeline() {
   }, [prefersReducedMotion]);
 
   return (
-    <section className="border-border bg-surface pt-2xl pb-section relative isolate overflow-hidden border-b">
-      <Container>
+    <section
+      data-theme="inverse"
+      className="border-border bg-bg pt-2xl pb-section relative isolate overflow-hidden border-b"
+    >
+      {/* The dotted field, and the dots the cursor brightens as it crosses. */}
+      <DotField />
+
+      <Container className="relative">
         <Reveal>
           <SectionHeading
             eyebrow={MOCK_PLACEMENTS_INTRO.eyebrow}
@@ -135,9 +144,11 @@ export function ProcessTimeline() {
             aria-hidden="true"
             className="tablet:top-6 tablet:bottom-6 tablet:left-6 absolute top-5 bottom-5 left-5 w-px -translate-x-1/2"
           >
-            <div className="border-border-strong h-full w-full border-l border-dashed" />
+            <div className="border-wf-edge h-full w-full border-l border-dashed" />
+            {/* The travelling line itself is the accent, so what lights a
+                stage is visibly the same thing that arrives at it. */}
             <motion.div
-              className="bg-text absolute inset-0 w-px origin-top"
+              className="bg-wf-accent absolute inset-0 w-px origin-top"
               style={{ scaleY: prefersReducedMotion ? 1 : fillScale }}
             />
           </div>
