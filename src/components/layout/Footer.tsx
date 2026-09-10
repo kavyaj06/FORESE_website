@@ -28,10 +28,22 @@ import { ForeseMark } from './ForeseMark';
  *    token-driven child with it.
  *
  * The columns, their content and the social row are the club's own and are
- * unchanged. What the Melius reference supplied is the *shell*: a black dotted
- * page, the wordmark oversized and centred with the panel overlapping its
- * lower half, and the columns inside a rounded card inset from the page edges
- * rather than running full-bleed to them.
+ * unchanged. What the reference supplies is the *shell*, and this version
+ * takes it from the reference's own markup rather than from a screenshot of
+ * it — so the numbers are its numbers:
+ *
+ *   - the page is `px-[5vw] pb-[5vw]` with a deep top pad (`pt-25`, doubling
+ *     at the tablet breakpoint) to leave the wordmark its room;
+ *   - the card is `max-w-[80rem]`, `rounded-lg`, `px-5 py-7` growing to
+ *     `p-9 py-8`, on `--color-wf-card`;
+ *   - the lead column is 360px wide, the link columns sit 60px to its right
+ *     with 76px between them, each heading uppercase with a 24px gap to its
+ *     list and 16px between rows;
+ *   - the wordmark is centred at the card's top edge and translated up 83% of
+ *     its own height, in `--color-wf-dot`, so a fifth of it is behind the card;
+ *   - the rule above the last row is `--color-wf-dot`, 32px above and 24px
+ *     below on a phone, 36 and 20 on a desktop;
+ *   - every link is `--color-wf-button` and goes white over 200ms.
  *
  * The wordmark is static and behind the panel now, where it used to be a
  * cursor-revealed one bleeding off the bottom edge. That also retired the
@@ -40,7 +52,8 @@ import { ForeseMark } from './ForeseMark';
  * only caller.
  */
 
-const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
+/** Uppercase, white, 24px clear of its list — the reference's own heading. */
+const COLUMN_HEADING = 'text-small text-white uppercase mb-6';
 
 /**
  * Gmail's and Google Maps' own reds, for the contact icons on hover.
@@ -51,8 +64,8 @@ const COLUMN_HEADING = 'text-white text-lg font-semibold mb-6';
  */
 const GMAIL_RED = '#EA4335';
 const MAPS_RED = '#EA4335';
-const COLUMN_LINK =
-  'text-text-muted hover:text-accent-blue duration-fast ease-out-brand transition-colors';
+/** Grey, white on hover, over 200ms — the reference's own link. */
+const COLUMN_LINK = 'text-small text-wf-button hover:text-white transition-colors duration-200';
 
 function Pending({ what }: { what: string }) {
   return <p className="text-small text-text-subtle italic">{what} to be added</p>;
@@ -65,117 +78,139 @@ export function Footer() {
     <footer data-theme="inverse" className="bg-bg relative isolate mt-auto overflow-hidden">
       <DotField />
 
-      {/* The wordmark, behind the panel and overlapped by it, with a soft warm
-          wash behind the mark. */}
-      <div aria-hidden="true" className="pt-3xl relative flex justify-center">
-        <div className="bg-wf-glow absolute inset-x-1/4 top-1/4 h-1/2" />
-        <ForeseMark className="text-border desktop:h-44 relative h-24 w-auto" />
-      </div>
-
-      <div className="px-gutter max-w-content desktop:-mt-14 relative mx-auto -mt-8 pb-10">
-        <div className="bg-surface/80 desktop:p-14 rounded-xl p-8 backdrop-blur-sm">
-          <div className="tablet:grid-cols-2 tablet:gap-8 desktop:grid-cols-4 desktop:gap-16 grid grid-cols-1 gap-12 pb-6">
-            {/* Brand */}
-            <div className="flex flex-col space-y-4">
-              {/* `self-start` matters: in a stretched flex column the SVG fills
-                the column's width and `preserveAspectRatio` then centres the
-                artwork inside it, so the mark drifts to the middle of the
-                column instead of sitting at its left edge. */}
-              <ForeseMark className="h-10 w-auto self-start" />
-              <p className="text-small text-text-muted leading-relaxed">{SITE.description}</p>
-            </div>
-
-            {/* Quick links — from the route table, not a hand-kept list. */}
-            <nav aria-label="Quick links">
-              <h2 className={COLUMN_HEADING}>Quick links</h2>
-              <ul className="space-y-3">
-                {quickLinks.map((route) => (
-                  <li key={route.path}>
-                    <NavLink to={route.path} className={COLUMN_LINK}>
-                      {route.label}
-                    </NavLink>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
-            {/* Contact */}
-            <div>
-              <h2 className={COLUMN_HEADING}>Contact Us</h2>
-              {CONTACT.email || CONTACT.phone ? (
-                <ul className="space-y-4">
-                  {CONTACT.email && (
-                    <li>
-                      <ContactLink href={`mailto:${CONTACT.email}`} icon={Mail} brand={GMAIL_RED}>
-                        {CONTACT.email}
-                      </ContactLink>
-                    </li>
-                  )}
-                  {CONTACT.phone && (
-                    <li>
-                      <ContactLink
-                        href={`tel:${CONTACT.phone.replace(/\s/g, '')}`}
-                        icon={Phone}
-                        brand={MAPS_RED}
-                      >
-                        {CONTACT.phone}
-                      </ContactLink>
-                    </li>
-                  )}
-                </ul>
-              ) : (
-                <Pending what="Contact details" />
-              )}
-            </div>
-
-            {/* Location */}
-            <div>
-              <h2 className={COLUMN_HEADING}>Visit us</h2>
-              {LOCATION.length > 0 ? (
-                <address className="not-italic">
-                  {/* The whole address is the link, not a separate "view on
-                    map" line beneath it — an address on a site like this is
-                    only ever there to be found, so making the text itself the
-                    target saves a row and a redundant label. */}
-                  <ContactLink
-                    href={LOCATION_URL}
-                    icon={MapPin}
-                    brand={MAPS_RED}
-                    external
-                    className="text-small"
-                  >
-                    {LOCATION.map((line) => (
-                      <span key={line} className="block">
-                        {line}
-                      </span>
-                    ))}
-                  </ContactLink>
-                </address>
-              ) : (
-                <Pending what="Address" />
-              )}
+      <div className="tablet:pt-50 relative flex w-full flex-col items-center px-[5vw] pt-25 pb-[5vw]">
+        <div className="relative flex w-full max-w-[80rem] flex-col items-center">
+          {/* The wordmark: centred on the card's top edge and pulled up 83% of
+              its own height, so the card overlaps the last fifth of it. Sized
+              by width like the reference's, but capped — the club's lockup is
+              a squarer shape than the reference's horizontal one, and at a
+              literal 80% of the card it would stand taller than the card
+              itself. */}
+          <div aria-hidden="true" className="absolute top-0 left-0 z-10 w-full">
+            <div className="relative mx-auto w-[38%] max-w-[24rem] -translate-y-[83%]">
+              <div className="bg-wf-glow absolute inset-x-1/4 top-1/4 h-1/2" />
+              <ForeseMark className="text-wf-dot relative block h-auto w-full" />
             </div>
           </div>
 
-          <hr className="border-border my-8 border-t" />
+          <div // `rounded-md` is 10px here, against the reference's 8px: this repo's
+            // radius scale has no 8, and 10 is its nearest step. `rounded-lg`
+            // is 16px on this site and read visibly softer than the reference.
+            className="bg-wf-card desktop:p-9 desktop:py-8 relative z-20 flex w-full flex-col rounded-md px-5 py-7"
+          >
+            <div className="desktop:flex-row flex flex-col">
+              {/* Brand — the reference's lead column, 360px wide on a desktop. */}
+              <div className="desktop:w-90 flex shrink-0 flex-col space-y-4">
+                {/* `self-start` matters: in a stretched flex column the SVG fills
+                the column's width and `preserveAspectRatio` then centres the
+                artwork inside it, so the mark drifts to the middle of the
+                column instead of sitting at its left edge. */}
+                <ForeseMark className="h-10 w-auto self-start" />
+                <p className="text-small text-text-muted leading-relaxed">{SITE.description}</p>
+              </div>
 
-          <div className="text-small tablet:flex-row tablet:space-y-0 flex flex-col items-center justify-between space-y-4">
-            {SOCIAL_LINKS.length > 0 && (
-              <ul className="text-text-muted flex space-x-6">
-                {SOCIAL_LINKS.map((social) => (
-                  <li key={social.label}>
-                    <SocialLinkIcon social={social} />
-                  </li>
-                ))}
-              </ul>
-            )}
+              {/* The three link columns, at the reference's own offsets: 60px
+                  clear of the lead column, 76px between one another. */}
+              <div className="desktop:mt-5 desktop:mr-4 desktop:ml-15 desktop:flex-row desktop:gap-19 mt-14 flex flex-1 flex-col justify-center gap-9">
+                {/* Quick links — from the route table, not a hand-kept list. */}
+                <nav aria-label="Quick links">
+                  <h2 className={COLUMN_HEADING}>Quick links</h2>
+                  <ul className="space-y-4">
+                    {quickLinks.map((route) => (
+                      <li key={route.path}>
+                        <NavLink to={route.path} className={COLUMN_LINK}>
+                          {route.label}
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
 
-            <p className="text-text-muted tablet:text-left text-center">
-              {/* The wordmark is set in caps in the artwork, so the copyright
-                line matches it rather than the sentence-case `SITE.name` used
-                for document titles. */}
-              © {new Date().getFullYear()} {SITE.name.toUpperCase()}. All rights reserved.
-            </p>
+                {/* Contact */}
+                <div>
+                  <h2 className={COLUMN_HEADING}>Contact Us</h2>
+                  {CONTACT.email || CONTACT.phone ? (
+                    <ul className="space-y-4">
+                      {CONTACT.email && (
+                        <li>
+                          <ContactLink
+                            href={`mailto:${CONTACT.email}`}
+                            icon={Mail}
+                            brand={GMAIL_RED}
+                          >
+                            {CONTACT.email}
+                          </ContactLink>
+                        </li>
+                      )}
+                      {CONTACT.phone && (
+                        <li>
+                          <ContactLink
+                            href={`tel:${CONTACT.phone.replace(/\s/g, '')}`}
+                            icon={Phone}
+                            brand={MAPS_RED}
+                          >
+                            {CONTACT.phone}
+                          </ContactLink>
+                        </li>
+                      )}
+                    </ul>
+                  ) : (
+                    <Pending what="Contact details" />
+                  )}
+                </div>
+
+                {/* Location */}
+                <div>
+                  <h2 className={COLUMN_HEADING}>Visit us</h2>
+                  {LOCATION.length > 0 ? (
+                    <address className="not-italic">
+                      {/* The whole address is the link, not a separate "view on
+                    map" line beneath it — an address on a site like this is
+                    only ever there to be found, so making the text itself the
+                    target saves a row and a redundant label. */}
+                      <ContactLink
+                        href={LOCATION_URL}
+                        icon={MapPin}
+                        brand={MAPS_RED}
+                        external
+                        className="text-small"
+                      >
+                        {LOCATION.map((line) => (
+                          <span key={line} className="block">
+                            {line}
+                          </span>
+                        ))}
+                      </ContactLink>
+                    </address>
+                  ) : (
+                    <Pending what="Address" />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* The rule and the last row, at the reference's spacing: 32px
+                above and 24px below on a phone, 36 and 20 on a desktop. */}
+            <div className="border-wf-dot desktop:mt-9 desktop:pt-5 mt-8 border-t pt-6">
+              <div className="text-small desktop:flex-row desktop:items-center desktop:gap-6 flex flex-col justify-between gap-4">
+                {SOCIAL_LINKS.length > 0 && (
+                  <ul className="text-wf-button flex space-x-6">
+                    {SOCIAL_LINKS.map((social) => (
+                      <li key={social.label}>
+                        <SocialLinkIcon social={social} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <p className="text-wf-button">
+                  {/* The wordmark is set in caps in the artwork, so the copyright
+                  line matches it rather than the sentence-case `SITE.name` used
+                  for document titles. */}
+                  © {new Date().getFullYear()} {SITE.name.toUpperCase()}. All rights reserved.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

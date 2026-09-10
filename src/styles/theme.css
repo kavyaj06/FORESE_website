@@ -101,6 +101,13 @@
   --color-wf-edge: #b9b9b966; /* melius --color-gray-light-2-faded */
   --color-wf-text: #d9d9d9; /* melius --color-gray-light-3 */
   --color-wf-muted: #b9b9b9; /* melius --color-gray-light-2 */
+  /* The footer card, one step lighter than the page it sits on — the
+     reference's `--color-gray-dark-2`. Interpolated between the two values
+     either side of it that I did read directly (`#202020` and `#3e3e3e`)
+     rather than read itself, so it is the one value in this block that is a
+     judgement rather than a measurement. */
+  --color-wf-card: #2b2b2b;
+
   /* The circular action button's resting colour — it goes orange on hover and
      once its panel is live. Sampled from the reference's screenshot rather
      than read off its `:root` like the rest of this block, because the token
