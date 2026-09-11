@@ -119,9 +119,19 @@ export function EventCanvasSection({
         </div>
       </div>
 
-      {/* The bar's dock: empty on purpose, in a sticky panel of its own. */}
+      {/* The bar's dock: empty on purpose, in a sticky panel of its own.
+
+          `h-0`, not `h-screen`, and that is the whole difference between the
+          bar staying put and the bar leaving early. A screen-tall sticky panel
+          releases as soon as its *bottom* reaches the viewport's bottom —
+          which here is a full screen-height before the section ends, so the
+          bar began sliding away while the last board was still being read,
+          then slid back down when you scrolled up to it. A zero-height one
+          holds until the section's own bottom edge reaches the top of the
+          screen: the bar sits still for every event and only leaves when the
+          section itself is done. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30">
-        <div ref={panelRef} className="sticky top-0 h-screen">
+        <div ref={panelRef} className="sticky top-0 h-0">
           <div
             ref={dockRef}
             style={{ top: '31vh', left: '17%', width: 'min(24.5%, 34rem)', height: '9.5rem' }}

@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, type MotionValue } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ArrowButton,
   Caret,
   CLOSED_HEIGHT,
   CLOSED_WIDTH,
   ERASE_MS,
-  FADE_END,
   HOLD_MS,
   Squiggle,
   Tabs,
@@ -16,8 +15,6 @@ import {
 } from './EventWorkflow';
 
 interface JourneyBarProps {
-  /** The journey's progress — both sections on one clock. */
-  progress: MotionValue<number>;
   /** Where the bar starts: a marker in the first section. */
   startRef: React.RefObject<HTMLElement | null>;
   /** Where it lands: the empty column in the second section. */
@@ -72,7 +69,7 @@ const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
  * below; the tab row and then the rule under it appear in the space the growth
  * opens up.
  */
-export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: JourneyBarProps) {
+export function JourneyBar({ startRef, dockRef, panelRef, active }: JourneyBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
   const [parked, setParked] = useState(true);
   const [docked, setDocked] = useState(false);
@@ -96,7 +93,7 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
   }, []);
 
   useEffect(() => {
-    const apply = (p: number) => {
+    const apply = () => {
       const bar = barRef.current;
       const from = startRef.current?.getBoundingClientRect();
       const dock = dockRef.current?.getBoundingClientRect();
@@ -172,7 +169,22 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
       bar.style.transform = `translate3d(${left}px, ${bottom - height}px, 0)`;
       bar.style.width = `${width}px`;
       bar.style.height = `${height}px`;
-      bar.style.opacity = `${clamp01(p / FADE_END)}`;
+      /**
+       * In as its marker rises into view, out as its section lets go.
+       *
+       * Both measured, like everything else here. The fade out matters as
+       * much as the movement: the dock sits 31vh inside a panel that comes to
+       * rest at the section's bottom edge, so the bar trails the section by
+       * its own offset — measured, it was still on screen over the footer at
+       * the very end of the page. It belongs to the events, so it leaves with
+       * them.
+       */
+      const arriving = clamp01((window.innerHeight * 0.92 - from.top) / 140);
+      // 160px of travel, not more: the page can only scroll 213px past this
+      // section's bottom, so a longer fade leaves the bar faintly visible at
+      // the very end — measured at 0.1 opacity over the footer.
+      const leaving = clamp01((panel.top + 160) / 160);
+      bar.style.opacity = `${Math.min(arriving, leaving)}`;
       // 16px closed, 8px open. Both captures of the reference carry it: the
       // small bar is `border-radius: 16px` and the docked one 8px, so the
       // corners tighten as the box grows rather than holding one value.
@@ -212,9 +224,35 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
       });
     };
 
-    apply(progress.get());
-    return progress.on('change', apply);
-  }, [progress, startRef, dockRef, panelRef]);
+    /**
+     * Driven by the scroll itself, not by the section's progress value.
+     *
+     * A `useScroll` progress stops changing once its target is behind you, and
+     * the handler stops firing with it — so the bar froze at its docked
+     * position and floated there over everything below, which is the same bug
+     * in a second disguise. Every number here is read from live rectangles
+     * anyway; the only thing the progress value was providing was a reason to
+     * recompute. Coalesced to one measurement per frame, because scroll fires
+     * far more often than the screen repaints.
+     */
+    let frame = 0;
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        apply();
+      });
+    };
+
+    apply();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [startRef, dockRef, panelRef]);
 
   /**
    * The parked bar's line, typed, held, erased, and replaced by the next.

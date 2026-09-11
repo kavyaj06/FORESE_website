@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react';
-import { useScroll, useSpring } from 'framer-motion';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { JourneyBar } from '../components/JourneyBar';
@@ -16,11 +15,12 @@ import { EventCanvasSection, EventCanvasSectionCompact } from './EventCanvasSect
  * because the two have to agree about which event is current, which means they
  * have to be reading the same clock.
  *
- * That clock is this wrapper's scroll progress. Everything downstream is a
- * function of it: where the bar is, when the board appears, which event the
- * canvas is showing, and which photograph the second section is standing in.
- * One writer, so nothing can disagree — the rule the rest of this page's
- * scroll-driven work already follows.
+ * Nothing here is driven by a scroll *fraction* any more. The bar measures
+ * its own travel from the canvas section's approach, and the canvas section
+ * decides which event is current from where its boards actually are — both
+ * read live rectangles, so neither can drift when a section changes height.
+ * What this component still owns is the pair of markers the bar flies between
+ * and the one piece of state both sections need: which event is current.
  */
 export function EventJourney() {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -34,25 +34,6 @@ export function EventJourney() {
   // `ConvergeSection` already sets for its own columns.
   const isDesktop = useMediaQuery('(min-width: 64rem)');
   const travelling = isDesktop && !prefersReducedMotion;
-
-  const { scrollYProgress } = useScroll({
-    target: wrapRef,
-    offset: ['start start', 'end end'],
-  });
-
-  /**
-   * Smoothed, but not sprung.
-   *
-   * High stiffness against heavy damping is a follower rather than a spring:
-   * it lags the scroll by a frame or two and never passes it, so the bar never
-   * overshoots its dock when the wheel stops. The same pair every scrubbed
-   * section on this site settled on.
-   */
-  const progress = useSpring(scrollYProgress, {
-    stiffness: 110,
-    damping: 30,
-    restDelta: 0.001,
-  });
 
   /**
    * Which event is current. Decided by the canvas section, from where its
@@ -83,13 +64,7 @@ export function EventJourney() {
         active={active}
         onActive={onActive}
       />
-      <JourneyBar
-        progress={progress}
-        startRef={startRef}
-        dockRef={dockRef}
-        panelRef={panelRef}
-        active={active}
-      />
+      <JourneyBar startRef={startRef} dockRef={dockRef} panelRef={panelRef} active={active} />
     </div>
   );
 }
