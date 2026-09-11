@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { motion, useScroll, useSpring, type MotionValue } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { motion, useScroll, useSpring } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal } from '@/components/motion/Reveal';
@@ -8,51 +8,100 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { HOME_WORKFLOW } from '../data';
 import {
   CompactWorkflow,
+  EventBoard,
   ReducedWorkflow,
   WORKFLOW_EVENTS,
-  WorkflowBoard,
 } from '../components/EventWorkflow';
 
 /**
  * The section the bar lands in.
  *
- * It is a section of its own, not the tail of the one above: its own band, its
- * own background, its own pinned panel. What it does not own is the bar —
- * that arrives from the section above and docks in the empty column on the
- * left, which is why the column here is empty markup rather than a component.
- * The bar is `position: fixed` and reads this element's rectangle, so the
- * column can be laid out normally and the bar will land on it at any width.
+ * **One board per event, stacked and scrolled past** — the reference's own
+ * structure, and the club's request: a `<section>` each, right-aligned at
+ * 54.2vw with a 16px gap, rising into view as it arrives. What stood here
+ * was a single window panned sideways across one long canvas, which meant
+ * every event shared one box and none of them could ever *arrive*.
  *
- * The background is the current event's own photograph, filling the section
- * and crossfading as the canvas moves from one event to the next — so the
- * event changes in three places at once: the tabs in the bar, the nodes on the
- * board, and the room the whole thing is standing in.
+ * The bar is not laid out here. It flies in from the section above and docks
+ * in the empty marker on the left, which is why that marker is empty markup
+ * rather than a component: the bar is `position: fixed` and reads this
+ * element's rectangle, so the marker can be laid out normally and the bar will
+ * land on it at any width.
+ *
+ * The marker and the background both sit in `sticky` panels spanning the
+ * section, so they hold still while the boards pass and then release with it —
+ * the bar leaves when the last event does rather than following the reader
+ * down to the footer.
  */
 export function EventCanvasSection({
-  progress,
   dockRef,
   panelRef,
   active,
+  onActive,
 }: {
-  progress: MotionValue<number>;
   dockRef: React.RefObject<HTMLDivElement | null>;
   panelRef: React.RefObject<HTMLDivElement | null>;
   active: number;
+  onActive: (index: number) => void;
 }) {
+  const stackRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Which event is current: the board whose centre is nearest the middle of
+   * the screen.
+   *
+   * Read from the boards themselves rather than from a fraction of the
+   * section's scroll, because the boards are now ordinary layout — their
+   * heights depend on the viewport's width, and any fraction I wrote here
+   * would be a second opinion about where they are. Coalesced to one
+   * measurement per frame: scroll fires far more often than the screen
+   * repaints, and each measurement reads layout.
+   */
+  useEffect(() => {
+    const stack = stackRef.current;
+    if (!stack) return;
+    let frame = 0;
+
+    const measure = () => {
+      frame = 0;
+      const middle = window.innerHeight / 2;
+      let best = 0;
+      let bestDistance = Infinity;
+      stack.querySelectorAll('[data-event-board]').forEach((node) => {
+        const rect = node.getBoundingClientRect();
+        const distance = Math.abs(rect.top + rect.height / 2 - middle);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = Number(node.getAttribute('data-event-board'));
+        }
+      });
+      onActive(best);
+    };
+
+    const onScroll = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [onActive]);
+
   return (
-    <section className="border-border relative h-[300vh] border-b">
-      <div
-        ref={panelRef}
-        className="bg-surface sticky top-0 flex h-screen flex-col justify-center overflow-hidden"
-      >
-        {/* The room, at full strength. Not blurred and not washed out: this
-            section is meant to be standing *in* the event, the way the
-            reference stands in its product shot, and a photograph behind a
-            85% scrim is a tint, not a place. What is left over it is a soft
-            vertical gradient — dark at the edges, clear through the middle —
-            which is only enough to keep the dark board and the panel from
-            sitting on a bright sky. */}
-        <div aria-hidden="true" className="absolute inset-0">
+    <section className="border-border relative border-b">
+      {/* The room, at full strength: not blurred and not washed out. This
+          section is meant to be standing *in* the event, and a photograph
+          behind an 85% scrim is a tint, not a place. What is over it is a soft
+          vertical gradient, only enough to keep the dark boards and the panel
+          off a bright sky. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
+        <div className="sticky top-0 h-screen overflow-hidden">
           {WORKFLOW_EVENTS.map((event, i) => (
             <motion.img
               key={event.id}
@@ -68,42 +117,33 @@ export function EventCanvasSection({
           ))}
           <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/10 to-black/45" />
         </div>
+      </div>
 
-        {/*
-          The composition, measured off the reference frames rather than
-          guessed at. Three things follow from them and none of them was what
-          this section had:
+      {/* The bar's dock: empty on purpose, in a sticky panel of its own. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30">
+        <div ref={panelRef} className="sticky top-0 h-screen">
+          <div
+            ref={dockRef}
+            style={{ top: '31vh', left: '17%', width: 'min(24.5%, 34rem)', height: '9.5rem' }}
+            className="absolute"
+          />
+        </div>
+      </div>
 
-          - the board is much larger and **runs off the right edge** — it is a
-            window onto a canvas, and a window with a margin on all four sides
-            reads as a card;
-          - the bar lands as a **small panel**, about a quarter of the screen
-            wide and a fifth of it tall, not a full-height column;
-          - it sits **left of centre with clear space to its left**, level with
-            the top of the board, floating over the photograph rather than
-            docked against the edge of the page.
-
-          Absolute rather than a flex row, because those three do not sit in
-          one line: the panel is a fifth as tall as the board and level with
-          its top, and the board is wider than the section.
-        */}
-        <div
-          ref={dockRef}
-          aria-hidden="true"
-          // 9.5rem, not 13. Measured off the reference's own docked frame at
-          // 1440, its bar is 142px tall; 13rem was 208 and made a panel of
-          // what is meant to stay a bar. The extra half-rem over its 142 is
-          // the line of name and date that its own content does not carry.
-          style={{ top: '18vh', left: '17%', width: 'min(24.5%, 34rem)', height: '9.5rem' }}
-          className="absolute"
-        />
-
-        <WorkflowBoard
-          progress={progress}
-          active={active}
-          className="absolute"
-          style={{ top: '18vh', left: '45%', right: '-6%', height: '70vh' }}
-        />
+      {/* The boards. Right-aligned at the reference's own width, with its own
+          gap and its own generous room above and below. */}
+      <div ref={stackRef} className="gap-md relative z-10 flex flex-col pt-[24vh] pb-[24vh]">
+        {WORKFLOW_EVENTS.map((event, i) => (
+          <section
+            key={event.id}
+            aria-label={event.short}
+            className="px-gutter desktop:pr-2.5 desktop:pl-0 relative flex justify-end"
+          >
+            <div className="desktop:w-[54.2vw] w-full">
+              <EventBoard event={event} index={i} />
+            </div>
+          </section>
+        ))}
       </div>
     </section>
   );

@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useScroll, useSpring } from 'framer-motion';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { eventPosition } from '../components/EventWorkflow';
 import { JourneyBar } from '../components/JourneyBar';
 import { ConvergeSection } from './ConvergeSection';
 import { EventCanvasSection, EventCanvasSectionCompact } from './EventCanvasSection';
@@ -55,14 +54,16 @@ export function EventJourney() {
     restDelta: 0.001,
   });
 
+  /**
+   * Which event is current. Decided by the canvas section, from where its
+   * boards actually are, and held here because the bar needs it too — one
+   * writer, so the tabs, the description, the room and the boards cannot
+   * disagree about which event you are looking at.
+   */
   const [active, setActive] = useState(0);
-  useEffect(() => {
-    if (!travelling) return;
-    return progress.on('change', (p) => {
-      const next = Math.round(eventPosition(p));
-      setActive((current) => (current === next ? current : next));
-    });
-  }, [progress, travelling]);
+  const onActive = useCallback((next: number) => {
+    setActive((current) => (current === next ? current : next));
+  }, []);
 
   if (!travelling) {
     return (
@@ -77,10 +78,10 @@ export function EventJourney() {
     <div ref={wrapRef} className="relative">
       <ConvergeSection startSlotRef={startRef} />
       <EventCanvasSection
-        progress={progress}
         dockRef={dockRef}
         panelRef={panelRef}
         active={active}
+        onActive={onActive}
       />
       <JourneyBar
         progress={progress}

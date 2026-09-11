@@ -5,11 +5,9 @@ import {
   Caret,
   CLOSED_HEIGHT,
   CLOSED_WIDTH,
-  CROSS_END,
   ERASE_MS,
   FADE_END,
   HOLD_MS,
-  PARK_END,
   Squiggle,
   Tabs,
   TYPE_MS,
@@ -32,6 +30,16 @@ interface JourneyBarProps {
 
 /** The tab row's open height, in pixels, as the docked reference measures. */
 const TABS_HEIGHT = 48;
+
+/**
+ * How far ahead of its section the bar starts moving, in screen-heights.
+ *
+ * Long enough that the first section has finished its own animation before
+ * anything here begins: that section's panel releases one screen-height
+ * before the canvas section arrives, and its columns and headline are done
+ * well before that.
+ */
+const TRAVEL_SCREENS = 1.2;
 
 /** The bar's corners, closed and open — 16px and 8px in the reference. */
 const CLOSED_RADIUS = 16;
@@ -96,37 +104,48 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
       if (!bar || !from || !dock || !panel) return;
 
       /**
-       * Where the dock will be once its section has pinned.
+       * Where the dock will be once its section has pinned — and where it
+       * actually is once that section lets go.
        *
-       * Not where it is. That section pins 260vh into a 460vh journey, so for
-       * the whole of the move the dock is still travelling up the screen — and
-       * a bar interpolating towards a moving target chases it downward:
-       * measured, the bar's foot reached 1018px on a 900px screen. The panel
-       * is `sticky top-0` and full height, so the dock's offset inside it is
-       * where it comes to rest, and that offset is the same at every scroll
-       * position.
+       * `Math.max(0, panel.top)` is doing both jobs. While the section is
+       * still below the fold its panel's top is positive, and subtracting it
+       * gives the rectangle the dock will come to rest at, so the bar flies to
+       * a fixed target instead of chasing one that is itself still sliding up
+       * the screen. While pinned the term is zero and this is simply the live
+       * rectangle. And once the section scrolls past, its panel's top goes
+       * negative — clamped away, so the bar tracks the dock up and off the
+       * screen with it.
+       *
+       * Without the clamp the bar stayed exactly where it docked for the rest
+       * of the page: measured at y=162 over Upcoming and over the footer,
+       * long after the last event had gone.
        */
       const to = {
         left: dock.left,
-        top: dock.top - panel.top,
+        top: dock.top - Math.max(0, panel.top),
         width: dock.width,
         height: dock.height,
       };
 
       /**
-       * Two curves, read off the reference's own frames rather than chosen.
+       * How far through the move the bar is — measured, not a fraction of the
+       * journey.
        *
+       * It is the canvas section's own approach: the bar is parked while that
+       * section is more than `TRAVEL` below the fold, and has arrived exactly
+       * as the section pins. Written as a fraction of the wrapper's scroll it
+       * would have to be re-tuned every time the boards change height, and
+       * they now depend on the viewport's width. This cannot drift.
+       *
+       * Two curves, read off the reference's own frames rather than chosen.
        * Stepping through four of them at 1440 and converting to CSS pixels,
        * the bar's left edge moves 502 -> 416 -> 324 -> 245: deltas of 86, 92
        * and 79, which is a straight line. Its height goes 67 -> 79 -> 96 ->
-       * 142: deltas of 12, 17 and 46, which is not — that accelerates.
-       *
-       * So the travel is linear and the growth eases *in*. This had both on
-       * one ease-in-out, which crawls at each end and rushes the middle: the
-       * bar drifted, then suddenly inflated, then crawled into place. That is
-       * the part that read as artificial.
+       * 142: deltas of 12, 17 and 46, which is not — that accelerates. So the
+       * travel is linear and the growth eases in.
        */
-      const raw = clamp01((p - PARK_END) / (CROSS_END - PARK_END));
+      const travel = window.innerHeight * TRAVEL_SCREENS;
+      const raw = clamp01(1 - panel.top / travel);
       const t = raw;
       const grow = raw * raw;
 

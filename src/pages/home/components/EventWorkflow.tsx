@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, type MotionValue } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
+import { DotField } from '@/components/motion/DotField';
 import { findEvent, formatEventWhen } from '@/data/events';
 import { albumFor } from '@/pages/gallery/data';
 import { HOME_WORKFLOW } from '../data';
@@ -190,52 +191,27 @@ const EVENTS: WorkflowEvent[] = HOME_WORKFLOW.events.flatMap((entry): WorkflowEv
 
 export const WORKFLOW_EVENTS = EVENTS;
 
-/**
- * Which event the section is on, and how far between events it is.
- *
- * Exported because the section needs it too: the scene behind the board is
- * this section's backdrop and has to change with the event, and the only way
- * it cannot disagree with the canvas is for both to read the same function of
- * the same scroll value.
- */
-export function eventPosition(p: number): number {
-  const within = clamp01((p - EVENTS_AT) / (1 - EVENTS_AT));
-  return within * (EVENTS.length - 1);
-}
 
 /**
- * The board: a fixed window onto a canvas larger than itself.
+ * One event's board.
  *
- * The window never changes — it is the same box for the whole section — and
- * everything that moves is behind it. Each event has its own group of nodes at
- * its own place along the canvas, in **its own arrangement**, and the scroll
- * moves the canvas rather than the contents of a card: at any point between
- * two events the tail of one and the head of the next are both on screen.
+ * **One board per event, stacked down the page** — which is how the reference
+ * builds it: a `<section>` each, right-aligned, at 54.2vw with a 16px gap, and
+ * the page simply scrolls past them. This replaced a single window panned
+ * sideways across one long canvas. That version was defensible and it is not
+ * what the reference does: every event shared one box, so the boards could
+ * never arrive, and the club asked for a card each.
  *
- * **Written through the DOM in a subscription, never `useTransform`.** A
- * transform reading a scroll value compiles to a native scroll timeline, whose
- * sub-ranges do not clamp outside themselves; that is what put three slides'
- * text through one card on the phone board. The pan is also a function of a
- * measured board width, which a compiled timeline cannot see change.
+ * **The nodes rise as the board comes into view**, staggered, from 40px below
+ * at nine-tenths scale. `whileInView` with `once`, so a board plays when it
+ * arrives and then stays put; scrolling back up does not replay it, which
+ * would make the page feel like it was rewinding rather than being re-read.
  *
  * **No `AnimatePresence`.** Banned here — its exit callback never fires in a
- * production build and has white-screened whole pages. Every group is mounted
- * for the life of the section.
+ * production build and has white-screened whole pages.
  */
-export function WorkflowBoard({
-  progress,
-  active,
-  className = '',
-  style,
-}: {
-  progress: MotionValue<number>;
-  active: number;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
+export function EventBoard({ event, index }: { event: WorkflowEvent; index: number }) {
   const boardRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const dotsRef = useRef<HTMLDivElement>(null);
   const [board, setBoard] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
@@ -253,87 +229,17 @@ export function WorkflowBoard({
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const apply = (p: number) => {
-      const node = boardRef.current;
-      if (node) {
-        // Solid by the time the bar docks, not by the time the events start.
-        // The section behind it is a photograph at full strength now, and a
-        // board still at 40% opacity over that is a window you can see the
-        // room through — measured at the moment of docking, and it looked
-        // like a bug because it is one.
-        const reveal = clamp01((p - BOARD_AT) / (CROSS_END - BOARD_AT));
-        node.style.opacity = `${reveal}`;
-        node.style.transform = `translate3d(${(1 - ease(reveal)) * 60}px, 0, 0)`;
-      }
-
-      const canvas = canvasRef.current;
-      if (canvas && board.width) {
-        canvas.style.transform = `translate3d(${-eventPosition(p) * board.width * GROUP_SPAN}px, 0, 0)`;
-      }
-    };
-
-    apply(progress.get());
-    return progress.on('change', apply);
-  }, [progress, board.width]);
-
-  /**
-   * The cursor's position on the board, as two CSS custom properties.
-   *
-   * Set on the element rather than held in state: this fires on every pointer
-   * move, and re-rendering three groups of nodes to move a highlight would
-   * cost more than the highlight is worth. The brighter dot layer is masked to
-   * a circle at these coordinates, so only the dots near the cursor come up —
-   * the board itself never lightens.
-   */
-  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    const dots = dotsRef.current;
-    if (!dots) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    dots.style.setProperty('--mx', `${event.clientX - rect.left}px`);
-    dots.style.setProperty('--my', `${event.clientY - rect.top}px`);
-    dots.style.opacity = '1';
-  };
-
   return (
     <div
       ref={boardRef}
-      onPointerMove={onPointerMove}
-      onPointerLeave={() => {
-        if (dotsRef.current) dotsRef.current.style.opacity = '0';
-      }}
-      style={{ opacity: 0, ...style }}
-      // No `position` of its own: the caller places it, and a `relative`
-      // here would fight an `absolute` there — same specificity, so which
-      // one wins is down to the order Tailwind happens to emit them in.
-      className={`border-wf-edge bg-wf-board overflow-hidden rounded-2xl border will-change-transform ${className}`}
+      data-event-board={index}
+      className="border-wf-edge bg-wf-board relative aspect-[7/5] w-full overflow-hidden rounded-lg border"
     >
-      {/* The dot field, and the brighter one the cursor reveals through a
-          circular mask. Two layers rather than one that changes colour: a
-          gradient cannot recolour individual dots, but it can decide which of
-          two identical fields is visible where. */}
-      <div className="bg-wf-dots absolute inset-0" />
-      <div
-        ref={dotsRef}
-        aria-hidden="true"
-        className="bg-wf-dots-lit absolute inset-0 opacity-0 transition-opacity duration-300"
-        style={{
-          maskImage:
-            'radial-gradient(160px at var(--mx, -999px) var(--my, -999px), #000, transparent 70%)',
-          WebkitMaskImage:
-            'radial-gradient(160px at var(--mx, -999px) var(--my, -999px), #000, transparent 70%)',
-        }}
-      />
+      <DotField />
+      <Group event={event} board={board} index={index} />
 
-      <div ref={canvasRef} className="absolute inset-y-0 left-0 will-change-transform">
-        {EVENTS.map((event, i) => (
-          <Group key={event.id} event={event} index={i} board={board} lit={i === active} />
-        ))}
-      </div>
-
-      {/* The two edge fades the reference draws over its own canvas: a node
-          crossing the window darkens into the border rather than being cut
-          off at it, which is what says there is more canvas out there. */}
+      {/* The two edge fades the reference draws over its own board: a node at
+          the edge darkens into the border rather than being cut off at it. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-black/50 to-transparent"
@@ -640,12 +546,10 @@ function Group({
   event,
   index,
   board,
-  lit,
 }: {
   event: WorkflowEvent;
   index: number;
   board: { width: number; height: number };
-  lit: boolean;
 }) {
   const width = board.width * GROUP_SPAN;
   const height = board.height;
@@ -677,7 +581,7 @@ function Group({
   ];
 
   return (
-    <div className="absolute inset-y-0" style={{ left: index * width, width }} aria-hidden={!lit}>
+    <div className="absolute inset-0">
       <svg className="absolute inset-0 h-full w-full" fill="none">
         {edges.map(([from, to], i) => {
           const path = route(boxes[from], boxes[to]);
@@ -691,9 +595,10 @@ function Group({
                 // heavier than the hairlines in its own canvas.
                 strokeWidth={1}
                 strokeLinecap="round"
-                initial={false}
-                animate={{ pathLength: lit ? 1 : 0, opacity: lit ? 1 : 0 }}
-                transition={{ duration: 0.8, ease: EASE, delay: lit ? 0.25 + i * 0.15 : 0 }}
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                viewport={VIEWPORT}
+                transition={{ duration: 0.8, ease: EASE, delay: 0.35 + i * 0.15 }}
               />
               {/* The endpoints, which is where the reference puts its ring and
                   dot. They arrive with the line rather than before it. */}
@@ -703,9 +608,10 @@ function Group({
               ].map(([cx, cy], n) => (
                 <motion.g
                   key={n}
-                  initial={false}
-                  animate={{ opacity: lit ? 1 : 0 }}
-                  transition={{ duration: 0.3, delay: lit ? 0.25 + i * 0.15 + n * 0.4 : 0 }}
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={VIEWPORT}
+                  transition={{ duration: 0.3, delay: 0.35 + i * 0.15 + n * 0.4 }}
                 >
                   {/* The ring and its centre, at the reference's own radii. */}
                   <circle
@@ -727,9 +633,13 @@ function Group({
       {boxes.map((box, i) => (
         <motion.div
           key={i}
-          initial={false}
-          animate={{ opacity: lit ? 1 : 0.28, y: lit ? 0 : 14 }}
-          transition={{ duration: 0.6, ease: EASE, delay: lit ? i * 0.12 : 0 }}
+          // Up from below as the board arrives, one after another — the
+          // reference's own entry, and the reason each event now reads as
+          // turning up rather than as the same card changing its pictures.
+          initial={{ opacity: 0, y: 40, scale: 0.94 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={VIEWPORT}
+          transition={{ duration: 0.7, ease: EASE, delay: i * 0.12 }}
           style={{ left: box.x, top: box.y, width: box.w }}
           className="absolute"
         >
@@ -772,6 +682,13 @@ function Group({
  * and the collision guarantees both depend on it.
  */
 const NODE_CHROME = 56;
+
+/**
+ * When a board counts as arrived: a third of it on screen, and once only.
+ * Replaying on the way back up would make the page feel like it was rewinding
+ * rather than being re-read.
+ */
+const VIEWPORT = { once: true, amount: 0.3 } as const;
 
 interface Box {
   x: number;
