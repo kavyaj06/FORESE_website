@@ -92,10 +92,18 @@ export function Footer() {
               card at every width. 80% was too much of it: that is the share
               the reference's whole lockup spans, mark included, and its *word*
               is a little over half — which is the measurement that matters
-              when the mark is not in the picture. The mark itself still opens the brand column inside
+              when the mark is not in the picture.
+
+              The lift is set against the *ink*, not the line box. Measured off
+              the line box it read as a 14% overlap while the letters were in
+              fact clearing the card by 11px and touching nothing: a line box
+              at `leading-[0.78]` is shorter than the glyphs that overflow it,
+              so the two numbers disagree by roughly a third of the cap height.
+              What is on screen now is the card catching the feet of the
+              letters by about 7% of their height. The mark itself still opens the brand column inside
               the card, where it has room to be read. */}
           <div className="absolute top-0 left-0 z-10 w-full">
-            <div className="relative -translate-y-[108%]">
+            <div className="relative -translate-y-[91%]">
               <div className="bg-wf-glow absolute inset-x-1/4 top-1/5 h-3/5" />
               <div className="relative">
                 <FooterWordmark text={SITE.name.toUpperCase()} />
