@@ -31,8 +31,12 @@ interface JourneyBarProps {
   active: number;
 }
 
-/** The tab row's open height, in pixels — the reference's is 55. */
-const TABS_HEIGHT = 55;
+/** The tab row's open height, in pixels, as the docked reference measures. */
+const TABS_HEIGHT = 48;
+
+/** The bar's corners, closed and open — 16px and 8px in the reference. */
+const CLOSED_RADIUS = 16;
+const OPEN_RADIUS = 8;
 
 /** The lines the parked bar types, one after another. */
 const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
@@ -137,6 +141,10 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
       bar.style.width = `${width}px`;
       bar.style.height = `${height}px`;
       bar.style.opacity = `${clamp01(p / FADE_END)}`;
+      // 16px closed, 8px open. Both captures of the reference carry it: the
+      // small bar is `border-radius: 16px` and the docked one 8px, so the
+      // corners tighten as the box grows rather than holding one value.
+      bar.style.borderRadius = `${CLOSED_RADIUS + (OPEN_RADIUS - CLOSED_RADIUS) * t}px`;
 
       /**
        * The line it was typing fades as it goes and is gone by the time the
@@ -158,9 +166,9 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
       bar.style.setProperty('--tabs', `${tabs}`);
       bar.style.setProperty('--tabs-h', `${tabs * TABS_HEIGHT}px`);
       bar.style.setProperty('--divider', `${clamp01((room - 0.72) / 0.22)}`);
-      // Spins with the move and stops dead on arrival. Two and a half turns:
-      // enough to read as rotation, and it ends on zero so the mark is level.
-      bar.style.setProperty('--spin', `${t * 900}deg`);
+      // One full turn, which is what the docked reference holds:
+      // `transform: rotate(360deg)`. Two and a half turns was mine.
+      bar.style.setProperty('--spin', `${t * 360}deg`);
 
       setParked((current) => {
         const next = raw <= 0;
@@ -224,8 +232,13 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
   return (
     <div
       ref={barRef}
-      style={{ width: CLOSED_WIDTH, height: CLOSED_HEIGHT, opacity: 0 }}
-      className="border-wf-edge bg-wf-panel group pointer-events-none fixed top-0 left-0 z-30 flex flex-col overflow-hidden rounded-lg border shadow-lg will-change-transform"
+      style={{
+        width: CLOSED_WIDTH,
+        height: CLOSED_HEIGHT,
+        opacity: 0,
+        borderRadius: CLOSED_RADIUS,
+      }}
+      className="border-wf-edge bg-wf-panel group pointer-events-none fixed top-0 left-0 z-30 flex flex-col overflow-hidden border shadow-lg will-change-transform"
     >
       {/* The upper section. Its own height is what opens — clipped, so the tab
           row inside is always at its full size and is revealed by the box

@@ -323,6 +323,18 @@ export function WorkflowBoard({
           <Group key={event.id} event={event} index={i} board={board} lit={i === active} />
         ))}
       </div>
+
+      {/* The two edge fades the reference draws over its own canvas: a node
+          crossing the window darkens into the border rather than being cut
+          off at it, which is what says there is more canvas out there. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 z-20 w-12 bg-gradient-to-r from-black/50 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-black/50 to-transparent"
+      />
     </div>
   );
 }
@@ -668,7 +680,9 @@ function Group({
               <motion.path
                 d={path.d}
                 stroke="var(--color-wf-accent)"
-                strokeWidth={1.5}
+                // 1px, as the reference draws them. 1.5 was mine and read
+                // heavier than the hairlines in its own canvas.
+                strokeWidth={1}
                 strokeLinecap="round"
                 initial={false}
                 animate={{ pathLength: lit ? 1 : 0, opacity: lit ? 1 : 0 }}
@@ -686,15 +700,16 @@ function Group({
                   animate={{ opacity: lit ? 1 : 0 }}
                   transition={{ duration: 0.3, delay: lit ? 0.25 + i * 0.15 + n * 0.4 : 0 }}
                 >
+                  {/* The ring and its centre, at the reference's own radii. */}
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={4}
+                    r={3.75}
                     fill="var(--color-wf-board)"
                     stroke="var(--color-wf-accent)"
-                    strokeWidth={1.2}
+                    strokeWidth={1}
                   />
-                  <circle cx={cx} cy={cy} r={2} fill="var(--color-wf-accent)" />
+                  <circle cx={cx} cy={cy} r={1.875} fill="var(--color-wf-accent)" />
                 </motion.g>
               ))}
             </g>
