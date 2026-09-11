@@ -26,6 +26,7 @@ export function EventJourney() {
   const startRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const regionRef = useRef<HTMLDivElement>(null);
 
   // The travel runs at every width now, at the club's request. What differs
   // below the desktop breakpoint is where it lands — full-bleed near the top
@@ -60,10 +61,17 @@ export function EventJourney() {
       <EventCanvasSection
         dockRef={dockRef}
         panelRef={panelRef}
+        regionRef={regionRef}
         active={active}
         onActive={onActive}
       />
-      <JourneyBar startRef={startRef} dockRef={dockRef} panelRef={panelRef} active={active} />
+      <JourneyBar
+        startRef={startRef}
+        dockRef={dockRef}
+        panelRef={panelRef}
+        regionRef={regionRef}
+        active={active}
+      />
     </div>
   );
 }

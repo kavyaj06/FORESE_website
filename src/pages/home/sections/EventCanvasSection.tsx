@@ -29,11 +29,13 @@ import { EventBoard, ReducedWorkflow, WORKFLOW_EVENTS } from '../components/Even
 export function EventCanvasSection({
   dockRef,
   panelRef,
+  regionRef,
   active,
   onActive,
 }: {
   dockRef: React.RefObject<HTMLDivElement | null>;
   panelRef: React.RefObject<HTMLDivElement | null>;
+  regionRef: React.RefObject<HTMLDivElement | null>;
   active: number;
   onActive: (index: number) => void;
 }) {
@@ -137,6 +139,7 @@ export function EventCanvasSection({
         // the same thing as the bar drifting on down the page, and is what it
         // looked like.
         className="pointer-events-none absolute inset-x-0 top-0 bottom-[8vh] z-30"
+        ref={regionRef}
       >
         <div ref={panelRef} className="sticky top-0 h-0">
           {/* Where the bar lands. Below the desktop breakpoint it lands

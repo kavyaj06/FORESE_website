@@ -22,6 +22,15 @@ interface JourneyBarProps {
   /** That section's sticky panel, which the dock's rest position is measured
    *  against — see the flight code below. */
   panelRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The box that panel is sticky *within*, which ends at the last board.
+   *
+   * Its bottom edge is the only thing that says how much of the events is
+   * left. The panel's own top cannot: a `sticky top-0` element reads 0 for the
+   * whole time it is stuck, so a fade measured against it put the bar at zero
+   * opacity for every board — invisible for the entire run.
+   */
+  regionRef: React.RefObject<HTMLElement | null>;
   active: number;
 }
 
@@ -69,7 +78,7 @@ const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
  * below; the tab row and then the rule under it appear in the space the growth
  * opens up.
  */
-export function JourneyBar({ startRef, dockRef, panelRef, active }: JourneyBarProps) {
+export function JourneyBar({ startRef, dockRef, panelRef, regionRef, active }: JourneyBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
   const [parked, setParked] = useState(true);
   const [docked, setDocked] = useState(false);
@@ -98,28 +107,26 @@ export function JourneyBar({ startRef, dockRef, panelRef, active }: JourneyBarPr
       const from = startRef.current?.getBoundingClientRect();
       const dock = dockRef.current?.getBoundingClientRect();
       const panel = panelRef.current?.getBoundingClientRect();
-      if (!bar || !from || !dock || !panel) return;
+      const region = regionRef.current?.getBoundingClientRect();
+      if (!bar || !from || !dock || !panel || !region) return;
 
       /**
-       * Where the dock will be once its section has pinned — and where it
-       * actually is once that section lets go.
+       * Where the dock comes to rest, and it never moves again.
        *
-       * `Math.max(0, panel.top)` is doing both jobs. While the section is
-       * still below the fold its panel's top is positive, and subtracting it
-       * gives the rectangle the dock will come to rest at, so the bar flies to
-       * a fixed target instead of chasing one that is itself still sliding up
-       * the screen. While pinned the term is zero and this is simply the live
-       * rectangle. And once the section scrolls past, its panel's top goes
-       * negative — clamped away, so the bar tracks the dock up and off the
-       * screen with it.
+       * Subtracting the panel's own top gives the rectangle the dock will hold
+       * once its section has pinned — so the bar flies to a fixed target
+       * rather than chasing one that is itself still sliding up the screen,
+       * and then holds that exact place for good. It does not track the dock
+       * away at the end: a bar that keeps its place on screen while the page
+       * moves under it is a bar travelling down the page, which is what it
+       * looked like, and the club's instruction is that once the events begin
+       * changing it stops where it is and stays there.
        *
-       * Without the clamp the bar stayed exactly where it docked for the rest
-       * of the page: measured at y=162 over Upcoming and over the footer,
-       * long after the last event had gone.
+       * What ends it is the fade below, not a movement.
        */
       const to = {
         left: dock.left,
-        top: dock.top - Math.max(0, panel.top),
+        top: dock.top - panel.top,
         width: dock.width,
         height: dock.height,
       };
@@ -184,10 +191,16 @@ export function JourneyBar({ startRef, dockRef, panelRef, active }: JourneyBarPr
        * them.
        */
       const arriving = clamp01((window.innerHeight * 0.92 - from.top) / 140);
-      // 160px of travel, not more: the page can only scroll 213px past this
-      // section's bottom, so a longer fade leaves the bar faintly visible at
-      // the very end — measured at 0.1 opacity over the footer.
-      const leaving = clamp01((panel.top + 160) / 160);
+      /**
+       * Gone by the time the last board is, and gone *in place*.
+       *
+       * The dock's sticky container ends at the last board's bottom edge, so
+       * `region.bottom` is exactly how far that edge still is from the top of
+       * the screen: 160px of it left and the bar is at full strength, none of
+       * it and the bar is not there at all. Which means it is never once on
+       * screen over the section that follows.
+       */
+      const leaving = clamp01(region.bottom / 160);
       bar.style.opacity = `${Math.min(arriving, leaving)}`;
       // 16px closed, 8px open. Both captures of the reference carry it: the
       // small bar is `border-radius: 16px` and the docked one 8px, so the
@@ -256,7 +269,7 @@ export function JourneyBar({ startRef, dockRef, panelRef, active }: JourneyBarPr
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [startRef, dockRef, panelRef]);
+  }, [startRef, dockRef, panelRef, regionRef]);
 
   /**
    * The parked bar's line, typed, held, erased, and replaced by the next.
