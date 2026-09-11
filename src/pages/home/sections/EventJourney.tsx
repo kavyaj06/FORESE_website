@@ -1,9 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { JourneyBar } from '../components/JourneyBar';
 import { ConvergeSection } from './ConvergeSection';
-import { EventCanvasSection, EventCanvasSectionCompact } from './EventCanvasSection';
+import { EventCanvasSection, EventCanvasSectionReduced } from './EventCanvasSection';
 
 /**
  * Two sections and the bar that travels between them.
@@ -28,12 +27,12 @@ export function EventJourney() {
   const dockRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // The travel runs at every width now, at the club's request. What differs
+  // below the desktop breakpoint is where it lands — full-bleed near the top
+  // rather than a quarter-width panel on the left — which is a matter of
+  // where the marker is laid out, not of a different component.
   const prefersReducedMotion = usePrefersReducedMotion();
-  // Matches the `desktop` breakpoint. Below it the travel has nowhere to go,
-  // so the DOM itself differs rather than just the styling — the precedent
-  // `ConvergeSection` already sets for its own columns.
-  const isDesktop = useMediaQuery('(min-width: 64rem)');
-  const travelling = isDesktop && !prefersReducedMotion;
+  const travelling = !prefersReducedMotion;
 
   /**
    * Which event is current. Decided by the canvas section, from where its
@@ -50,7 +49,7 @@ export function EventJourney() {
     return (
       <>
         <ConvergeSection />
-        <EventCanvasSectionCompact />
+        <EventCanvasSectionReduced />
       </>
     );
   }

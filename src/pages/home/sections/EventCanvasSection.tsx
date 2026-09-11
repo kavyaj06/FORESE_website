@@ -1,17 +1,10 @@
 import { useEffect, useRef } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal } from '@/components/motion/Reveal';
-import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { HOME_WORKFLOW } from '../data';
-import {
-  CompactWorkflow,
-  EventBoard,
-  ReducedWorkflow,
-  WORKFLOW_EVENTS,
-} from '../components/EventWorkflow';
+import { EventBoard, ReducedWorkflow, WORKFLOW_EVENTS } from '../components/EventWorkflow';
 
 /**
  * The section the bar lands in.
@@ -132,29 +125,35 @@ export function EventCanvasSection({
           section itself is done. */}
       <div
         aria-hidden="true"
-        // The region the dock is sticky *within*, and it deliberately stops
-        // short of the section's end: 24vh of bottom padding plus half a
-        // screen. A sticky element releases when its container's bottom edge
-        // reaches its own top offset, so ending the container here lets the
-        // bar go once the last board's bottom has risen to the middle of the
-        // screen — that board has been read by then. Spanning the whole
-        // section instead, the bar held its place while the empty tail
-        // scrolled past it, which reads as the bar drifting on down the page
-        // after the events are over.
-        className="pointer-events-none absolute inset-x-0 top-0 bottom-[74vh] z-30"
+        // The region the dock is sticky *within*: everything above the
+        // section's own bottom padding, which is to say every pixel of every
+        // board. A sticky element releases when its container's bottom edge
+        // reaches its own top offset, so the bar holds its dock while any part
+        // of any board is on screen and lets go only once the last one has
+        // left the top.
+        //
+        // The tail below is short on purpose. It used to be 24vh, and the bar
+        // held its place while that emptiness scrolled past — which is
+        // the same thing as the bar drifting on down the page, and is what it
+        // looked like.
+        className="pointer-events-none absolute inset-x-0 top-0 bottom-[8vh] z-30"
       >
         <div ref={panelRef} className="sticky top-0 h-0">
+          {/* Where the bar lands. Below the desktop breakpoint it lands
+              full-bleed near the top, which is what the reference does in a
+              narrow window — its own dock measures 716px in a 740px one, the
+              width minus its margins. There is no left for a quarter-width
+              panel to sit in at 390px. */}
           <div
             ref={dockRef}
-            style={{ top: '31vh', left: '17%', width: 'min(24.5%, 34rem)', height: '9.5rem' }}
-            className="absolute"
+            className="desktop:top-[31vh] desktop:right-auto desktop:left-[17%] desktop:w-[min(24.5%,34rem)] absolute top-[12vh] right-4 left-4 h-[9.5rem]"
           />
         </div>
       </div>
 
       {/* The boards. Right-aligned at the reference's own width, with its own
           gap and its own generous room above and below. */}
-      <div ref={stackRef} className="gap-md relative z-10 flex flex-col pt-[24vh] pb-[24vh]">
+      <div ref={stackRef} className="gap-md relative z-10 flex flex-col pt-[24vh] pb-[8vh]">
         {WORKFLOW_EVENTS.map((event, i) => (
           <section
             key={event.id}
@@ -172,29 +171,12 @@ export function EventCanvasSection({
 }
 
 /**
- * The same section for a phone, and for reduced motion.
- *
- * A different composition rather than a squeezed one: nothing is pinned, the
- * bar does not travel — there is no left for it to travel to — and the canvas
- * runs down the page instead of across it.
+ * The same section under `prefers-reduced-motion`: the events as a plain list
+ * of cards in the page's normal flow. Nothing travels, docks, rises or types.
  */
-export function EventCanvasSectionCompact() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const prefersReducedMotion = usePrefersReducedMotion();
-  const isDesktop = useMediaQuery('(min-width: 64rem)');
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start 0.9', 'end start'],
-  });
-  const progress = useSpring(scrollYProgress, {
-    stiffness: 110,
-    damping: 30,
-    restDelta: 0.001,
-  });
-
+export function EventCanvasSectionReduced() {
   return (
-    <section ref={sectionRef} className="border-border py-section border-b">
+    <section className="border-border py-section border-b">
       <Container>
         <Reveal>
           <SectionHeading
@@ -204,11 +186,7 @@ export function EventCanvasSectionCompact() {
           />
         </Reveal>
         <div className="mt-xl">
-          {prefersReducedMotion || isDesktop ? (
-            <ReducedWorkflow />
-          ) : (
-            <CompactWorkflow progress={progress} />
-          )}
+          <ReducedWorkflow />
         </div>
       </Container>
     </section>

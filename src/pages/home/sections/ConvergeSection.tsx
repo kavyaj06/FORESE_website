@@ -86,7 +86,7 @@ export function ConvergeSection({
   const slots = Array.from({ length: SLOT_COUNT }, (_, i) => photos[i % photos.length]);
 
   if (!prefersReducedMotion && !isDesktop) {
-    return <ConvergeMobile photos={photos} />;
+    return <ConvergeMobile photos={photos} startSlotRef={startSlotRef} />;
   }
 
   if (prefersReducedMotion) {
@@ -190,7 +190,13 @@ export function ConvergeSection({
  * needs no width beside the text to work. Deliberately not a swipeable
  * carousel: nothing here is worth asking a reader to operate.
  */
-function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
+function ConvergeMobile({
+  photos,
+  startSlotRef,
+}: {
+  photos: GalleryPhoto[];
+  startSlotRef?: React.RefObject<HTMLDivElement | null>;
+}) {
   const sectionRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress: sectionProgress } = useScroll({
@@ -214,6 +220,17 @@ function ConvergeMobile({ photos }: { photos: GalleryPhoto[] }) {
       </Container>
 
       <ConvergeRail photos={photos} drift={railX} />
+
+      {/* Where the bar starts, here as well: the travel runs at every width
+          now, so the marker it leaves from has to exist at every width. */}
+      <Container>
+        <div
+          ref={startSlotRef}
+          aria-hidden="true"
+          style={{ height: CLOSED_HEIGHT }}
+          className="mt-xl relative w-full"
+        />
+      </Container>
     </section>
   );
 }

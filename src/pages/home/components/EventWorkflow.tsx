@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, type MotionValue } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { DotField } from '@/components/motion/DotField';
 import { findEvent, formatEventWhen } from '@/data/events';
@@ -191,7 +191,6 @@ const EVENTS: WorkflowEvent[] = HOME_WORKFLOW.events.flatMap((entry): WorkflowEv
 
 export const WORKFLOW_EVENTS = EVENTS;
 
-
 /**
  * One event's board.
  *
@@ -233,7 +232,11 @@ export function EventBoard({ event, index }: { event: WorkflowEvent; index: numb
     <div
       ref={boardRef}
       data-event-board={index}
-      className="border-wf-edge bg-wf-board relative aspect-[7/5] w-full overflow-hidden rounded-lg border"
+      // Taller than it is wide on a phone: a 7:5 board at 390px is 279px
+      // tall, and a node clamped to 44% of that is 78px across — a thumbnail,
+      // not a card. From `tablet` up the landscape shape returns, because a
+      // portrait board at 768 stands 892px tall against a 1024 screen.
+      className="border-wf-edge bg-wf-board tablet:aspect-[7/5] relative aspect-[4/5] w-full overflow-hidden rounded-lg border"
     >
       <DotField />
       <Group event={event} board={board} index={index} />
@@ -248,139 +251,6 @@ export function EventBoard({ event, index }: { event: WorkflowEvent; index: numb
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 right-0 z-20 w-12 bg-gradient-to-l from-black/50 to-transparent"
       />
-    </div>
-  );
-}
-
-/**
- * The phone and tablet arrangement: the same sequence in one column.
- *
- * A canvas panned sideways needs width on both sides of the board to hold the
- * content it is panning between, and a phone has none — the board would be
- * narrower than one node. So below the desktop breakpoint the same three nodes
- * stack down the screen with the connectors running between them vertically,
- * and the bar grows downward in place rather than travelling: there is no left
- * to move to on a 390px screen.
- */
-export function CompactWorkflow({ progress }: { progress: MotionValue<number> }) {
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState(0);
-  const [typed, setTyped] = useState(0);
-
-  useEffect(() => {
-    const apply = (p: number) => {
-      setOpen((current) => {
-        const next = p >= 0.2;
-        return current === next ? current : next;
-      });
-      const next = Math.round(clamp01((p - 0.3) / 0.7) * (EVENTS.length - 1));
-      setActive((current) => (current === next ? current : next));
-    };
-    apply(progress.get());
-    return progress.on('change', apply);
-  }, [progress]);
-
-  const current = EVENTS[active] ?? EVENTS[0];
-  const line = current?.blurb ?? '';
-
-  useEffect(() => setTyped(0), [active, open]);
-  useEffect(() => {
-    if (!open || typed >= line.length) return;
-    const timer = window.setTimeout(() => setTyped((n) => n + 1), TYPE_MS);
-    return () => window.clearTimeout(timer);
-  }, [open, typed, line.length]);
-
-  if (!current) return null;
-
-  return (
-    <div className="w-full">
-      <motion.div
-        initial={false}
-        animate={{ height: open ? 'auto' : CLOSED_HEIGHT }}
-        transition={{ duration: 0.8, ease: EASE }}
-        className="border-wf-edge bg-wf-panel relative overflow-hidden rounded-2xl border"
-      >
-        <motion.div
-          aria-hidden={open}
-          initial={false}
-          animate={{ opacity: open ? 0 : 1 }}
-          transition={{ duration: 0.3 }}
-          className="gap-sm absolute inset-x-0 top-0 flex h-16 items-center px-3"
-        >
-          <Squiggle />
-          <p className="text-small text-wf-text min-w-0 flex-1 truncate">{EVENTS[0]?.prompt}</p>
-          <ArrowButton size={28} />
-        </motion.div>
-
-        <motion.div
-          aria-hidden={!open}
-          initial={false}
-          animate={{ opacity: open ? 1 : 0 }}
-          transition={{ duration: 0.4, delay: open ? 0.2 : 0 }}
-        >
-          <Tabs active={active} />
-          <div className="p-4">
-            <p className="text-body text-white">
-              {line.slice(0, typed)}
-              <Caret />
-            </p>
-            <div className="mt-md flex items-center justify-between">
-              <span className="text-caption text-wf-muted">
-                {current.short} · {current.when}
-              </span>
-              <ArrowButton size={28} />
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      <motion.div
-        initial={false}
-        animate={{ opacity: open ? 1 : 0 }}
-        transition={{ duration: 0.5, delay: open ? 0.3 : 0 }}
-        className="border-wf-edge bg-wf-board mt-md relative overflow-hidden rounded-2xl border p-3"
-      >
-        <div className="bg-wf-dots absolute inset-0" />
-        <ul className="relative">
-          {current.stages.map((stage, i) => (
-            <li key={stage.tag}>
-              {i > 0 && (
-                <div aria-hidden="true" className="flex h-8 justify-center">
-                  <svg width="12" height="32" viewBox="0 0 12 32" fill="none">
-                    <path
-                      d="M6 2 V30"
-                      stroke="var(--color-wf-accent)"
-                      strokeWidth={1.5}
-                      strokeLinecap="round"
-                    />
-                    <circle cx="6" cy="2" r="2" fill="var(--color-wf-accent)" />
-                    <circle cx="6" cy="30" r="2" fill="var(--color-wf-accent)" />
-                  </svg>
-                </div>
-              )}
-              <div className="border-wf-edge bg-wf-panel/90 rounded-lg border p-1.5">
-                <div className="mb-1.5 flex items-center justify-between gap-2 px-1">
-                  <span className="text-caption bg-wf-accent text-wf-ink rounded-sm px-1.5">
-                    {stage.tag}
-                  </span>
-                  <span className="text-caption text-wf-muted truncate">{current.short}</span>
-                </div>
-                <div className="bg-wf-board aspect-[4/3] overflow-hidden rounded-sm">
-                  {stage.image && (
-                    <img
-                      src={stage.image}
-                      alt=""
-                      loading="lazy"
-                      decoding="async"
-                      className="h-full w-full object-cover"
-                    />
-                  )}
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </motion.div>
     </div>
   );
 }

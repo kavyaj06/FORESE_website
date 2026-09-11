@@ -149,7 +149,11 @@ export function JourneyBar({ startRef, dockRef, panelRef, active }: JourneyBarPr
       // The width grows too, but barely: 323 to 351 across the reference's
       // frames, which is the 9% that keeps it the same object rather than a
       // different one.
-      const width = CLOSED_WIDTH + (to.width - CLOSED_WIDTH) * t;
+      // Never wider than where it lands: on a 390px screen the dock is the
+      // width of the page minus its gutters, and a 322px bar shrinking into
+      // it would travel the wrong way.
+      const closed = Math.min(CLOSED_WIDTH, to.width);
+      const width = closed + (to.width - closed) * t;
       let launch = launchRef.current;
       if (raw <= 0 || !launch) {
         launch = {
