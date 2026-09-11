@@ -130,7 +130,19 @@ export function EventCanvasSection({
           holds until the section's own bottom edge reaches the top of the
           screen: the bar sits still for every event and only leaves when the
           section itself is done. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30">
+      <div
+        aria-hidden="true"
+        // The region the dock is sticky *within*, and it deliberately stops
+        // short of the section's end: 24vh of bottom padding plus half a
+        // screen. A sticky element releases when its container's bottom edge
+        // reaches its own top offset, so ending the container here lets the
+        // bar go once the last board's bottom has risen to the middle of the
+        // screen — that board has been read by then. Spanning the whole
+        // section instead, the bar held its place while the empty tail
+        // scrolled past it, which reads as the bar drifting on down the page
+        // after the events are over.
+        className="pointer-events-none absolute inset-x-0 top-0 bottom-[74vh] z-30"
+      >
         <div ref={panelRef} className="sticky top-0 h-0">
           <div
             ref={dockRef}
