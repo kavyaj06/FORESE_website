@@ -276,8 +276,13 @@
   --shadow-lg: 0 12px 32px -8px rgb(16 16 18 / 0.12), 0 4px 8px -4px rgb(16 16 18 / 0.06);
   /* The lit card on a dark dotted band — the reference's own treatment for the
      one card it wants you to look at. Colour comes from the scoped workflow
-     accent, so it cannot drift from the line and the node that light with it. */
-  --shadow-lit: 0 0 0 1px var(--color-wf-accent), 0 0 48px -14px var(--color-wf-accent);
+     accent, so it cannot drift from the line and the node that light with it.
+
+     A glow only. The first version also carried `0 0 0 1px`, which sat on top
+     of the card's own 1px border and made the outline read as two pixels of
+     solid orange — heavier than the reference, whose card is a single hairline
+     with the warmth spilling outside it rather than thickening it. */
+  --shadow-lit: 0 0 36px -16px var(--color-wf-accent);
 
   /* --------------------------------------------------------------------
    * MOTION — see animations.css. Durations stay short; the easing curve is
