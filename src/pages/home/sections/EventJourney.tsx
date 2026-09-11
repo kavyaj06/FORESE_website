@@ -24,6 +24,7 @@ import { EventCanvasSection, EventCanvasSectionReduced } from './EventCanvasSect
 export function EventJourney() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const startRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const regionRef = useRef<HTMLDivElement>(null);
@@ -57,7 +58,7 @@ export function EventJourney() {
 
   return (
     <div ref={wrapRef} className="relative">
-      <ConvergeSection startSlotRef={startRef} />
+      <ConvergeSection startSlotRef={startRef} stageRef={stageRef} />
       <EventCanvasSection
         dockRef={dockRef}
         panelRef={panelRef}
@@ -67,6 +68,7 @@ export function EventJourney() {
       />
       <JourneyBar
         startRef={startRef}
+        stageRef={stageRef}
         dockRef={dockRef}
         panelRef={panelRef}
         regionRef={regionRef}

@@ -17,6 +17,13 @@ import {
 interface JourneyBarProps {
   /** Where the bar starts: a marker in the first section. */
   startRef: React.RefObject<HTMLElement | null>;
+  /**
+   * That section's own panel. The bar appears only once this has settled: a
+   * parked bar is anchored to its marker, so while the section is still
+   * arriving it rides up the screen with it — which reads as a little upward
+   * drift before the travel, and is not the travel.
+   */
+  stageRef: React.RefObject<HTMLElement | null>;
   /** Where it lands: the empty column in the second section. */
   dockRef: React.RefObject<HTMLElement | null>;
   /** That section's sticky panel, which the dock's rest position is measured
@@ -78,7 +85,14 @@ const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
  * below; the tab row and then the rule under it appear in the space the growth
  * opens up.
  */
-export function JourneyBar({ startRef, dockRef, panelRef, regionRef, active }: JourneyBarProps) {
+export function JourneyBar({
+  startRef,
+  stageRef,
+  dockRef,
+  panelRef,
+  regionRef,
+  active,
+}: JourneyBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
   const [parked, setParked] = useState(true);
   const [docked, setDocked] = useState(false);
@@ -108,7 +122,8 @@ export function JourneyBar({ startRef, dockRef, panelRef, regionRef, active }: J
       const dock = dockRef.current?.getBoundingClientRect();
       const panel = panelRef.current?.getBoundingClientRect();
       const region = regionRef.current?.getBoundingClientRect();
-      if (!bar || !from || !dock || !panel || !region) return;
+      const stage = stageRef.current?.getBoundingClientRect();
+      if (!bar || !from || !dock || !panel || !region || !stage) return;
 
       /**
        * Where the dock comes to rest, and it never moves again.
@@ -190,7 +205,12 @@ export function JourneyBar({ startRef, dockRef, panelRef, regionRef, active }: J
        * the very end of the page. It belongs to the events, so it leaves with
        * them.
        */
-      const arriving = clamp01((window.innerHeight * 0.92 - from.top) / 140);
+      // In as its section comes to rest, over the last 40px before its panel
+      // reaches the top of the screen — not as the marker enters the viewport,
+      // which had the bar on screen for the whole of the section's arrival,
+      // riding up with it. 160px of fade still left three frames of that
+      // visible; 40 leaves none.
+      const arriving = clamp01((40 - stage.top) / 40);
       /**
        * Gone by the time the last board is, and gone *in place*.
        *
@@ -269,7 +289,7 @@ export function JourneyBar({ startRef, dockRef, panelRef, regionRef, active }: J
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [startRef, dockRef, panelRef, regionRef]);
+  }, [startRef, stageRef, dockRef, panelRef, regionRef]);
 
   /**
    * The parked bar's line, typed, held, erased, and replaced by the next.

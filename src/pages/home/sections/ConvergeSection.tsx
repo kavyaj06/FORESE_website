@@ -35,9 +35,16 @@ const STAGGER_MS = 130;
 
 export function ConvergeSection({
   startSlotRef,
+  stageRef,
 }: {
   /** Where the travelling bar begins — see `EventJourney`. */
   startSlotRef?: React.RefObject<HTMLDivElement | null>;
+  /**
+   * This section's own panel, which the bar reads to know when it has
+   * settled: the bar is not shown until this stops moving, or it rides up the
+   * screen with the section as it arrives.
+   */
+  stageRef?: React.RefObject<HTMLElement | null>;
 } = {}) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -86,7 +93,7 @@ export function ConvergeSection({
   const slots = Array.from({ length: SLOT_COUNT }, (_, i) => photos[i % photos.length]);
 
   if (!prefersReducedMotion && !isDesktop) {
-    return <ConvergeMobile photos={photos} startSlotRef={startSlotRef} />;
+    return <ConvergeMobile photos={photos} startSlotRef={startSlotRef} stageRef={stageRef} />;
   }
 
   if (prefersReducedMotion) {
@@ -102,7 +109,10 @@ export function ConvergeSection({
   return (
     <div ref={sectionRef} className="relative h-[260vh]">
       <section
-        ref={panelRef}
+        ref={(node) => {
+          panelRef.current = node;
+          if (stageRef) stageRef.current = node;
+        }}
         className="border-border bg-surface sticky top-0 flex h-screen flex-col items-center justify-center overflow-hidden border-y"
       >
         <motion.div
@@ -193,9 +203,11 @@ export function ConvergeSection({
 function ConvergeMobile({
   photos,
   startSlotRef,
+  stageRef,
 }: {
   photos: GalleryPhoto[];
   startSlotRef?: React.RefObject<HTMLDivElement | null>;
+  stageRef?: React.RefObject<HTMLElement | null>;
 }) {
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -212,7 +224,10 @@ function ConvergeMobile({
 
   return (
     <section
-      ref={sectionRef}
+      ref={(node) => {
+        sectionRef.current = node;
+        if (stageRef) stageRef.current = node;
+      }}
       className="border-border bg-surface py-section overflow-hidden border-y"
     >
       <Container>
