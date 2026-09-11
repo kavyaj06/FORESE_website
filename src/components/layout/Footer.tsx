@@ -6,6 +6,7 @@ import { ContactLink } from './ContactLink';
 import { SocialLinkIcon } from './SocialLinkIcon';
 import { DotField } from '@/components/motion/DotField';
 import { ForeseMark } from './ForeseMark';
+import { FooterWordmark } from './FooterWordmark';
 
 /**
  * Site footer, rebuilt on the Nur UI "hover footer" reference.
@@ -88,16 +89,17 @@ export function Footer() {
               low line of letters with the card overlapping its feet.
 
               Sized in `vw` against a ceiling so it holds the same share of the
-              card at every width — measured at 80% of it from 390 to 1920,
-              which is where the reference sets its own — and pulled up so the
-              card covers the last fifth of it. The mark itself still opens the brand column inside
+              card at every width. 80% was too much of it: that is the share
+              the reference's whole lockup spans, mark included, and its *word*
+              is a little over half — which is the measurement that matters
+              when the mark is not in the picture. The mark itself still opens the brand column inside
               the card, where it has room to be read. */}
-          <div aria-hidden="true" className="absolute top-0 left-0 z-10 w-full">
+          <div className="absolute top-0 left-0 z-10 w-full">
             <div className="relative -translate-y-[108%]">
               <div className="bg-wf-glow absolute inset-x-1/4 top-1/5 h-3/5" />
-              <p className="font-display text-wf-dot relative text-center text-[clamp(3.5rem,19vw,17rem)] leading-[0.78] font-bold tracking-tight select-none">
-                {SITE.name.toUpperCase()}
-              </p>
+              <div className="relative">
+                <FooterWordmark text={SITE.name.toUpperCase()} />
+              </div>
             </div>
           </div>
 

@@ -101,3 +101,19 @@
   );
   filter: blur(48px);
 }
+
+/* The wordmark's hover reveal: a warm gradient painted through the letterforms
+   themselves. Built from the workflow accent mixed toward the section's own
+   text colour rather than from fresh hex values, so it cannot drift from the
+   accent the rest of these sections use. */
+@utility text-wf-reveal {
+  background-image: linear-gradient(
+    115deg,
+    var(--color-wf-accent),
+    color-mix(in oklab, var(--color-wf-accent) 55%, var(--color-text)) 42%,
+    color-mix(in oklab, var(--color-wf-accent) 18%, var(--color-text)) 74%,
+    var(--color-text)
+  );
+  background-clip: text;
+  color: transparent;
+}
