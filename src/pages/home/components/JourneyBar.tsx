@@ -15,7 +15,6 @@ import {
   TYPE_MS,
   WORKFLOW_EVENTS,
   clamp01,
-  ease,
 } from './EventWorkflow';
 
 interface JourneyBarProps {
@@ -114,26 +113,40 @@ export function JourneyBar({ progress, startRef, dockRef, panelRef, active }: Jo
         height: dock.height,
       };
 
+      /**
+       * Two curves, read off the reference's own frames rather than chosen.
+       *
+       * Stepping through four of them at 1440 and converting to CSS pixels,
+       * the bar's left edge moves 502 -> 416 -> 324 -> 245: deltas of 86, 92
+       * and 79, which is a straight line. Its height goes 67 -> 79 -> 96 ->
+       * 142: deltas of 12, 17 and 46, which is not — that accelerates.
+       *
+       * So the travel is linear and the growth eases *in*. This had both on
+       * one ease-in-out, which crawls at each end and rushes the middle: the
+       * bar drifted, then suddenly inflated, then crawled into place. That is
+       * the part that read as artificial.
+       */
       const raw = clamp01((p - PARK_END) / (CROSS_END - PARK_END));
-      const t = ease(raw);
+      const t = raw;
+      const grow = raw * raw;
 
-      const width = to.width;
+      // The width grows too, but barely: 323 to 351 across the reference's
+      // frames, which is the 9% that keeps it the same object rather than a
+      // different one.
+      const width = CLOSED_WIDTH + (to.width - CLOSED_WIDTH) * t;
       let launch = launchRef.current;
       if (raw <= 0 || !launch) {
-        launch = { x: from.left + (from.width - width) / 2, bottom: from.top + CLOSED_HEIGHT };
+        launch = {
+          x: from.left + (from.width - CLOSED_WIDTH) / 2,
+          bottom: from.top + CLOSED_HEIGHT,
+        };
         launchRef.current = raw > 0 ? launch : null;
       }
 
-      /**
-       * A straight line to the dock, and height that follows it.
-       *
-       * The path used to bow downward on a sine before coming up, which was
-       * meant to read as "down first, then across" and read as a bounce
-       * instead. There is nothing in the movement now but one eased
-       * interpolation: the foot goes where it is going, without detour, and
-       * the head rises away from it.
-       */
-      const height = CLOSED_HEIGHT + (to.height - CLOSED_HEIGHT) * t;
+      // A straight line to the dock. The path used to bow downward on a sine
+      // before coming up, which was meant to read as "down first, then
+      // across" and read as a bounce instead.
+      const height = CLOSED_HEIGHT + (to.height - CLOSED_HEIGHT) * grow;
       const bottom = launch.bottom + (to.top + to.height - launch.bottom) * t;
       const left = launch.x + (to.left - launch.x) * t;
 

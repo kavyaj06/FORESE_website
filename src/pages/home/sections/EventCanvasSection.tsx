@@ -90,7 +90,11 @@ export function EventCanvasSection({
         <div
           ref={dockRef}
           aria-hidden="true"
-          style={{ top: '18vh', left: '17%', width: 'min(24.5%, 34rem)', height: '13rem' }}
+          // 9.5rem, not 13. Measured off the reference's own docked frame at
+          // 1440, its bar is 142px tall; 13rem was 208 and made a panel of
+          // what is meant to stay a bar. The extra half-rem over its 142 is
+          // the line of name and date that its own content does not carry.
+          style={{ top: '18vh', left: '17%', width: 'min(24.5%, 34rem)', height: '9.5rem' }}
           className="absolute"
         />
 

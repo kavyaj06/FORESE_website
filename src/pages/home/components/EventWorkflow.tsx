@@ -44,8 +44,15 @@ export const BOARD_AT = 0.5;
 /** …and where the events start passing through it. */
 export const EVENTS_AT = 0.66;
 
-/** How wide the bar is before it opens, in pixels, and how tall. */
-export const CLOSED_WIDTH = 420;
+/**
+ * How wide the bar is before it opens, in pixels, and how tall.
+ *
+ * 322, which is what the reference's closed bar measures at 1440 — and it
+ * has to be *narrower* than the dock, not wider. At 420 the interpolation
+ * ran 420 -> 353 and the bar got visibly thinner as it travelled, which is
+ * the opposite of what its frames do (323 -> 351).
+ */
+export const CLOSED_WIDTH = 322;
 // 55px of content row plus its border, which is what the reference's own
 // markup measures: `height: 55px` on the row inside a 1px-bordered box.
 export const CLOSED_HEIGHT = 57;
