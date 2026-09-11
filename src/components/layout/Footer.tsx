@@ -78,18 +78,26 @@ export function Footer() {
     <footer data-theme="inverse" className="bg-bg relative isolate mt-auto overflow-hidden">
       <DotField />
 
-      <div className="tablet:pt-50 relative flex w-full flex-col items-center px-[5vw] pt-25 pb-[5vw]">
+      <div className="tablet:pt-50 desktop:pt-60 relative flex w-full flex-col items-center px-[5vw] pt-25 pb-[5vw]">
         <div className="relative flex w-full max-w-[80rem] flex-col items-center">
-          {/* The wordmark: centred on the card's top edge and pulled up 83% of
-              its own height, so the card overlaps the last fifth of it. Sized
-              by width like the reference's, but capped — the club's lockup is
-              a squarer shape than the reference's horizontal one, and at a
-              literal 80% of the card it would stand taller than the card
-              itself. */}
+          {/* The wordmark above the card: the club's name set as type, not the
+              logo lockup. The lockup carries the mark and the name together
+              and is nearly square, so at the reference's scale — 80% of the
+              card's width — it stood taller than the card itself. The name
+              alone is the shape the reference actually has there: one long,
+              low line of letters with the card overlapping its feet.
+
+              Sized in `vw` against a ceiling so it holds the same share of the
+              card at every width — measured at 80% of it from 390 to 1920,
+              which is where the reference sets its own — and pulled up so the
+              card covers the last fifth of it. The mark itself still opens the brand column inside
+              the card, where it has room to be read. */}
           <div aria-hidden="true" className="absolute top-0 left-0 z-10 w-full">
-            <div className="relative mx-auto w-[38%] max-w-[24rem] -translate-y-[83%]">
-              <div className="bg-wf-glow absolute inset-x-1/4 top-1/4 h-1/2" />
-              <ForeseMark className="text-wf-dot relative block h-auto w-full" />
+            <div className="relative -translate-y-[108%]">
+              <div className="bg-wf-glow absolute inset-x-1/4 top-1/5 h-3/5" />
+              <p className="font-display text-wf-dot relative text-center text-[clamp(3.5rem,19vw,17rem)] leading-[0.78] font-bold tracking-tight select-none">
+                {SITE.name.toUpperCase()}
+              </p>
             </div>
           </div>
 
