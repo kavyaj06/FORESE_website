@@ -189,10 +189,16 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
         {member.quote && (
           <p
             className={cn(
-              // Centred, and the left rule goes with it. A blockquote rule
-              // marks where a line starts, so it only reads against text that
-              // is flush left — beside centred text it points at nothing.
-              'text-caption text-text-muted mt-sm ease-smooth group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 group-data-open:text-accent-fg/80 text-center italic transition-colors duration-[400ms]',
+              'text-caption text-text-muted mt-sm ease-smooth group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 group-data-open:text-accent-fg/80 italic transition-colors duration-[400ms]',
+              // General members keep the left-rule blockquote treatment the
+              // roster always had. Core's footer quote only ever shows up as
+              // the narrow-card fallback for their hover reveal over the
+              // photograph (below @[12rem] it hides here entirely), so it
+              // stays centred to match that reveal rather than picking up a
+              // rule that reveal never had.
+              isCore
+                ? 'text-center'
+                : 'border-border group-hover:border-accent-fg/25 group-focus-within:border-accent-fg/25 group-data-open:border-accent-fg/25 border-l pl-3 text-left',
               // A core member's quote belongs over their photograph — but only
               // where the photograph can hold it. Below a 14rem card the quote
               // and the link pills are both claiming the same ~160px square, and
