@@ -54,9 +54,10 @@ interface MemberCardProps {
  * scrim fading up, quote rising into it — rather than as permanent text in the
  * card footer. The distinction is tied to `member.rank`, not to which section
  * is rendering the card, so a core member reads the same way wherever their
- * card appears. General members keep the plain, always-visible footer quote:
- * with ninety of them the reveal would mean most quotes are never seen at all,
- * since nobody opens ninety cards.
+ * card appears. Senior members and general members both keep the plain,
+ * always-visible footer quote: with dozens of them on screen at once, the
+ * reveal would mean most quotes are never seen at all, since nobody hovers
+ * every card one by one.
  *
  * That reveal is gated on the card's own width with a container query, not on
  * the viewport, because what it needs is room on the photograph and the same
@@ -67,7 +68,7 @@ interface MemberCardProps {
  * instead. Measured across 390 to 2400: zero overlap at every width.
  */
 export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
-  const isCore = member.rank !== 'member';
+  const isCore = member.rank !== 'member' && member.rank !== 'senior-member';
   const isTouch = useMediaQuery('(hover: none)');
   const [open, setOpen] = useState(false);
 
@@ -190,8 +191,9 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
           <p
             className={cn(
               'text-caption text-text-muted mt-sm ease-smooth group-hover:text-accent-fg/80 group-focus-within:text-accent-fg/80 group-data-open:text-accent-fg/80 italic transition-colors duration-[400ms]',
-              // General members keep the left-rule blockquote treatment the
-              // roster always had. Core's footer quote only ever shows up as
+              // Senior and general members alike keep the left-rule blockquote
+              // treatment the roster always had. Core's footer quote only ever
+              // shows up as
               // the narrow-card fallback for their hover reveal over the
               // photograph (below @[12rem] it hides here entirely), so it
               // stays centred to match that reveal rather than picking up a
