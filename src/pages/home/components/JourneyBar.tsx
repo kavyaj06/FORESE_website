@@ -216,11 +216,13 @@ export function JourneyBar({
        *
        * The dock's sticky container ends at the last board's bottom edge, so
        * `region.bottom` is exactly how far that edge still is from the top of
-       * the screen: 160px of it left and the bar is at full strength, none of
-       * it and the bar is not there at all. Which means it is never once on
-       * screen over the section that follows.
+       * the screen. Matched to `arriving`'s own 40px rather than a slower
+       * fade: at 160 the bar was still visibly present for a stretch of
+       * scroll after the last event's content had already passed, which read
+       * as it lingering into the section that follows rather than leaving
+       * with the events it belongs to.
        */
-      const leaving = clamp01(region.bottom / 160);
+      const leaving = clamp01(region.bottom / 40);
       bar.style.opacity = `${Math.min(arriving, leaving)}`;
       // 16px closed, 8px open. Both captures of the reference carry it: the
       // small bar is `border-radius: 16px` and the docked one 8px, so the
