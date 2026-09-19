@@ -402,9 +402,6 @@ export function JourneyBar({
               {blurb.slice(0, typed)}
               <Caret />
             </p>
-            <p className="text-caption text-wf-muted mt-2">
-              {current.short} · {current.when}
-            </p>
           </motion.span>
         </div>
 

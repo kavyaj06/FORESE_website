@@ -123,9 +123,11 @@ const SLOT_SETS = [
 ] as const;
 
 interface Stage {
-  tag: string;
   image?: string;
 }
+
+/** Nodes per board — fixed by `SLOT_SETS` and `edges` below, not by content. */
+const NODES_PER_EVENT = 3;
 
 interface WorkflowEvent {
   id: string;
@@ -164,24 +166,26 @@ interface WorkflowEvent {
  * and none of them currently does.
  */
 const EVENTS: WorkflowEvent[] = HOME_WORKFLOW.events.flatMap((entry): WorkflowEvent[] => {
-  const event = findEvent(entry.id);
-  const photos = albumFor(entry.id)?.photos ?? [];
+  const sourceId = entry.source ?? entry.id;
+  const event = findEvent(sourceId);
+  const photos = albumFor(sourceId)?.photos ?? [];
   if (!event || photos.length === 0) return [];
+
+  const name = entry.name ?? event.name;
 
   return [
     {
       id: entry.id,
-      name: event.name,
+      name,
       // The acronym alone for the node label and the panel's title line; the
       // registered name in full would be three lines inside a 22% node.
-      short: event.name.split(' (')[0],
+      short: name.split(' (')[0],
       when: formatEventWhen(event),
-      blurb: event.blurb ?? '',
+      blurb: entry.blurb ?? event.blurb ?? '',
       prompt: entry.prompt,
       tag: entry.tag,
-      stages: HOME_WORKFLOW.stages.map((tag, i): Stage => ({
-        tag,
-        image: photos[Math.floor((i * photos.length) / HOME_WORKFLOW.stages.length)]?.src,
+      stages: Array.from({ length: NODES_PER_EVENT }, (_, i): Stage => ({
+        image: photos[Math.floor((i * photos.length) / NODES_PER_EVENT)]?.src,
       })),
       cover: event.cover ?? photos[0]?.src ?? '',
       backdrop: Array.from({ length: 6 }, (_, i) => photos[i % photos.length]?.src ?? ''),
@@ -516,11 +520,12 @@ function Group({
           {/* The label line sits *above* the card, not inside it — which is
               where the reference puts it, and it is what makes a node read as
               a step with a name rather than as a picture with a caption bar
-              stuck on top of it. */}
-          <div className="text-caption text-wf-muted mb-2 flex items-center justify-between gap-2 px-1">
-            <span className="truncate">{event.short}</span>
-            <span className="truncate">{event.stages[i]?.tag}</span>
-          </div>
+              stuck on top of it. Just the event's name: it used to carry a
+              second, generic word here too (Awareness/Exposure/Rehearsal,
+              the same three regardless of which event this was), which is
+              gone now that the tab row above carries the event's real name
+              instead — repeating it a second time here said nothing new. */}
+          <div className="text-caption text-wf-muted mb-2 truncate px-1">{event.short}</div>
           <div className="group border-wf-edge bg-wf-panel/90 duration-base ease-out-brand rounded-lg border p-2 transition-transform hover:-translate-y-1">
             {/* The media kind, where the reference puts "Video" or "Image".
                 Which stage it is already reads on the line above the card, and

@@ -85,21 +85,52 @@ export const HOME_CONVERGE = {
  * that is what the bar it appears in looks like. It is the section's own copy,
  * not a claim about an event, so it lives here rather than in the events file.
  */
+
+export interface WorkflowEventEntry {
+  /**
+   * This board's own identity — for React keys and the canvas's
+   * `data-event-board` index. Not necessarily a real event id: Group
+   * Discussion below reuses Mock Placements' own id as its `source`, and
+   * needs an id of its own so the two boards don't collide.
+   */
+  id: string;
+  /** The real event to read name/blurb/cover/photos from. Defaults to `id`. */
+  source?: string;
+  /** Overrides the source event's own name, for a board that isn't quite it. */
+  name?: string;
+  /** Overrides the source event's own blurb, for the same reason. */
+  blurb?: string;
+  /** The tab label, and the node caption on the canvas below it. */
+  tag: string;
+  /** The line the parked bar types before it opens. */
+  prompt: string;
+}
+
 export const HOME_WORKFLOW = {
   eyebrow: 'Events',
   /** Only the phone and reduced-motion arrangements show a heading. */
   title: 'The year, one event leading into the next.',
-  /** The three node labels, in the order the connectors run. */
-  stages: ['Awareness', 'Exposure', 'Rehearsal'] as const,
+  /** In the order the tabs and boards run. */
   events: [
-    { id: 'leap-2026', tag: 'Awareness', prompt: 'Show me what employers actually expect' },
-    { id: 'fored-2026', tag: 'Exposure', prompt: 'Put me in front of universities and recruiters' },
     {
       id: 'mock-placement-drive-2026',
-      tag: 'Rehearsal',
+      tag: 'Mock Placements',
       prompt: 'Let me rehearse the rounds before they count',
     },
-  ],
+    { id: 'fored-2026', tag: 'FORED', prompt: 'Put me in front of universities and recruiters' },
+    { id: 'leap-2026', tag: 'LEAP', prompt: 'Show me what employers actually expect' },
+    {
+      // Group Discussion is a round inside Mock Placements, not a club event
+      // of its own — there is no separate gallery to build a board from, so
+      // this one reuses Mock Placements' photos under its own name and blurb.
+      id: 'group-discussion-2026',
+      source: 'mock-placement-drive-2026',
+      name: 'Group Discussion',
+      blurb: 'Practise thinking on your feet, structuring a point, and holding it under pressure.',
+      tag: 'Group Discussion',
+      prompt: 'Let me practise holding my own in a group discussion',
+    },
+  ] satisfies WorkflowEventEntry[],
 } as const;
 
 /**
