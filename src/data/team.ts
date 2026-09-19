@@ -176,11 +176,11 @@ export const CLUB_MEMBERS: ClubMember[] = [
   },
   {
     id: 'pragadeesh',
-    name: 'Pragadeeshwaran',
+    name: 'Pragadeesh S',
     photo: '/images/c1.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
-    quote: 'aura comes after me',
+    quote: 'Ankara Messi',
     email: 'pragadeesh2907@gmail.com',
   },
   {
