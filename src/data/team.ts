@@ -180,7 +180,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     photo: '/images/c1.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
-    quote: 'Ankara Messi',
+    quote: 'ankara Messi',
     email: 'pragadeesh2907@gmail.com',
   },
   {
@@ -1166,7 +1166,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     name: 'Modhini V',
     rank: 'member',
     photo: '/images/members/v-modhini.jpg',
-    quote: 'I tend to learn whatever a project makes me learn.',
+    quote: "I'll figure it out. I usually do.",
     linkedin: 'https://www.linkedin.com/in/modhini-v-074640385',
     email: '2025it1089@svce.ac.in',
   },
