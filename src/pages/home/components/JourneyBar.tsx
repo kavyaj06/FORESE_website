@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowButton,
@@ -29,15 +30,6 @@ interface JourneyBarProps {
   /** That section's sticky panel, which the dock's rest position is measured
    *  against — see the flight code below. */
   panelRef: React.RefObject<HTMLElement | null>;
-  /**
-   * The box that panel is sticky *within*, which ends at the last board.
-   *
-   * Its bottom edge is the only thing that says how much of the events is
-   * left. The panel's own top cannot: a `sticky top-0` element reads 0 for the
-   * whole time it is stuck, so a fade measured against it put the bar at zero
-   * opacity for every board — invisible for the entire run.
-   */
-  regionRef: React.RefObject<HTMLElement | null>;
   active: number;
 }
 
@@ -62,37 +54,39 @@ const OPEN_RADIUS = 8;
 const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
 
 /**
- * The bar that travels between the two sections.
+ * The bar that travels between the two sections, and hands off to the dock.
  *
- * **Fixed, and flying between two real elements.** It is not laid out inside
- * either section: an element in normal flow moves *up* the viewport as the
- * page scrolls, and this one has to move *down* it and then across a section
- * boundary, which nothing in one section's coordinate space can do. So it is
- * `position: fixed` and every frame it reads the viewport rectangles of two
- * markers — one in "Shaping futures", one in the canvas section — and
- * interpolates. The markers are ordinary layout, so both sections lay out
- * normally and the bar still lands exactly on its dock at any width.
+ * **Fixed, and flying, only until it lands.** While parked and travelling it
+ * is not laid out inside either section: an element in normal flow moves *up*
+ * the viewport as the page scrolls, and this one has to move *down* it and
+ * then across a section boundary, which nothing in one section's coordinate
+ * space can do. So it is `position: fixed` and every frame it reads the
+ * viewport rectangles of two markers — one in "Shaping futures", one in the
+ * canvas section — and interpolates.
  *
- * **One move, one width, one direction.** A single eased parameter along a
- * straight line: no bow, no second range, nothing that could read as a bounce
- * or a stop. The width never changes — it is the dock's width from the first
- * frame — and the height only ever grows upward.
+ * **Once docked, it stops being fixed at all.** The empty dock marker in
+ * `EventCanvasSection` sits inside a `sticky top-0` panel that is itself
+ * bounded by the events' own container — which already is, natively, exactly
+ * "pinned while there is more to read, released the moment there is not".
+ * Reimplementing that by hand (a fixed element with a hand-tuned fade timed
+ * against the container's bottom edge) is what every earlier version of this
+ * file did, and it kept drifting out of sync with the real geometry: still
+ * visible a stretch after the last event had actually scrolled past, or
+ * overlapping whatever the next section had already brought into view. A
+ * `React.createPortal` into the dock marker, the instant the bar arrives,
+ * hands the rest of the job to the browser's own sticky implementation —
+ * which cannot drift, because it isn't a second opinion about the layout, it
+ * *is* the layout. The bar simply disappears with the events the way any
+ * other in-flow element on the page would, the same as a board scrolling
+ * past — no fade to mistime.
  *
- * **The controls stay at the foot.** The cord mark and the arrow are anchored
- * to the bottom of the bar and never fade: they are the same two controls the
- * whole way through, and the growth happens above them. What fades is the line
- * of text between them, which is gone by the time the bar meets the section
- * below; the tab row and then the rule under it appear in the space the growth
- * opens up.
+ * **One move, one width, one direction**, while it is still flying: a single
+ * eased parameter along a straight line, no bow, no second range. The width
+ * barely changes and the height only ever grows upward, both toward the
+ * dock's own measured size — so the portal handoff lands on a box that is
+ * already the right shape.
  */
-export function JourneyBar({
-  startRef,
-  stageRef,
-  dockRef,
-  panelRef,
-  regionRef,
-  active,
-}: JourneyBarProps) {
+export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: JourneyBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
   const [parked, setParked] = useState(true);
   const [docked, setDocked] = useState(false);
@@ -121,30 +115,8 @@ export function JourneyBar({
       const from = startRef.current?.getBoundingClientRect();
       const dock = dockRef.current?.getBoundingClientRect();
       const panel = panelRef.current?.getBoundingClientRect();
-      const region = regionRef.current?.getBoundingClientRect();
       const stage = stageRef.current?.getBoundingClientRect();
-      if (!bar || !from || !dock || !panel || !region || !stage) return;
-
-      /**
-       * Where the dock comes to rest, and it never moves again.
-       *
-       * Subtracting the panel's own top gives the rectangle the dock will hold
-       * once its section has pinned — so the bar flies to a fixed target
-       * rather than chasing one that is itself still sliding up the screen,
-       * and then holds that exact place for good. It does not track the dock
-       * away at the end: a bar that keeps its place on screen while the page
-       * moves under it is a bar travelling down the page, which is what it
-       * looked like, and the club's instruction is that once the events begin
-       * changing it stops where it is and stays there.
-       *
-       * What ends it is the fade below, not a movement.
-       */
-      const to = {
-        left: dock.left,
-        top: dock.top - panel.top,
-        width: dock.width,
-        height: dock.height,
-      };
+      if (!bar || !from || !dock || !panel || !stage) return;
 
       /**
        * How far through the move the bar is — measured, not a fraction of the
@@ -155,16 +127,39 @@ export function JourneyBar({
        * as the section pins. Written as a fraction of the wrapper's scroll it
        * would have to be re-tuned every time the boards change height, and
        * they now depend on the viewport's width. This cannot drift.
-       *
-       * Two curves, read off the reference's own frames rather than chosen.
-       * Stepping through four of them at 1440 and converting to CSS pixels,
-       * the bar's left edge moves 502 -> 416 -> 324 -> 245: deltas of 86, 92
-       * and 79, which is a straight line. Its height goes 67 -> 79 -> 96 ->
-       * 142: deltas of 12, 17 and 46, which is not — that accelerates. So the
-       * travel is linear and the growth eases in.
        */
       const travel = window.innerHeight * TRAVEL_SCREENS;
       const raw = clamp01(1 - panel.top / travel);
+
+      setParked((current) => {
+        const next = raw <= 0;
+        return current === next ? current : next;
+      });
+      const nextDocked = raw > 0.99;
+      setDocked((current) => (current === nextDocked ? current : nextDocked));
+
+      /**
+       * Docked: nothing left to compute. The portal below has already handed
+       * the bar to the sticky panel, which carries it for the rest of the
+       * run and releases it on its own. This only starts writing to `bar`
+       * again if the reader scrolls back up out of the dock.
+       */
+      if (nextDocked) return;
+
+      /**
+       * Where the dock comes to rest.
+       *
+       * Subtracting the panel's own top gives the rectangle the dock will hold
+       * once its section has pinned — so the bar flies to a fixed target
+       * rather than chasing one that is itself still sliding up the screen.
+       */
+      const to = {
+        left: dock.left,
+        top: dock.top - panel.top,
+        width: dock.width,
+        height: dock.height,
+      };
+
       const t = raw;
       const grow = raw * raw;
 
@@ -195,35 +190,12 @@ export function JourneyBar({
       bar.style.transform = `translate3d(${left}px, ${bottom - height}px, 0)`;
       bar.style.width = `${width}px`;
       bar.style.height = `${height}px`;
-      /**
-       * In as its marker rises into view, out as its section lets go.
-       *
-       * Both measured, like everything else here. The fade out matters as
-       * much as the movement: the dock sits 31vh inside a panel that comes to
-       * rest at the section's bottom edge, so the bar trails the section by
-       * its own offset — measured, it was still on screen over the footer at
-       * the very end of the page. It belongs to the events, so it leaves with
-       * them.
-       */
-      // In as its section comes to rest, over the last 40px before its panel
-      // reaches the top of the screen — not as the marker enters the viewport,
-      // which had the bar on screen for the whole of the section's arrival,
-      // riding up with it. 160px of fade still left three frames of that
-      // visible; 40 leaves none.
+      // In as its marker rises into view, over the last 40px before its
+      // section's panel reaches the top of the screen — not as the marker
+      // enters the viewport, which had the bar on screen for the whole of
+      // the section's arrival, riding up with it.
       const arriving = clamp01((40 - stage.top) / 40);
-      /**
-       * Gone by the time the last board is, and gone *in place*.
-       *
-       * The dock's sticky container ends at the last board's bottom edge, so
-       * `region.bottom` is exactly how far that edge still is from the top of
-       * the screen. Matched to `arriving`'s own 40px rather than a slower
-       * fade: at 160 the bar was still visibly present for a stretch of
-       * scroll after the last event's content had already passed, which read
-       * as it lingering into the section that follows rather than leaving
-       * with the events it belongs to.
-       */
-      const leaving = clamp01(region.bottom / 40);
-      bar.style.opacity = `${Math.min(arriving, leaving)}`;
+      bar.style.opacity = `${arriving}`;
       // 16px closed, 8px open. Both captures of the reference carry it: the
       // small bar is `border-radius: 16px` and the docked one 8px, so the
       // corners tighten as the box grows rather than holding one value.
@@ -252,15 +224,6 @@ export function JourneyBar({
       // One full turn, which is what the docked reference holds:
       // `transform: rotate(360deg)`. Two and a half turns was mine.
       bar.style.setProperty('--spin', `${t * 360}deg`);
-
-      setParked((current) => {
-        const next = raw <= 0;
-        return current === next ? current : next;
-      });
-      setDocked((current) => {
-        const next = raw > 0.99;
-        return current === next ? current : next;
-      });
     };
 
     /**
@@ -291,7 +254,7 @@ export function JourneyBar({
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [startRef, stageRef, dockRef, panelRef, regionRef]);
+  }, [startRef, stageRef, dockRef, panelRef]);
 
   /**
    * The parked bar's line, typed, held, erased, and replaced by the next.
@@ -338,16 +301,27 @@ export function JourneyBar({
 
   if (!current) return null;
 
-  return (
+  const content = (
     <div
       ref={barRef}
-      style={{
-        width: CLOSED_WIDTH,
-        height: CLOSED_HEIGHT,
-        opacity: 0,
-        borderRadius: CLOSED_RADIUS,
-      }}
-      className="border-wf-edge bg-wf-panel group pointer-events-none fixed top-0 left-0 z-30 flex flex-col overflow-hidden border shadow-lg will-change-transform"
+      style={
+        docked
+          ? ({
+              '--line': 0,
+              '--tabs': 1,
+              '--tabs-h': `${TABS_HEIGHT}px`,
+              '--divider': 1,
+            } as React.CSSProperties)
+          : { width: CLOSED_WIDTH, height: CLOSED_HEIGHT, opacity: 0, borderRadius: CLOSED_RADIUS }
+      }
+      className={
+        docked
+          ? // Filling the dock marker exactly, which is what gives it the
+            // sticky panel's own behaviour for free: no position, no size, no
+            // opacity of its own to compute or get wrong.
+            'border-wf-edge bg-wf-panel group pointer-events-none relative z-30 flex h-full w-full flex-col overflow-hidden rounded-lg border shadow-lg'
+          : 'border-wf-edge bg-wf-panel group pointer-events-none fixed top-0 left-0 z-30 flex flex-col overflow-hidden border shadow-lg will-change-transform'
+      }
     >
       {/* The upper section. Its own height is what opens — clipped, so the tab
           row inside is always at its full size and is revealed by the box
@@ -360,14 +334,14 @@ export function JourneyBar({
       </div>
 
       {/* The lower section, with the rule along its top edge.
-
-          Laid out the way the reference lays it out, which is not how this had
-          it: the row is `items-center`, and the two pieces of text are
-          absolutely positioned layers inside the slot between the controls —
-          the line being typed centred in the slot, the event's description
-          top-aligned and clamped to five lines. That is what lets one replace
-          the other without the controls moving a pixel, and without the row's
-          height depending on how long the sentence happens to be. */}
+          Laid out the way the reference lays it out: the row is
+          `items-center`, and the two pieces of text are absolutely
+          positioned layers inside the slot between the controls — the line
+          being typed centred in the slot, the event's description
+          top-aligned and clamped to five lines. That is what lets one
+          replace the other without the controls moving a pixel, and without
+          the row's height depending on how long the sentence happens to
+          be. */}
       <div className="relative flex flex-1 items-center gap-2 px-4">
         <div
           aria-hidden="true"
@@ -411,4 +385,7 @@ export function JourneyBar({
       </div>
     </div>
   );
+
+  const target = docked ? dockRef.current : (typeof document !== 'undefined' ? document.body : null);
+  return target ? createPortal(content, target) : null;
 }

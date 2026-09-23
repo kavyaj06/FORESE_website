@@ -71,7 +71,6 @@ export function EventJourney() {
         stageRef={stageRef}
         dockRef={dockRef}
         panelRef={panelRef}
-        regionRef={regionRef}
         active={active}
       />
     </div>
