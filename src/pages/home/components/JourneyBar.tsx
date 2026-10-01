@@ -27,6 +27,15 @@ interface JourneyBarProps {
   stageRef: React.RefObject<HTMLElement | null>;
   /** Where it lands: the empty column in the second section. */
   dockRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The box the dock's panel is sticky within, which ends at the last board.
+   *
+   * Its bottom edge is how much of the events is left, and the only thing
+   * that can say so: a `sticky top-0` panel reads a top of 0 for the whole
+   * time it is stuck, so a fade measured against the panel is zero for every
+   * board — the bar invisible for the entire run.
+   */
+  regionRef: React.RefObject<HTMLElement | null>;
   /** That section's sticky panel, which the dock's rest position is measured
    *  against — see the flight code below. */
   panelRef: React.RefObject<HTMLElement | null>;
@@ -86,7 +95,14 @@ const LINES = WORKFLOW_EVENTS.map((event) => event.prompt);
  * dock's own measured size — so the portal handoff lands on a box that is
  * already the right shape.
  */
-export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: JourneyBarProps) {
+export function JourneyBar({
+  startRef,
+  stageRef,
+  dockRef,
+  panelRef,
+  regionRef,
+  active,
+}: JourneyBarProps) {
   const barRef = useRef<HTMLDivElement>(null);
   const [parked, setParked] = useState(true);
   const [docked, setDocked] = useState(false);
@@ -116,7 +132,8 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
       const dock = dockRef.current?.getBoundingClientRect();
       const panel = panelRef.current?.getBoundingClientRect();
       const stage = stageRef.current?.getBoundingClientRect();
-      if (!bar || !from || !dock || !panel || !stage) return;
+      const region = regionRef.current?.getBoundingClientRect();
+      if (!bar || !from || !dock || !panel || !stage || !region) return;
 
       /**
        * How far through the move the bar is — measured, not a fraction of the
@@ -139,12 +156,20 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
       setDocked((current) => (current === nextDocked ? current : nextDocked));
 
       /**
-       * Docked: nothing left to compute. The portal below has already handed
-       * the bar to the sticky panel, which carries it for the rest of the
-       * run and releases it on its own. This only starts writing to `bar`
-       * again if the reader scrolls back up out of the dock.
+       * Docked: the sticky panel carries it from here, and the one thing left
+       * to write is whether it is still worth seeing.
+       *
+       * Position, size and corners are the panel's job now — the portal below
+       * has handed the bar to it. But a sticky panel releases its child at its
+       * container's bottom edge, and the dock sits 31vh inside that panel, so
+       * the bar trails the last board by its own offset: without this it is on
+       * screen for another 431px of scrolling, over whatever the next section
+       * has brought in. It belongs to the events, so it goes out with them.
        */
-      if (nextDocked) return;
+      if (nextDocked) {
+        bar.style.opacity = `${clamp01(region.bottom / 160)}`;
+        return;
+      }
 
       /**
        * Where the dock comes to rest.
@@ -254,7 +279,7 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [startRef, stageRef, dockRef, panelRef]);
+  }, [startRef, stageRef, dockRef, panelRef, regionRef]);
 
   /**
    * The parked bar's line, typed, held, erased, and replaced by the next.
@@ -386,6 +411,6 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
     </div>
   );
 
-  const target = docked ? dockRef.current : (typeof document !== 'undefined' ? document.body : null);
+  const target = docked ? dockRef.current : typeof document !== 'undefined' ? document.body : null;
   return target ? createPortal(content, target) : null;
 }

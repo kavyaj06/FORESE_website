@@ -21,9 +21,9 @@ import { EventBoard, ReducedWorkflow, WORKFLOW_EVENTS } from '../components/Even
  * element's rectangle, so the marker can be laid out normally and the bar will
  * land on it at any width.
  *
- * The background sits in a `sticky` panel spanning the section, so the room
- * holds while the boards pass. The dock does not: the bar lands in it and then
- * scrolls away with the page like anything else on it.
+ * The background and the dock both sit in `sticky` panels, so the room and the
+ * bar hold still while the boards pass. The dock's panel is sticky only as far
+ * as the last board's bottom edge, so the bar leaves when the events do.
  */
 export function EventCanvasSection({
   dockRef,
@@ -113,20 +113,24 @@ export function EventCanvasSection({
         </div>
       </div>
 
-      {/* The bar's dock: empty markup, and deliberately *not* sticky.
+      {/* The bar's dock, in a sticky panel of its own.
 
-          It used to be, and every version of that was a fight — a screen-tall
-          sticky released a screen too early, a zero-height one held while the
-          section's tail scrolled past, and the bar read as drifting down the
-          page either way. It does not hold its place at all now: it lands here
-          and then leaves with the page, the way a board does.
+          The panel is sticky *within* this box, and this box stops where the
+          section's bottom padding begins — which is to say at the bottom edge
+          of the last board. A sticky element releases when its container's
+          bottom reaches its own top offset, so the bar holds its dock while
+          any part of any board is on screen and lets go only once the last
+          event has left the top of the screen.
 
-          The flight still aims at where this box sits once the section's top
-          reaches the top of the screen, which is the same instant the bar
-          arrives — so the handoff lands on the rectangle it was already
-          flying to, and there is nothing to jump. */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-30" ref={regionRef}>
-        <div ref={panelRef} className="relative h-0">
+          `h-0`, not `h-screen`: a screen-tall panel releases as soon as its
+          own bottom reaches the viewport's bottom, which is a full screen
+          before the last board is done. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 bottom-[8vh] z-30"
+        ref={regionRef}
+      >
+        <div ref={panelRef} className="sticky top-0 h-0">
           {/* Where the bar lands. Below the desktop breakpoint it lands
               full-bleed near the top, which is what the reference does in a
               narrow window — its own dock measures 716px in a 740px one, the
