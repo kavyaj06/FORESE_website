@@ -307,19 +307,39 @@ export function ReducedWorkflow() {
  */
 export function Tabs({ active, divider = true }: { active: number; divider?: boolean }) {
   const rowRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
   const items = useRef<Array<HTMLSpanElement | null>>([]);
 
   useEffect(() => {
     const move = () => {
       const item = items.current[active];
-      const row = rowRef.current;
+      const track = trackRef.current;
       const pill = pillRef.current;
-      if (!item || !row || !pill) return;
-      const a = item.getBoundingClientRect();
-      const b = row.getBoundingClientRect();
-      pill.style.width = `${a.width}px`;
-      pill.style.transform = `translateX(${a.left - b.left}px)`;
+      if (!item || !track || !pill) return;
+
+      // Offsets, not viewport rectangles. The row scrolls now, and a rect
+      // difference is only right while its scroll position is: measured that
+      // way the pill drifted off its tab by exactly `scrollLeft`.
+      pill.style.width = `${item.offsetWidth}px`;
+      pill.style.transform = `translateX(${item.offsetLeft}px)`;
+
+      /**
+       * Bring the live tab into view.
+       *
+       * Four events no longer fit: the row's content measures 459px inside a
+       * 351px bar, so the last tab — and the orange pill when it is the live
+       * one — was simply cut off at the edge. The reference's own row is
+       * `overflow-x-auto` with the scrollbar hidden for exactly this reason.
+       * Scrolled rather than wrapped, because a bar that grows a second line
+       * of tabs is a bar that changes height when the event changes.
+       */
+      const left = item.offsetLeft;
+      const right = left + item.offsetWidth;
+      const view = track.scrollLeft;
+      const edge = track.clientWidth;
+      if (right > view + edge - 8) track.scrollTo({ left: right - edge + 8, behavior: 'smooth' });
+      else if (left < view + 8) track.scrollTo({ left: Math.max(0, left - 8), behavior: 'smooth' });
     };
     move();
     window.addEventListener('resize', move);
@@ -332,7 +352,18 @@ export function Tabs({ active, divider = true }: { active: number; divider?: boo
       className={`relative ${divider ? 'border-wf-edge border-b' : ''}`}
       ref={rowRef}
     >
-      <div className="relative flex items-center gap-2.5 px-2 py-2.5">
+      {/* The row scrolls; the scrollbar does not show, and both ends fade so a
+          tab leaving the box reads as continuing rather than as cut. */}
+      <div
+        ref={trackRef}
+        className="relative flex [scrollbar-width:none] items-center gap-2.5 overflow-x-auto px-2 py-2.5 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        style={{
+          maskImage:
+            'linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%)',
+          WebkitMaskImage:
+            'linear-gradient(to right, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%)',
+        }}
+      >
         <span
           ref={pillRef}
           aria-hidden="true"
