@@ -16,6 +16,22 @@ import { cn } from '@/lib/cn';
  * than a broken-image icon. The roster is the record of what the photograph
  * should be called; whether it is on disk yet is not something it can know.
  */
+/**
+ * Where a portrait sits in its frame when nobody has said otherwise.
+ *
+ * Not the browser's centre. These photographs are nearly all taller than the
+ * square they are cropped into — 40 of them with no framing of their own —
+ * and a person photographed standing has their head in the top third, so a
+ * centre crop takes the face off: measured across the roster, it was cutting
+ * heads on a dozen cards at once.
+ *
+ * A fifth of the way down is the value the hand-tuned entries already settled
+ * on most often, and it is safe for the rest: where a photograph is square or
+ * wider there is no vertical overflow for it to act on, and where a face is
+ * already centred the window still contains it.
+ */
+const DEFAULT_POSITION = '50% 20%';
+
 export function MemberPortrait({ member, className }: { member: ClubMember; className?: string }) {
   const [failed, setFailed] = useState(false);
 
@@ -38,7 +54,7 @@ export function MemberPortrait({ member, className }: { member: ClubMember; clas
         // than on the wrapper, which already carries the card's hover scale;
         // the two would otherwise fight over one property.
         style={{
-          objectPosition: member.photoPosition,
+          objectPosition: member.photoPosition ?? DEFAULT_POSITION,
           transform: member.photoZoom ? `scale(${member.photoZoom})` : undefined,
         }}
         className={cn('h-full w-full object-cover', className)}
