@@ -240,6 +240,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     rank: 'junior-core',
     role: 'Tech Head',
     quote: 'Most of the tooling exists because someone got tired of doing it by hand.',
+    photo: '/images/c23.jpg',
     linkedin: 'https://www.linkedin.com/in/raghav-gs-placeholder',
     email: 'raghav-gs@example.com',
   },
@@ -271,6 +272,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     rank: 'junior-core',
     role: 'Treasurer',
     quote: 'Highest in the room',
+    photo: '/images/c22.jpg',
     email: 'Nikhil.abisheik@gmail.com',
   },
   /**
