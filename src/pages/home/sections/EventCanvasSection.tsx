@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
@@ -39,6 +39,44 @@ export function EventCanvasSection({
   onActive: (index: number) => void;
 }) {
   const stackRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * How far the dock stays sticky: from the top of the section to the top of
+   * the last board.
+   *
+   * Measured rather than written as a length, because that distance is three
+   * boards plus their gaps and the boards' height follows the viewport's
+   * width. A sticky panel releases when its container's bottom reaches its own
+   * top offset, so ending the container here means the bar holds its place for
+   * every event up to the last one, and the moment that last one fills the
+   * screen it stops being sticky and stays where it is on the page.
+   */
+  const [stickyHeight, setStickyHeight] = useState(0);
+  useEffect(() => {
+    const stack = stackRef.current;
+    if (!stack) return;
+    const measure = () => {
+      const boards = stack.querySelectorAll<HTMLElement>('[data-event-board]');
+      const last = boards[boards.length - 1];
+      if (!last) return;
+      // Offsets, not rectangles: this must not depend on where the page
+      // happens to be scrolled when it runs.
+      const top = last.getBoundingClientRect().top + window.scrollY;
+      const sectionTop = stack.closest('section')!.getBoundingClientRect().top + window.scrollY;
+      setStickyHeight((current) => {
+        const next = Math.round(top - sectionTop);
+        return current === next ? current : next;
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(stack);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
 
   /**
    * Which event is current: the board whose centre is nearest the middle of
@@ -115,19 +153,19 @@ export function EventCanvasSection({
 
       {/* The bar's dock, in a sticky panel of its own.
 
-          The panel is sticky *within* this box, and this box stops where the
-          section's bottom padding begins — which is to say at the bottom edge
-          of the last board. A sticky element releases when its container's
-          bottom reaches its own top offset, so the bar holds its dock while
-          any part of any board is on screen and lets go only once the last
-          event has left the top of the screen.
+          The panel is sticky *within* this box, and the box ends at the top of
+          the last board — so the bar keeps its place for every event up to
+          that one, and the moment the last event fills the screen it stops
+          being sticky and stays where it is on the page, scrolling away with
+          the board it belongs to rather than holding on over what comes next.
 
           `h-0`, not `h-screen`: a screen-tall panel releases as soon as its
-          own bottom reaches the viewport's bottom, which is a full screen
-          before the last board is done. */}
+          own bottom reaches the viewport's bottom, which is a full screen too
+          early. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 bottom-[8vh] z-30"
+        style={{ height: stickyHeight || undefined }}
+        className="pointer-events-none absolute inset-x-0 top-0 z-30"
         ref={regionRef}
       >
         <div ref={panelRef} className="sticky top-0 h-0">
