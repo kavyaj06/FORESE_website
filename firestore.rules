@@ -1,0 +1,39 @@
+rules_version = '2';
+
+// Paste this into Firebase console → Firestore Database → Rules → Publish.
+//
+// THIS FILE IS THE ACCESS MODEL. The admin page checks the signed-in email too,
+// but only so a wrong sign-in can say so plainly — a page is just JavaScript in
+// somebody's browser and can be edited there. These rules run on Google's
+// servers and are the only thing that actually stops a stranger writing.
+//
+// Change the address in one place: `admin()` below, and VITE_ADMIN_EMAIL in the
+// environment so the page's message matches what the rule enforces.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function admin() {
+      return request.auth != null
+        && request.auth.token.email == 'forese@svce.ac.in'
+        && request.auth.token.email_verified == true;
+    }
+
+    // Events and photographs are public reading — the site fetches them
+    // unauthenticated, over REST, for every visitor.
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if admin();
+    }
+
+    match /album_photos/{photoId} {
+      allow read: if true;
+      allow write: if admin();
+    }
+
+    // Anything else: no.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

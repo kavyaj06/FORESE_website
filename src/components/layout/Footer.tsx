@@ -225,7 +225,16 @@ export function Footer() {
                   {/* The wordmark is set in caps in the artwork, so the copyright
                   line matches it rather than the sentence-case `SITE.name` used
                   for document titles. */}
-                  © {new Date().getFullYear()} {SITE.name.toUpperCase()}. All rights reserved.
+                  {/* The club's way in to its own editor. A plain link, styled
+                      as the text around it: everybody else reads a copyright
+                      line, and the people who need it know it is here. What
+                      keeps the page private is the sign-in behind it, not the
+                      fact that this does not look like a link. */}
+                  © {new Date().getFullYear()}{' '}
+                  <NavLink to="/admin" className="hover:text-text transition-colors">
+                    {SITE.name.toUpperCase()}
+                  </NavLink>
+                  . All rights reserved.
                 </p>
               </div>
             </div>

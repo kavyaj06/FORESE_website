@@ -21,6 +21,7 @@
  */
 
 import { EVENTS_BY_RECENCY, type ForeseEvent } from '@/data/events';
+import { remoteAlbums } from '@/data/remote';
 
 /**
  * How many of the newest events get the large image-led treatment before the
@@ -85,7 +86,11 @@ export interface GalleryAlbum {
   photos: GalleryPhoto[];
 }
 
-export const GALLERY_ALBUMS: GalleryAlbum[] = [
+/**
+ * The albums the site was built with — the fallback, and the seed the admin
+ * page's one-time import reads. See `SEED_EVENTS` in `@/data/events`.
+ */
+const SEED_ALBUMS: GalleryAlbum[] = [
   {
     eventId: 'leap-2026',
     photos: [
@@ -259,6 +264,9 @@ export const GALLERY_ALBUMS: GalleryAlbum[] = [
  * assembled independently by the featured grid and the archive list, so the
  * two can never disagree about an event's cover or photo count.
  */
+/** The live albums: what the club has published, or what was built in. */
+export const GALLERY_ALBUMS: GalleryAlbum[] = remoteAlbums() ?? SEED_ALBUMS;
+
 export interface GalleryIndexEntry {
   event: ForeseEvent;
   cover?: GalleryPhoto;

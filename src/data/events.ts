@@ -10,6 +10,8 @@
  * The invented stand-ins that used to fill this list are gone.
  */
 
+import { remoteEvents } from './remote';
+
 export interface ForeseEvent {
   /** Stable id. Referenced by the gallery's photo manifest. */
   id: string;
@@ -134,7 +136,16 @@ export function relativeWhen(event: ForeseEvent, now: Date = new Date()): string
   return format.format(Math.round(days / 30), 'month');
 }
 
-export const EVENTS: ForeseEvent[] = [
+/**
+ * The events the site was built with.
+ *
+ * Still the record of what the club ran, and still what the site renders when
+ * Firestore has not answered — offline, on a failed fetch, or before a project
+ * has been configured at all. Once the club has imported this list from the
+ * admin page, Firestore is where it is edited; this stays as the fallback and
+ * as the seed that import reads.
+ */
+const SEED_EVENTS: ForeseEvent[] = [
   {
     id: 'fored-2026',
     slug: 'fored-2026',
@@ -175,6 +186,15 @@ export const EVENTS: ForeseEvent[] = [
  * Events newest first — the order the gallery presents.
  * Undated events sort last; they have no place on a chronological list.
  */
+/**
+ * The live list: what the club has published, or what was built in.
+ *
+ * Read once, at module scope, exactly as before — `data/remote.ts` is filled
+ * before this module is ever imported, so nothing downstream has to know that
+ * the content now has two possible origins.
+ */
+export const EVENTS: ForeseEvent[] = remoteEvents() ?? SEED_EVENTS;
+
 export const EVENTS_BY_RECENCY: ForeseEvent[] = [...EVENTS].sort((a, b) =>
   (b.date ?? '').localeCompare(a.date ?? ''),
 );

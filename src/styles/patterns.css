@@ -117,3 +117,25 @@
   background-clip: text;
   color: transparent;
 }
+
+/* The admin editor's form controls.
+
+   One class rather than a styled component: these are plain `input`,
+   `textarea` and `select` elements on a private page, and a component per
+   control would be three more files nothing else imports. The tokens are the
+   site's own, so the editor looks like the site rather than like a form. */
+@utility admin-input {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface-raised);
+  padding: 0.625rem 0.875rem;
+  font-size: var(--text-small);
+  color: var(--color-text);
+}
+@utility admin-input {
+  &:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}

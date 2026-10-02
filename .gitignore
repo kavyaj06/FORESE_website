@@ -16,3 +16,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Local environment — the real values for the club's Firebase and Cloudinary
+# accounts. `.env.example` lists the names; this file holds the values.
+.env
+.env.local

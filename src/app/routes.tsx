@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import { lazy, Suspense, type ComponentType } from 'react';
 import { matchPath, type Params } from 'react-router-dom';
 
 import HomePage from '@/pages/home/HomePage';
@@ -15,6 +15,25 @@ import { findEventBySlug } from '@/data/events';
 // the entry removes the page from all of them at once.
 // import NewsPage from '@/pages/news/NewsPage';
 import CodersPage from '@/pages/coders/CodersPage';
+
+/**
+ * The club's editing screen, and the one page that is not bundled with the
+ * rest of the site.
+ *
+ * It pulls in the Firebase SDK, which is far larger than any page here and is
+ * of no use to a visitor: lazy means that weight is downloaded by the handful
+ * of people who open `/admin` and by nobody else. Everything on the public
+ * site reads its content over plain REST instead — see `@/data/remote`.
+ */
+const AdminPage = lazy(() => import('@/pages/admin/AdminPage'));
+
+function AdminRoute() {
+  return (
+    <Suspense fallback={null}>
+      <AdminPage />
+    </Suspense>
+  );
+}
 import StyleguidePage from '@/pages/styleguide/StyleguidePage';
 
 /**
@@ -152,6 +171,22 @@ const ALL_ROUTES: AppRoute[] = [
     // no way to carry that distinction — listed there it reads as just
     // another page, which is the opposite of the emphasis it has in the bar.
     footerGroup: undefined,
+  },
+  {
+    /**
+     * Reached from the copyright line in the footer and from nowhere else: no
+     * navigation, no footer column, no sitemap, and `noindex` once it loads.
+     *
+     * Not `devOnly` — the whole point is that the club can edit the live site.
+     * And obscurity is not what protects it: the Firestore rules are. See the
+     * doc-block in `AdminPage`.
+     */
+    path: '/admin',
+    label: 'Club editor',
+    Component: AdminRoute,
+    title: 'Club editor',
+    description: 'Private editing screen for the FORESE club.',
+    inPrimaryNav: false,
   },
   {
     // Renders every design token and component on one page so the system can
