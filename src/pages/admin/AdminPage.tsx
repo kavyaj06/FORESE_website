@@ -220,8 +220,11 @@ function Shell({ children }: { children: React.ReactNode }) {
     <section className="py-section">
       <Container className="max-w-content-narrow">
         <h1 className="text-h2">Club editor</h1>
+        {/* The host, read at runtime rather than written down. The club
+            expects to move off the Vercel address, and a domain spelled out in
+            the source is a line that goes stale the day they do. */}
         <p className="text-small text-text-muted mt-xs mb-xl">
-          Events and photographs for forese-website.vercel.app
+          Events and photographs for {window.location.host}
         </p>
         {children}
       </Container>
