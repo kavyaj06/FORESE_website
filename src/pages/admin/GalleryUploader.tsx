@@ -5,7 +5,7 @@ import {
   deletePhoto,
   listEvents,
   listPhotos,
-  readImageSize,
+  prepareImage,
   savePhoto,
   uploadConfigured,
   uploadImage,
@@ -18,11 +18,12 @@ import { Field, Notice } from './ui';
  *
  * Two things happen per file, in this order and for a reason:
  *
- *  1. **Its true pixel size is read, before it is uploaded.** `GalleryPhoto`
- *     requires `width` and `height` because they reserve each tile's box in
- *     the grid — without them every picture that loads shifts the page under
- *     the reader. Reading them from the file is the only way the club can post
- *     an album without measuring anything.
+ *  1. **It is resized if it is larger than it needs to be, and measured
+ *     afterwards.** `GalleryPhoto` requires `width` and `height` because they
+ *     reserve each tile's box in the grid — without them every picture that
+ *     loads shifts the page under the reader. Measuring the *resized*
+ *     photograph is the point: dimensions taken before a resize would reserve
+ *     the wrong shape, which is the bug those fields exist to prevent.
  *  2. **It is uploaded, then a row is written.** The row is what the site
  *     reads; a file with no row appears nowhere. That ordering is also what
  *     makes an unsigned upload preset safe here.
@@ -77,14 +78,16 @@ export function GalleryUploader() {
     try {
       for (const [index, item] of queue.entries()) {
         setStatus(`Uploading ${index + 1} of ${queue.length}…`);
-        const size = await readImageSize(item.file);
-        const src = await uploadImage(item.file, event.slug);
+        // Resized first, then uploaded, then recorded — and the dimensions
+        // written are the resized ones, which is what the tile will hold.
+        const prepared = await prepareImage(item.file);
+        const src = await uploadImage(prepared.blob, event.slug);
         await savePhoto({
           id: `${event.slug}-${Date.now()}-${index}`,
           eventId: event.id,
           src,
-          width: size.width,
-          height: size.height,
+          width: prepared.width,
+          height: prepared.height,
           alt: item.alt.trim(),
           circulate: true,
           order: albumPhotos.length + index,
@@ -142,7 +145,10 @@ export function GalleryUploader() {
             </select>
           </Field>
 
-          <Field label="Photographs" hint="JPEG or PNG. They are resized and served from a CDN.">
+          <Field
+            label="Photographs"
+            hint="JPEG or PNG, straight off a phone is fine — anything larger than 2000px is resized here before it uploads."
+          >
             <input
               ref={fileInput}
               type="file"

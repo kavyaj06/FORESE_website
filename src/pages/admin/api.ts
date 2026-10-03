@@ -133,19 +133,72 @@ export async function importSeedContent(
 }
 
 /**
- * A photograph's true pixel size, read before it is uploaded.
+ * The longest edge a stored photograph is allowed to have.
  *
- * `GalleryPhoto` requires `width` and `height` because they reserve the tile's
- * box in the grid — without them every image that loads reflows the page,
- * which is the single biggest cause of layout shift on a gallery. Reading them
- * here, from the file itself, is the only way the club can post an album
- * without measuring anything by hand.
+ * A gallery tile is at most ~800px wide on a large screen, and the lightbox
+ * shows one picture at viewport size. 2000 is generous for both, and well
+ * under what a phone produces: a modern camera roll photograph is 4000px and
+ * 5-8MB, which is slow to upload on college wifi and nine-tenths wasted once
+ * it arrives.
  */
-export async function readImageSize(file: File): Promise<{ width: number; height: number }> {
+const MAX_EDGE = 2000;
+
+/** How hard the browser re-compresses a resized photograph. */
+const QUALITY = 0.85;
+
+export interface PreparedImage {
+  blob: Blob;
+  width: number;
+  height: number;
+}
+
+/**
+ * A photograph, resized if it needs it, with the dimensions it will actually
+ * have once stored.
+ *
+ * Both halves matter.
+ *
+ * **The size is measured, not asked for.** `GalleryPhoto` requires `width` and
+ * `height` because they reserve the tile's box in the grid — without them
+ * every image that loads reflows the page, which is the single biggest cause
+ * of layout shift on a gallery. Reading them from the file is the only way the
+ * club can post an album without measuring anything by hand.
+ *
+ * **And it is the size *after* any resize.** Measuring the original and
+ * uploading a smaller file would write dimensions that do not match the
+ * picture — the tile would be reserved at the wrong shape, which is the exact
+ * bug the fields exist to prevent.
+ *
+ * A photograph already within the limit is uploaded untouched: re-encoding a
+ * picture that does not need it only loses quality.
+ */
+export async function prepareImage(file: File): Promise<PreparedImage> {
   const bitmap = await createImageBitmap(file);
-  const size = { width: bitmap.width, height: bitmap.height };
+  const { width, height } = bitmap;
+  const longest = Math.max(width, height);
+
+  if (longest <= MAX_EDGE) {
+    bitmap.close();
+    return { blob: file, width, height };
+  }
+
+  const scale = MAX_EDGE / longest;
+  const target = { width: Math.round(width * scale), height: Math.round(height * scale) };
+
+  const canvas = document.createElement('canvas');
+  canvas.width = target.width;
+  canvas.height = target.height;
+  canvas.getContext('2d')?.drawImage(bitmap, 0, 0, target.width, target.height);
   bitmap.close();
-  return size;
+
+  const blob = await new Promise<Blob | null>((resolve) =>
+    canvas.toBlob(resolve, 'image/jpeg', QUALITY),
+  );
+  // A browser that would not give us a blob is not a reason to lose the
+  // photograph: upload the original, which is only ever bigger than needed.
+  if (!blob) return { blob: file, width, height };
+
+  return { blob, ...target };
 }
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string | undefined;
@@ -167,7 +220,7 @@ export const uploadConfigured = Boolean(CLOUD_NAME && UPLOAD_PRESET);
  * `f_auto,q_auto` is applied at delivery, so the gallery serves WebP or AVIF
  * to browsers that take it without anything being converted by hand.
  */
-export async function uploadImage(file: File, folder: string): Promise<string> {
+export async function uploadImage(file: Blob, folder: string): Promise<string> {
   if (!uploadConfigured) throw new Error('Image uploads are not configured.');
 
   const body = new FormData();
