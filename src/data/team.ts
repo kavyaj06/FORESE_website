@@ -17,12 +17,13 @@ import type { TeamId } from './teamIds';
  * to the person's initials rather than a broken image, so the roster can be
  * correct before the images are.
  *
- * ⚠️ Two junior core entries (`raghav-gs`, `srindhi-sarasija`) are still
- * DUMMY placeholders — invented quotes and links — standing in until the club
- * supplies theirs. They are deliberately unusable rather than merely
- * invented: emails use `example.com`, the domain RFC 2606 reserves so it can
- * never resolve, and every invented LinkedIn slug ends `-placeholder` so it
- * cannot collide with a stranger's real profile.
+ * ⚠️ `raghav-gs` is still a DUMMY placeholder — invented quote and links —
+ * and `srindhi-sarasija` has her own quote but still invented contact
+ * details, standing in until the club supplies them. The invented parts are
+ * deliberately unusable rather than merely made up: emails use `example.com`,
+ * the domain RFC 2606 reserves so it can never resolve, and every invented
+ * LinkedIn slug ends `-placeholder` so it cannot collide with a stranger's
+ * real profile.
  *
  * One person appears exactly once. A working team is not a stored list: it is
  * everyone whose `team` matches its id. That is what makes it impossible for
@@ -180,7 +181,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     photo: '/images/c1.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
-    quote: 'ankara Messi',
+    quote: 'ankara messi',
     email: 'pragadeesh2907@gmail.com',
   },
   {
@@ -220,7 +221,7 @@ export const CLUB_MEMBERS: ClubMember[] = [
     photo: '/images/c6.jpg',
     rank: 'junior-core',
     role: 'Executive Director',
-    quote: 'Every year we hand over a slightly better version of the process.',
+    quote: 'going to rock bottom, do you guys need anything?',
     linkedin: 'https://www.linkedin.com/in/srindhi-sarasija-placeholder',
     email: 'srindhi-sarasija@example.com',
   },
