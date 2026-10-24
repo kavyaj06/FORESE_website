@@ -3,6 +3,7 @@ import { matchPath, type Params } from 'react-router-dom';
 
 import HomePage from '@/pages/home/HomePage';
 import MockPlacementsPage from '@/pages/mock-placements/MockPlacementsPage';
+import TipsPage from '@/pages/tips/TipsPage';
 import EventsPage from '@/pages/events/EventsPage';
 import TeamPage from '@/pages/team/TeamPage';
 import GalleryPage from '@/pages/gallery/GalleryPage';
@@ -106,6 +107,16 @@ const ALL_ROUTES: AppRoute[] = [
     Component: MockPlacementsPage,
     title: 'Mock Placements',
     description: 'The FORESE mock placement process, from contact collection to mock interviews.',
+    inPrimaryNav: true,
+    footerGroup: 'quickLinks',
+  },
+  {
+    path: '/tips',
+    label: 'Interview Tips',
+    Component: TipsPage,
+    title: 'Interview Tips',
+    description:
+      'Group discussion, aptitude and resume guidance from FORESE, for students preparing for placements.',
     inPrimaryNav: true,
     footerGroup: 'quickLinks',
   },
