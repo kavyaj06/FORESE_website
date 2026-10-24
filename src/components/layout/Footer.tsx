@@ -181,25 +181,78 @@ export function Footer() {
                 <div>
                   <h2 className={COLUMN_HEADING}>Visit us</h2>
                   {LOCATION.length > 0 ? (
-                    <address className="not-italic">
-                      {/* The whole address is the link, not a separate "view on
+                    <>
+                      <address className="not-italic">
+                        {/* The whole address is the link, not a separate "view on
                     map" line beneath it — an address on a site like this is
                     only ever there to be found, so making the text itself the
                     target saves a row and a redundant label. */}
-                      <ContactLink
-                        href={LOCATION_URL}
-                        icon={MapPin}
-                        brand={MAPS_RED}
-                        external
-                        className="text-small"
-                      >
-                        {LOCATION.map((line) => (
-                          <span key={line} className="block">
-                            {line}
+                        <ContactLink
+                          href={LOCATION_URL}
+                          icon={MapPin}
+                          brand={MAPS_RED}
+                          external
+                          className="text-small group"
+                        >
+                          {LOCATION.map((line) => (
+                            <span key={line} className="block">
+                              {line}
+                            </span>
+                          ))}
+
+                          {/* The map is inside the address link rather than
+                            beside it as a second one. Same reasoning as the
+                            icon — see ContactLink: one destination should be
+                            one target, not two rows announcing themselves as
+                            two places to go.
+
+                            Quiet at rest and full strength on hover, which is
+                            also what tells a reader it is part of the link.
+                            The dot marks the campus: the picture is generated
+                            centred on it, so the centre of the frame is the
+                            place. A second pin here would only repeat the one
+                            already at the top of the row. */}
+                          <span className="border-wf-dot mt-4 block max-w-[17rem] overflow-hidden rounded-md border">
+                            <span className="relative block">
+                              <img
+                                src="/images/svce-map.png"
+                                alt=""
+                                width={600}
+                                height={340}
+                                loading="lazy"
+                                decoding="async"
+                                className="ease-smooth block w-full opacity-70 transition-opacity duration-200 group-hover:opacity-100"
+                              />
+                              <span
+                                aria-hidden="true"
+                                className="bg-accent-blue ring-bg/60 rounded-pill absolute top-1/2 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 ring-2"
+                              />
+                            </span>
                           </span>
-                        ))}
-                      </ContactLink>
-                    </address>
+                        </ContactLink>
+                      </address>
+
+                      {/* Outside the link, and a link of its own: the map is
+                        drawn from OpenStreetMap's own tiles, and the licence
+                        asks for the credit to be visible rather than buried in
+                        a file nobody opens.
+
+                        Indented by the width of the icon column — the 18px
+                        mark plus ContactLink's 12px gap — so it sits under the
+                        map it credits rather than under the heading. */}
+                      <p className="text-caption text-wf-button ms-[1.875rem] mt-2 max-w-[17rem]">
+                        Map ©{' '}
+                        <a
+                          href="https://www.openstreetmap.org/copyright"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="transition-colors duration-200 hover:text-white"
+                        >
+                          OpenStreetMap
+                        </a>{' '}
+                        contributors
+                      </p>
+                    </>
                   ) : (
                     <Pending what="Address" />
                   )}
