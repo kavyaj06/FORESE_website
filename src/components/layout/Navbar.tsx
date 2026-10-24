@@ -94,24 +94,25 @@ export function Navbar() {
           <div className="gap-md ml-auto flex shrink-0 items-center">
             {/* The outline sets Coders apart on the right. A rule separates it
                 from the nav proper, so it reads as a destination of a
-                different kind rather than one more link. */}
-            {NAV_ACTION && (
-              <>
-                <span aria-hidden="true" className="bg-border desktop:block hidden h-5 w-px" />
-                <NavLink
-                  to={NAV_ACTION.path}
-                  className="text-label desktop:inline-flex duration-fast group hidden items-center gap-1 font-semibold transition-opacity hover:opacity-70"
-                >
-                  {NAV_ACTION.label}
-                  <ArrowUpRight
-                    size={15}
-                    strokeWidth={2.25}
-                    aria-hidden="true"
-                    className="duration-fast ease-out-brand transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  />
-                </NavLink>
-              </>
-            )}
+                different kind rather than one more link — which it now
+                literally is: the forum is another site, so this is an `<a>`
+                opening in a new tab rather than a route. The arrow was already
+                here and was always saying so. */}
+            <span aria-hidden="true" className="bg-border desktop:block hidden h-5 w-px" />
+            <a
+              href={NAV_ACTION.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-label desktop:inline-flex duration-fast group hidden items-center gap-1 font-semibold transition-opacity hover:opacity-70"
+            >
+              {NAV_ACTION.label}
+              <ArrowUpRight
+                size={15}
+                strokeWidth={2.25}
+                aria-hidden="true"
+                className="duration-fast ease-out-brand transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </a>
 
             {/* Mobile toggle — 44px touch target */}
             <button

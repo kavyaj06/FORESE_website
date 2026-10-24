@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { NavLink } from 'react-router-dom';
-import { MOBILE_NAV } from '@/app/routes';
+import { ArrowUpRight } from 'lucide-react';
+import { MOBILE_NAV, NAV_ACTION } from '@/app/routes';
 import { useScrollLock } from '@/hooks/useScrollLock';
 import { cn } from '@/lib/cn';
 
@@ -94,6 +95,22 @@ export function MobileNav({ open, onClose, returnFocusRef }: MobileNavProps) {
               </NavLink>
             </li>
           ))}
+
+          {/* Last, and marked as leaving: the forum is a site of its own, so
+              this is a real external link rather than a route. Same arrow as
+              the navbar's, which is what says so in both places. */}
+          <li>
+            <a
+              href={NAV_ACTION.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={onClose}
+              className="text-h3 border-border gap-md duration-fast text-text-muted hover:text-text flex min-h-14 items-center justify-between border-b transition-colors"
+            >
+              {NAV_ACTION.label}
+              <ArrowUpRight size={20} strokeWidth={2} aria-hidden="true" className="shrink-0" />
+            </a>
+          </li>
         </ul>
       </nav>
     </div>,

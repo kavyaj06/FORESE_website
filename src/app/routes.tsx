@@ -15,7 +15,6 @@ import { findEventBySlug } from '@/data/events';
 // the footer's Quick links, the sitemap — reads the route table, so removing
 // the entry removes the page from all of them at once.
 // import NewsPage from '@/pages/news/NewsPage';
-import CodersPage from '@/pages/coders/CodersPage';
 
 /**
  * The club's editing screen, and the one page that is not bundled with the
@@ -79,11 +78,6 @@ export interface AppRoute {
   description: RouteMeta;
   /** Show in the primary navbar and mobile drawer. */
   inPrimaryNav: boolean;
-  /**
-   * Render as the highlighted action at the right of the navbar rather than
-   * as a plain link. The outline shows exactly one of these: Coders.
-   */
-  isNavAction?: boolean;
   /** Which footer column, if any. */
   footerGroup?: FooterGroup;
   /** Hidden from all navigation and excluded from production builds. */
@@ -170,20 +164,6 @@ const ALL_ROUTES: AppRoute[] = [
   //   footerGroup: 'quickLinks',
   // },
   {
-    path: '/coders',
-    label: 'Coders',
-    Component: CodersPage,
-    title: 'Coders',
-    description: "The FORESE Coders' Forum.",
-    inPrimaryNav: true,
-    isNavAction: true,
-    // Deliberately absent from the footer's Quick links. It is the one nav
-    // item styled as an action rather than a link, and the footer column has
-    // no way to carry that distinction — listed there it reads as just
-    // another page, which is the opposite of the emphasis it has in the bar.
-    footerGroup: undefined,
-  },
-  {
     /**
      * Reached from the copyright line in the footer and from nowhere else: no
      * navigation, no footer column, no sitemap, and `noindex` once it loads.
@@ -218,15 +198,34 @@ export const ROUTES: AppRoute[] = ALL_ROUTES.filter(
 );
 
 /** Plain links in the centre of the navbar. */
-export const PRIMARY_NAV: AppRoute[] = ROUTES.filter(
-  (route) => route.inPrimaryNav && !route.isNavAction,
-);
+export const PRIMARY_NAV: AppRoute[] = ROUTES.filter((route) => route.inPrimaryNav);
 
-/** The highlighted action at the right of the navbar, if any. */
-export const NAV_ACTION: AppRoute | undefined = ROUTES.find((route) => route.isNavAction);
+/** Every page shown in the mobile drawer. The action below is added after them. */
+export const MOBILE_NAV: AppRoute[] = PRIMARY_NAV;
 
-/** Every destination shown in the mobile drawer, action included. */
-export const MOBILE_NAV: AppRoute[] = ROUTES.filter((route) => route.inPrimaryNav);
+/**
+ * The highlighted destination at the right of the navbar.
+ *
+ * Not a route, and that is the point: the Coders' Forum is a site of its own,
+ * at its own address. It used to be an entry in the table above with a
+ * placeholder page behind it, which meant the bar pointed at a screen saying
+ * the page had not been scoped yet. Modelling it as what it is — a link
+ * somewhere else — is what lets the navbar open it in a new tab and mark it up
+ * as external, and it is why the route table has no `/coders` any more.
+ *
+ * The outline shows exactly one of these, so it is a constant rather than a
+ * list. A second one would be a list, and a different conversation about what
+ * the bar is for.
+ */
+export interface NavAction {
+  label: string;
+  href: string;
+}
+
+export const NAV_ACTION: NavAction = {
+  label: 'Coders',
+  href: 'https://coders-forum.vercel.app/',
+};
 
 /** Routes belonging to a given footer column. */
 export function footerRoutes(group: FooterGroup): AppRoute[] {

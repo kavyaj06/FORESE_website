@@ -1,4 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/coders",
+      "destination": "https://coders-forum.vercel.app/",
+      "permanent": false
+    }
+  ],
   "rewrites": [{ "source": "/((?!assets/).*)", "destination": "/index.html" }]
 }
