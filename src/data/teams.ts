@@ -65,14 +65,20 @@ export const CORE_RANKS = ['senior-core', 'junior-core', 'lead', 'senior-executi
  * the senior core rendered with the President sixth, between two general
  * secretaries. A precedence list cannot drift when somebody is added.
  *
- * A role missing from this list sorts last, in the order the roster gives it.
- * That is deliberate — an unknown role should appear, not vanish.
+ * A role missing from this list sorts last, alphabetically with everyone else
+ * the list does not name. That is deliberate — an unknown role should appear,
+ * not vanish — but it is also why every role the roster actually uses is
+ * written here: left out, Tech Head and Treasurer land in the same bucket and
+ * interleave.
  */
 const ROLE_ORDER = [
   'President',
   'Vice President',
   'General Secretary',
   'Executive Director',
+  'Tech Head',
+  'Communications Chair',
+  'Treasurer',
   'Marketing Lead',
   'Design Lead',
   'Videography Lead',
@@ -81,12 +87,28 @@ const ROLE_ORDER = [
   'Senior Videography Executive',
 ];
 
-export function byRole(a: ClubMember, b: ClubMember): number {
+/**
+ * The order people are shown in: by role, then by name.
+ *
+ * Both halves are load-bearing. Role first, because a senior core listed
+ * alphabetically would open on a general secretary and bury the President in
+ * the middle — the order is information there. Name second, because for the
+ * hundred and forty people who carry no role at all it is the only order a
+ * reader can navigate: they are looking for one person, and a list arranged
+ * by nothing is a list you have to read all of.
+ *
+ * Alphabetical by the whole name, which reads as alphabetical by first name
+ * now that the roster writes initials last ("Anirrudh D", not "D Anirrudh").
+ * That is the point of writing them that way: sorted under the initial, a
+ * fifth of the members sat in a block of A's, D's and S's that had nothing to
+ * do with what anyone is called.
+ */
+export function byRoleThenName(a: ClubMember, b: ClubMember): number {
   const rank = (member: ClubMember) => {
     const at = member.role ? ROLE_ORDER.indexOf(member.role) : -1;
     return at === -1 ? ROLE_ORDER.length : at;
   };
-  return rank(a) - rank(b);
+  return rank(a) - rank(b) || a.name.localeCompare(b.name);
 }
 
 /** The two ranks that sit on a working team. */

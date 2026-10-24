@@ -7,7 +7,7 @@ import { SegmentedTabs } from '@/components/sections/SegmentedTabs';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { TeamId } from '@/data/teamIds';
 import { CLUB_MEMBERS, type ClubMember, type MemberRank } from '@/data/team';
-import { byRole, CLUB_TEAMS, CORE_RANKS } from '@/data/teams';
+import { byRoleThenName, CLUB_TEAMS, CORE_RANKS } from '@/data/teams';
 import { MemberCard } from '../components/MemberCard';
 import { TEAM_CORE_TABS, TEAM_GROUP_TABS } from '../data';
 
@@ -49,10 +49,11 @@ export function TeamBrowser() {
   const byRank = useMemo(() => {
     const map = {} as Record<MemberRank, ClubMember[]>;
     for (const member of CLUB_MEMBERS) (map[member.rank] ??= []).push(member);
-    // Sorted by role, not left in roster order — see `byRole`. The roster's
-    // order is the order people were typed in, which put the President sixth
-    // in the senior core, between two general secretaries.
-    for (const group of Object.values(map)) group.sort(byRole);
+    // Sorted by role and then by name, not left in roster order — see
+    // `byRoleThenName`. The roster's order is the order people were typed in,
+    // which put the President sixth in the senior core, between two general
+    // secretaries, and left a hundred and forty members in no order at all.
+    for (const group of Object.values(map)) group.sort(byRoleThenName);
     return map;
   }, []);
 

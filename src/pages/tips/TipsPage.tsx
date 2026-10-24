@@ -3,7 +3,6 @@ import { TopicRail } from './components/TopicRail';
 import { GroupDiscussionAct } from './sections/GroupDiscussionAct';
 import { AptitudeAct } from './sections/AptitudeAct';
 import { ResumeAct } from './sections/ResumeAct';
-import { TipsOutro } from './sections/TipsOutro';
 import { TIPS_HERO, TIPS_TOPICS } from './data';
 
 /**
@@ -33,8 +32,6 @@ export default function TipsPage() {
         <AptitudeAct />
         <ResumeAct />
       </div>
-
-      <TipsOutro />
     </>
   );
 }

@@ -358,13 +358,3 @@ export const RESUME_TIPS: {
     },
   ],
 };
-
-/* ==========================================================================*/
-
-export const TIPS_OUTRO = {
-  title: 'This is the day it is all for',
-  description:
-    'Mock placements put every one of these into practice in an afternoon: an aptitude paper, a group discussion, and a one-to-one interview with an HR who does this for a living.',
-  action: { label: 'How the day runs', to: '/mocks' },
-  secondary: { label: 'Upcoming events', to: '/events' },
-} as const;
