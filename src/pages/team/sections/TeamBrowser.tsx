@@ -46,6 +46,24 @@ export function TeamBrowser() {
   const [coreRank, setCoreRank] = useState<CoreRank>('senior-core');
   const [team, setTeam] = useState<TeamFilter>('all');
 
+  /**
+   * The one card opened by tap, on a touch screen.
+   *
+   * Here rather than inside each card because only the grid can see that a
+   * second card has been tapped — see the note in `MemberCard`. Cleared
+   * whenever the selection changes, since the open card is usually not in the
+   * set that arrives next, and a card that opens itself the moment a filter
+   * changes is a card nobody asked for.
+   */
+  const [openId, setOpenId] = useState<string | null>(null);
+
+  const choose =
+    <T,>(set: (next: T) => void) =>
+    (next: T) => {
+      setOpenId(null);
+      set(next);
+    };
+
   const byRank = useMemo(() => {
     const map = {} as Record<MemberRank, ClubMember[]>;
     for (const member of CLUB_MEMBERS) (map[member.rank] ??= []).push(member);
@@ -103,7 +121,7 @@ export function TeamBrowser() {
           <SegmentedTabs
             tabs={groupTabs}
             value={group}
-            onChange={setGroup}
+            onChange={choose(setGroup)}
             layoutId="team-group-pill"
             ariaLabel="Which part of the club to show"
           />
@@ -117,7 +135,7 @@ export function TeamBrowser() {
             <SegmentedTabs
               tabs={coreTabs}
               value={coreRank}
-              onChange={setCoreRank}
+              onChange={choose(setCoreRank)}
               layoutId="team-sub-pill"
               ariaLabel="Which core rank to show"
             />
@@ -126,7 +144,7 @@ export function TeamBrowser() {
             <SegmentedTabs
               tabs={teamTabs}
               value={team}
-              onChange={setTeam}
+              onChange={choose(setTeam)}
               layoutId="team-sub-pill"
               ariaLabel="Filter by working team"
             />
@@ -155,7 +173,12 @@ export function TeamBrowser() {
                 ease: EASE_OUT_BRAND,
               }}
             >
-              <MemberCard member={member} size={featured ? 'feature' : 'standard'} />
+              <MemberCard
+                member={member}
+                size={featured ? 'feature' : 'standard'}
+                open={openId === member.id}
+                onToggle={() => setOpenId((current) => (current === member.id ? null : member.id))}
+              />
             </motion.div>
           ))}
         </div>

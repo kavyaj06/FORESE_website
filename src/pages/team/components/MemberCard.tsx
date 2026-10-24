@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { SocialIcon } from '@/components/ui/SocialIcon';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { ClubMember } from '@/data/team';
@@ -9,6 +8,17 @@ interface MemberCardProps {
   member: ClubMember;
   /** `feature` is the taller senior-core treatment. */
   size?: 'feature' | 'standard';
+  /**
+   * Whether this card is the one opened by tap, on a touch screen.
+   *
+   * Owned by the grid rather than by the card, because "one card at a time"
+   * is a fact about the grid: a card holding its own state cannot know that
+   * another has just been tapped, so every card the reader touched stayed
+   * black behind them.
+   */
+  open: boolean;
+  /** Tap on the card's own surface. The grid decides what that means. */
+  onToggle: () => void;
 }
 
 /**
@@ -44,6 +54,13 @@ interface MemberCardProps {
  * CSS: a full-card button sitting invisibly over every card on desktop would
  * swallow text selection and put a second tab stop on all ninety of them.
  *
+ * Which card is open is the grid's to know, not the card's — see `open` below.
+ * A tap on one card has to close whichever other one was open, and a card
+ * holding its own state cannot do that: on a phone every card the reader had
+ * touched stayed filled black behind them, so by the fifth tap half the
+ * roster was lit. Hover never had the problem, because a pointer can only be
+ * in one place.
+ *
  * Tapping is also why the link strip carries `pointer-events-none` until it is
  * shown. Invisible at `opacity: 0`, it still occupies the photograph's
  * top-right corner, so without that a tap there would hit a link the reader
@@ -67,10 +84,9 @@ interface MemberCardProps {
  * runs under the pills, so a card that narrow falls back to the footer quote
  * instead. Measured across 390 to 2400: zero overlap at every width.
  */
-export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
+export function MemberCard({ member, size = 'standard', open, onToggle }: MemberCardProps) {
   const isCore = member.rank !== 'member' && member.rank !== 'senior-member';
   const isTouch = useMediaQuery('(hover: none)');
-  const [open, setOpen] = useState(false);
 
   return (
     <article
@@ -227,7 +243,7 @@ export function MemberCard({ member, size = 'standard' }: MemberCardProps) {
             // keyboard activation reports `detail: 0` and keeps it, because
             // there the focus ring is how you know where you are.
             if (event.detail > 0) event.currentTarget.blur();
-            setOpen((current) => !current);
+            onToggle();
           }}
           className="absolute inset-0 rounded-lg"
         />
