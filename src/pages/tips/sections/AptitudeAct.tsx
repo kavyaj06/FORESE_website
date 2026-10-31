@@ -20,12 +20,7 @@ export function AptitudeAct() {
   return (
     <section id={TIPS_TOPICS[1].id} className="bg-surface">
       <div className="py-section gap-3xl flex flex-col">
-        <ActHeader
-          index={1}
-          eyebrow={APTITUDE_INTRO.eyebrow}
-          title={APTITUDE_INTRO.title}
-          lead={APTITUDE_INTRO.lead}
-        >
+        <ActHeader title={APTITUDE_INTRO.title} lead={APTITUDE_INTRO.lead}>
           <p className="text-body text-text-muted">{APTITUDE_INTRO.body}</p>
         </ActHeader>
 

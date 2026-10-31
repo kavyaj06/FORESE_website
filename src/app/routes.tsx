@@ -114,9 +114,9 @@ const ALL_ROUTES: AppRoute[] = [
      * tips" and a single canonical URL for each guide underneath it.
      */
     path: '/tips',
-    label: 'Interview Tips',
+    label: 'Placement Prep',
     Component: TipsPage,
-    title: 'Interview Tips',
+    title: 'Placement Prep',
     description:
       'Group discussion, aptitude and resume guidance from FORESE, for students preparing for placements.',
     inPrimaryNav: true,
@@ -128,9 +128,9 @@ const ALL_ROUTES: AppRoute[] = [
     // a student can be sent to the resume advice rather than to the top of
     // all three.
     path: '/tips/:topic',
-    label: 'Interview Tips',
+    label: 'Placement Prep',
     Component: TipsPage,
-    title: (params) => findTopic(params.topic)?.title ?? 'Interview Tips',
+    title: (params) => findTopic(params.topic)?.title ?? 'Placement Prep',
     description: (params) =>
       findTopic(params.topic)?.blurb ??
       'Group discussion, aptitude and resume guidance from FORESE, for students preparing for placements.',

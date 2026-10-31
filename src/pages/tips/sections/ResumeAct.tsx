@@ -15,12 +15,7 @@ export function ResumeAct() {
   return (
     <section id={TIPS_TOPICS[2].id}>
       <div className="py-section gap-3xl flex flex-col">
-        <ActHeader
-          index={2}
-          eyebrow={RESUME_INTRO.eyebrow}
-          title={RESUME_INTRO.title}
-          lead={RESUME_INTRO.lead}
-        />
+        <ActHeader title={RESUME_INTRO.title} lead={RESUME_INTRO.lead} />
 
         <Container>
           <SectionHeading

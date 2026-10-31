@@ -5,6 +5,7 @@ import { Reveal } from '@/components/motion/Reveal';
 import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import { SegmentedTabs } from '@/components/sections/SegmentedTabs';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
+import { cn } from '@/lib/cn';
 import type { TeamId } from '@/data/teamIds';
 import { CLUB_MEMBERS, type ClubMember, type MemberRank } from '@/data/team';
 import { byRoleThenName, CLUB_TEAMS, CORE_RANKS } from '@/data/teams';
@@ -151,38 +152,140 @@ export function TeamBrowser() {
           )}
         </Reveal>
 
-        <div
-          key={`${group}-${group === 'core' ? coreRank : team}`}
-          className={
-            featured
-              ? 'mt-2xl gap-lg tablet:grid-cols-3 desktop:grid-cols-4 grid grid-cols-2'
-              : 'mt-2xl gap-lg tablet:grid-cols-4 desktop:grid-cols-5 grid grid-cols-2'
-          }
-        >
-          {visible.map((member, index) => (
-            <motion.div
-              key={member.id}
-              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              // Staggered by column rather than by position in the list, so the
-              // hundredth card is not still waiting three seconds in. It reads
-              // as one sweep across the grid either way.
-              transition={{
-                duration: 0.3,
-                delay: prefersReducedMotion ? 0 : (index % (featured ? 4 : 5)) * 0.05,
-                ease: EASE_OUT_BRAND,
-              }}
-            >
-              <MemberCard
-                member={member}
-                size={featured ? 'feature' : 'standard'}
-                open={openId === member.id}
-                onToggle={() => setOpenId((current) => (current === member.id ? null : member.id))}
-              />
-            </motion.div>
-          ))}
+        <div key={`${group}-${group === 'core' ? coreRank : team}`} className="mt-2xl">
+          {featured ? (
+            // Rows rather than a grid, for two reasons the grid could not
+            // answer. A rank whose count is not a multiple of the columns left
+            // its last row ranged left with empty cells beside it, and the
+            // senior core has a shape of its own: one president, two vice
+            // presidents, then the general secretaries. Rows that centre
+            // themselves give both, and every card stays the width it would
+            // have had in a five-column grid.
+            <div className="gap-lg flex flex-col">
+              {(coreRank === 'senior-core' ? roleRows(visible) : [visible]).map((row, rowIndex) => (
+                <ul key={row[0]?.id ?? rowIndex} className="gap-lg flex flex-wrap justify-center">
+                  {row.map((member, index) => (
+                    // `flex` so the card fills the row's height: a grid
+                    // stretched its cells and a flex line does not pass that
+                    // on to a child asking for `h-full`, which left two cards
+                    // side by side ending forty pixels apart.
+                    <li key={member.id} className={cn(CORE_CARD, 'flex')}>
+                      <Card
+                        member={member}
+                        index={index}
+                        columns={5}
+                        prefersReducedMotion={prefersReducedMotion}
+                        open={openId === member.id}
+                        onToggle={() =>
+                          setOpenId((current) => (current === member.id ? null : member.id))
+                        }
+                        size="feature"
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ))}
+            </div>
+          ) : (
+            <div className="gap-lg tablet:grid-cols-4 desktop:grid-cols-5 grid grid-cols-2">
+              {visible.map((member, index) => (
+                <Card
+                  key={member.id}
+                  member={member}
+                  index={index}
+                  columns={5}
+                  prefersReducedMotion={prefersReducedMotion}
+                  open={openId === member.id}
+                  onToggle={() =>
+                    setOpenId((current) => (current === member.id ? null : member.id))
+                  }
+                  size="standard"
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Container>
     </section>
+  );
+}
+
+/**
+ * The senior core as rows: one per role, and no row longer than three.
+ *
+ * The club asked for it to read as what it is — the president, then the two
+ * vice presidents, then the general secretaries — and the list arrives sorted
+ * by role already (see `byRoleThenName`), so the rows are the runs of equal
+ * role, with a long run broken up rather than stretched back into a grid.
+ *
+ * **Only the senior core.** The junior core holds six executive directors,
+ * two tech heads, a communications chair and a treasurer, and grouping that
+ * by role gives two rows holding a single centred card each, which reads as a
+ * mistake rather than as a hierarchy. Every other rank is one run that wraps.
+ */
+const ROW = 3;
+
+function roleRows(members: ClubMember[]): ClubMember[][] {
+  const runs: ClubMember[][] = [];
+
+  for (const member of members) {
+    const last = runs[runs.length - 1];
+    if (last && last[0].role === member.role) last.push(member);
+    else runs.push([member]);
+  }
+
+  return runs.flatMap((run) =>
+    run.length <= ROW
+      ? [run]
+      : Array.from({ length: Math.ceil(run.length / ROW) }, (_, i) =>
+          run.slice(i * ROW, i * ROW + ROW),
+        ),
+  );
+}
+
+/**
+ * A core card's width, matched to the five-column grid the members use.
+ *
+ * Written out rather than left to a grid because these rows centre, and a
+ * centred flex row has no columns to inherit a width from. The subtraction is
+ * the gaps: four of them across five cards, two across three, one across two.
+ */
+const CORE_CARD =
+  'w-[calc((100%-1.5rem)/2)] tablet:w-[calc((100%-3rem)/3)] desktop:w-[calc((100%-6rem)/5)]';
+
+/** One card, with the entrance the grid used to give it. */
+function Card({
+  member,
+  index,
+  columns,
+  prefersReducedMotion,
+  open,
+  onToggle,
+  size,
+}: {
+  member: ClubMember;
+  index: number;
+  columns: number;
+  prefersReducedMotion: boolean;
+  open: boolean;
+  onToggle: () => void;
+  size: 'feature' | 'standard';
+}) {
+  return (
+    <motion.div
+      className="w-full"
+      initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      // Staggered by column rather than by position in the list, so the
+      // hundredth card is not still waiting three seconds in. It reads as one
+      // sweep across the grid either way.
+      transition={{
+        duration: 0.3,
+        delay: prefersReducedMotion ? 0 : (index % columns) * 0.05,
+        ease: EASE_OUT_BRAND,
+      }}
+    >
+      <MemberCard member={member} size={size} open={open} onToggle={onToggle} />
+    </motion.div>
   );
 }

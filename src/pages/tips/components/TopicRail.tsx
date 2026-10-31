@@ -22,7 +22,7 @@ export function TopicRail() {
   return (
     <div className="bg-bg/85 border-border sticky top-16 z-40 border-b backdrop-blur-md">
       <Container>
-        <nav aria-label="Interview tips guides">
+        <nav aria-label="Placement prep guides">
           <ul className="gap-lg flex scrollbar-none overflow-x-auto">
             {TIPS_TOPICS.map((topic, index) => (
               <li key={topic.id} className="relative shrink-0">

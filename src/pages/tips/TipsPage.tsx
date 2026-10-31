@@ -17,7 +17,7 @@ const GUIDES: Record<string, () => React.ReactElement> = {
 };
 
 /**
- * Interview Tips — one guide at a time.
+ * Placement Prep — one guide at a time.
  *
  * Three guides the club used to keep on three separate pages: the group
  * discussion, the aptitude paper and the resume. They were briefly one page

@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 /**
- * Interview Tips — page content.
+ * Placement Prep — page content.
  *
  * Carried over from the club's previous website, where this material was
  * three separate pages: the group discussion guide, the aptitude page and the
@@ -45,7 +45,7 @@ export interface TipItem {
 
 export const TIPS_HERO = {
   eyebrow: 'Preparation',
-  title: 'Interview Tips',
+  title: 'Placement Prep',
   description:
     'Three things decide most placement days: how you carry a group discussion, how you work an aptitude paper, and what your resume says in the few seconds someone spends reading it. Here is what we tell students about each.',
 } as const;

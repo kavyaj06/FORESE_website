@@ -28,8 +28,6 @@ export function GroupDiscussionAct() {
     <section id={TIPS_TOPICS[0].id}>
       <div className="py-section gap-3xl flex flex-col">
         <ActHeader
-          index={0}
-          eyebrow={GROUP_DISCUSSION_INTRO.eyebrow}
           title={GROUP_DISCUSSION_INTRO.title}
           lead={GROUP_DISCUSSION_INTRO.lead}
           media={
@@ -91,10 +89,11 @@ export function GroupDiscussionAct() {
         </Container>
       </div>
 
-      {/* The one warning on the page, and the only block given a band of its
-          own. In a palette with no red in it, black is what emphasis is made
-          of — see the note on `[data-theme='inverse']` in theme.css. */}
-      <div data-theme="inverse" className="bg-bg py-section">
+      {/* A band of its own, because it is the one warning on the page, but a
+          light one: a black section in the middle of a guide read as the end
+          of it, and a reader who stopped there missed the two guides the rail
+          was offering. Grey against the white above it is separation enough. */}
+      <div className="bg-surface py-section">
         <Container>
           <SectionHeading
             as="h3"

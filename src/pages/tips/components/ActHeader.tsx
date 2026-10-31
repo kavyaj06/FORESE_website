@@ -4,9 +4,6 @@ import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { cn } from '@/lib/cn';
 
 interface ActHeaderProps {
-  /** Zero-based position in `TIPS_TOPICS`. Printed as 01, 02, 03. */
-  index: number;
-  eyebrow: string;
   title: string;
   lead: string;
   /** A second column of prose, when the act opens with two paragraphs. */
@@ -16,29 +13,20 @@ interface ActHeaderProps {
 }
 
 /**
- * The opening of one of the three acts.
+ * The opening of one of the three guides.
  *
- * The rule and the number are what make a long guide navigable: the reader
- * can tell at a glance whether they are at the top of a topic or partway down
- * one, which a heading on its own does not say.
- *
- * The number comes from the page's topic list rather than being written here,
- * so the rail at the top of the page and the heading can never disagree about
- * which act is which.
+ * It used to carry a rule with a number and a kicker over it, back when the
+ * three guides were three acts of one scrolling page and a reader needed to
+ * know which of them they had reached. They are separate pages now, each with
+ * the rail above it saying which one is open, so the row was answering a
+ * question nobody was still asking. The club asked for it gone.
  */
-export function ActHeader({ index, eyebrow, title, lead, children, media }: ActHeaderProps) {
+export function ActHeader({ title, lead, children, media }: ActHeaderProps) {
   const aside = media ?? children;
 
   return (
     <Container>
       <Reveal staggerChildren className="gap-xl flex flex-col">
-        <RevealItem className="border-text pt-md gap-md flex items-baseline border-t">
-          <span className="text-eyebrow text-text tabular-nums">
-            {String(index + 1).padStart(2, '0')}
-          </span>
-          <span className="text-eyebrow text-text-subtle uppercase">{eyebrow}</span>
-        </RevealItem>
-
         <div
           className={cn(
             'gap-xl desktop:gap-3xl grid grid-cols-1',
