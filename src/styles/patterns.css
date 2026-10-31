@@ -90,28 +90,38 @@
   background-size: 22px 22px;
 }
 
-/* The warm wash behind the footer's wordmark, as the reference sets its own:
-   a soft ellipse of the workflow accent, well below full strength, so the mark
-   is lit rather than coloured. */
+/* The wash behind the footer's wordmark, as the reference sets its own: a soft
+   ellipse well below full strength, so the mark is lit rather than coloured.
+
+   Blue, not the workflow orange it used to take. That orange is scoped to the
+   home page's event boards, and reaching for it down here put a warm halo
+   behind a wordmark that lights up in the footer's own blue — the colour the
+   contact icons, the map marker and the card's own wash already use. */
 @utility bg-wf-glow {
   background-image: radial-gradient(
     ellipse at center,
-    color-mix(in oklab, var(--color-wf-accent) 28%, transparent),
+    color-mix(in oklab, var(--color-accent-blue) 28%, transparent),
     transparent 70%
   );
   filter: blur(48px);
 }
 
-/* The wordmark's hover reveal: a warm gradient painted through the letterforms
-   themselves. Built from the workflow accent mixed toward the section's own
-   text colour rather than from fresh hex values, so it cannot drift from the
-   accent the rest of these sections use. */
+/* The wordmark's hover reveal: a gradient painted through the letterforms
+   themselves, running from the accent blue to the section's own text colour.
+   Built by mixing those two rather than from fresh hex values, so the ramp
+   cannot drift from either end of it.
+
+   It was the workflow orange until the club asked for blue. The blue is the
+   better home for it anyway: `--color-wf-accent` belongs to the home page's
+   event boards and is deliberately scoped there, while `--color-accent-blue`
+   is the footer's own and is already carrying the contact icons, the map
+   marker and the card's wash. One family, one footer. */
 @utility text-wf-reveal {
   background-image: linear-gradient(
     115deg,
-    var(--color-wf-accent),
-    color-mix(in oklab, var(--color-wf-accent) 55%, var(--color-text)) 42%,
-    color-mix(in oklab, var(--color-wf-accent) 18%, var(--color-text)) 74%,
+    var(--color-accent-blue),
+    color-mix(in oklab, var(--color-accent-blue) 55%, var(--color-text)) 42%,
+    color-mix(in oklab, var(--color-accent-blue) 18%, var(--color-text)) 74%,
     var(--color-text)
   );
   background-clip: text;
