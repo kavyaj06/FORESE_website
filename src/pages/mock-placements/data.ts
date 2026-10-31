@@ -322,7 +322,15 @@ export interface ProcessStep {
    * renders without a date line rather than showing an empty one.
    */
   timing?: string;
-  /** Optional call to action, e.g. the portal a stage is run on. */
+  /**
+   * Optional call to action, e.g. the portal a stage is run on.
+   *
+   * Nothing sets this today. The aptitude step carried a button to a
+   * placeholder URL, which is a link that looks real and goes nowhere — out
+   * at the club's request until the portal they are building exists.
+   * `TimelineStep` still renders one when a step has it, so putting the
+   * button back is a `label` and an `href` here and nothing else.
+   */
   action?: {
     label: string;
     href: string;
@@ -336,13 +344,6 @@ export const PROCESS_STEPS: ProcessStep[] = [
     description:
       'An aptitude test conducted by the college. Every pre-final year student writes it on the college portal, and the scores carry forward into allocation.',
     icon: PencilRuler,
-    // TODO: replace with the real portal URL when the college publishes it.
-    // Until then this points at a placeholder so the layout is built and
-    // reviewed with the button in place.
-    action: {
-      label: 'Aptitude test portal',
-      href: 'https://example.com/forese-aptitude',
-    },
   },
   {
     id: 'group-discussion',
