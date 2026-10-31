@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
@@ -6,7 +6,7 @@ import { PageTransition } from '@/components/motion/PageTransition';
 import { ScrollProgress } from '@/components/motion/ScrollProgress';
 import { SiteLoader } from '@/components/motion/SiteLoader';
 import { IntroContext } from '@/components/motion/IntroContext';
-import { resolveRouteMeta } from '@/app/routes';
+import { findRoute, resolveRouteMeta } from '@/app/routes';
 import { applyPageMeta } from '@/lib/seo';
 import { SITE } from '@/data/site';
 
@@ -27,6 +27,27 @@ export function RootLayout() {
   const location = useLocation();
   const [introDone, setIntroDone] = useState(seenIntro);
   const meta = resolveRouteMeta(location.pathname);
+
+  /**
+   * What counts as a different page, for the transition below.
+   *
+   * The route's pattern, not the address. `/tips/aptitude` and `/tips/resume`
+   * are the same page showing a different guide: keyed by the address, every
+   * click on the rail tore down the hero and the rail with it and faded the
+   * whole thing back in from nothing, which read as a flash where it should
+   * have read as a tab. Keyed by the pattern they are one mounted page, so
+   * what changes is the guide, the rail's underline slides between topics
+   * instead of blinking, and the same holds for one gallery album to the next.
+   */
+  const page = findRoute(location.pathname)?.route.path ?? location.pathname;
+
+  // Scroll belongs to the address rather than to the page, now that the two
+  // are not the same thing: switching guide has to land at the top even
+  // though nothing remounted. A layout effect, so it happens before the
+  // browser paints the new content at the old offset.
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [location.pathname]);
 
   // Title and meta tags, driven by the route table.
   useEffect(() => {
@@ -60,7 +81,7 @@ export function RootLayout() {
           {/* No AnimatePresence. Keyed by pathname so React mounts a fresh
               PageTransition per route; see the note in that file for why the
               exit animation had to go. */}
-          <PageTransition key={location.pathname}>
+          <PageTransition key={page}>
             <Outlet />
           </PageTransition>
         </main>

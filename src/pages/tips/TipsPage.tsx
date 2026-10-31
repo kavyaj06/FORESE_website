@@ -1,4 +1,7 @@
 import { Navigate, useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { EASE_OUT_BRAND } from '@/components/motion/variants';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { PageHero } from '@/components/sections/PageHero';
 import { TopicRail } from './components/TopicRail';
 import { GroupDiscussionAct } from './sections/GroupDiscussionAct';
@@ -36,6 +39,7 @@ const GUIDES: Record<string, () => React.ReactElement> = {
  */
 export default function TipsPage() {
   const { topic: requested } = useParams();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const topic = findTopic(requested);
 
   if (!topic) return <Navigate to={`/tips/${FIRST_TOPIC.id}`} replace />;
@@ -50,7 +54,19 @@ export default function TipsPage() {
         description={TIPS_HERO.description}
       />
       <TopicRail />
-      <Guide />
+
+      {/* Only the guide changes between topics, so only the guide moves. The
+          hero and the rail above it stay mounted — see the note on the
+          transition's key in `RootLayout` — and the key here is what makes
+          this one subtree arrive rather than simply swap. */}
+      <motion.div
+        key={topic.id}
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.22, ease: EASE_OUT_BRAND }}
+      >
+        <Guide />
+      </motion.div>
     </>
   );
 }
