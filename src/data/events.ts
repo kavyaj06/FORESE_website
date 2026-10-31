@@ -276,19 +276,18 @@ const SEED_EVENTS: ForeseEvent[] = [
     // actually opens in late July, which is why this carries a range.
     date: '2026-07-28',
     endDate: '2026-08-07',
-    blurb:
-      'A run of talks on employability — what employers expect of graduates, and how to prepare for it.',
+    blurb: 'A run of talks on what employers expect of graduates, and how to prepare for it.',
     // ⚠️ DRAFT, as above. The one thing here that is not a guess is the
     // shape of the room: the album shows a full hall and a student on his feet
     // with a microphone, which is where the second sentence comes from.
     about: [
-      'LEAP — the Learners Employability Awareness Programme — is a run of talks held over a fortnight, each on a part of what employers expect from a graduate.',
+      'LEAP, the Learners Employability Awareness Programme, is a run of talks held over a fortnight. Each one takes a part of what employers expect from a graduate.',
       'Sessions are given to a full hall, with time at the end for students to put their own questions to the speaker.',
     ].join('\n\n'),
     whyIntro: 'What a fortnight of sessions is for, and who they are aimed at.',
     whyAttend: [
       'What employers expect | Hear it set out by the people who do the hiring, rather than second hand.',
-      'Practice in public | Put your own question to a speaker in front of a full hall — the cheapest version of what every interview asks of you.',
+      'Practice in public | Put your own question to a speaker in front of a full hall. It is the cheapest version of what every interview asks of you.',
       'Across a fortnight | Sessions run over two weeks, so you can come to the ones that matter to you.',
     ].join('\n'),
     audience: 'Any student heading into placements.',
@@ -307,13 +306,13 @@ const SEED_EVENTS: ForeseEvent[] = [
     // club edit this one in Firestore without touching the repository.
     about: [
       'FORESE’s Mock Placements, the flagship annual initiative of Sri Venkateswara College of Engineering, is designed to prepare pre-final year students from all disciplines for the challenges of their placement journey. Conducted in both online and offline modes, the event provides a complete simulation of the recruitment process through aptitude tests, group discussions, and personal interviews, offering students an authentic taste of real placement dynamics in a competitive yet supportive environment.',
-      'The day runs in three rounds — an aptitude paper, a group discussion and a one-to-one interview with an HR — and ends with a written performance report for every student.',
+      'The day runs in three rounds: an aptitude paper, a group discussion and a one-to-one interview with an HR. It ends with a written performance report for every student.',
     ].join('\n\n'),
     aboutTitle: 'Bridging talent with opportunity',
     whyIntro: 'The whole recruitment process, rehearsed once before it counts.',
     whyAttend: [
       'Three rounds, end to end | An aptitude paper, a group discussion, and a one-to-one interview, in a day.',
-      'Real panels | The interviews are run by HRs from different companies — 130+ sat on the 2026 panels.',
+      'Real panels | The interviews are run by HRs from different companies. 130+ sat on the 2026 panels.',
       'A written report | Every student leaves with an individual performance report, compiled as a PDF.',
     ].join('\n'),
     audience: 'Pre-final year students, all disciplines.',

@@ -29,7 +29,7 @@ export const MOCK_PLACEMENTS_INTRO = {
   eyebrow: 'How it works',
   title: 'From the aptitude paper to the final interview',
   description:
-    'Mock placements run in three rounds — an aptitude paper, a group discussion, and a one-to-one interview with an HR who does this for a living — and end with a written report for every student.',
+    'Mock placements run in three rounds: an aptitude paper, a group discussion, and a one-to-one interview with an HR who does this for a living. They end with a written report for every student.',
 } as const;
 
 /**
@@ -373,7 +373,7 @@ export const PROCESS_STEPS: ProcessStep[] = [
     id: 'report',
     title: 'Performance report',
     description:
-      'Scores from across the rounds are compiled into an individual performance report, generated as a PDF and shared with each student — the day, in writing, rather than an impression of how it went.',
+      'Scores from across the rounds are compiled into an individual performance report, generated as a PDF and shared with each student. The day in writing, rather than an impression of how it went.',
     icon: FileText,
   },
 ];

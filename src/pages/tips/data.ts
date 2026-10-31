@@ -89,7 +89,7 @@ export const TIPS_TOPICS: TipsTopic[] = [
     label: 'Aptitude',
     title: 'Aptitude Tips',
     blurb:
-      'What the FORESE aptitude test covers — quantitative, logical and verbal — and what it is built to tell a student about themselves.',
+      'What the FORESE aptitude test covers, from quantitative to logical and verbal, and what it is built to tell a student about themselves.',
   },
   {
     id: 'resume',
@@ -307,7 +307,7 @@ export const APTITUDE_INTRO = {
 export const APTITUDE_FOCUS: TipItem[] = [
   {
     title: 'Quantitative',
-    body: 'Numerical ability and the arithmetic underneath it — percentages, ratios, averages, time and work.',
+    body: 'Numerical ability and the arithmetic underneath it: percentages, ratios, averages, time and work.',
     icon: Scale,
   },
   {
@@ -317,7 +317,7 @@ export const APTITUDE_FOCUS: TipItem[] = [
   },
   {
     title: 'Verbal',
-    body: 'Comprehension and usage — reading a passage closely and choosing the word that actually fits.',
+    body: 'Comprehension and usage: reading a passage closely and choosing the word that actually fits.',
     icon: ListChecks,
   },
 ];

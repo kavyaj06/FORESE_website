@@ -114,7 +114,7 @@ export function GalleryUploader() {
   if (!uploadConfigured) {
     return (
       <Notice tone="error">
-        Image uploads are not configured yet — <code>VITE_CLOUDINARY_CLOUD_NAME</code> and{' '}
+        Image uploads are not configured yet. <code>VITE_CLOUDINARY_CLOUD_NAME</code> and{' '}
         <code>VITE_CLOUDINARY_PRESET</code> are missing. See <code>docs/admin-setup.md</code>.
       </Notice>
     );
@@ -128,7 +128,7 @@ export function GalleryUploader() {
       {status && !error && <Notice tone="success">{status}</Notice>}
 
       {events.length === 0 ? (
-        <Notice>Add an event first — photographs are filed under one.</Notice>
+        <Notice>Add an event first. Photographs are filed under one.</Notice>
       ) : (
         <>
           <Field label="Album" hint="Photographs are filed under the event they belong to.">
@@ -147,7 +147,7 @@ export function GalleryUploader() {
 
           <Field
             label="Photographs"
-            hint="JPEG or PNG, straight off a phone is fine — anything larger than 2000px is resized here before it uploads."
+            hint="JPEG or PNG, straight off a phone is fine. Anything larger than 2000px is resized here before it uploads."
           >
             <input
               ref={fileInput}

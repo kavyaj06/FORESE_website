@@ -71,7 +71,7 @@ export default function AdminPage() {
       <Shell>
         <Notice tone="error">
           This site has no Firebase project configured yet, so there is nothing to sign in to. The
-          setup is four environment variables and a page of rules — see{' '}
+          setup is four environment variables and a page of rules. See{' '}
           <code>docs/admin-setup.md</code>.
         </Notice>
       </Shell>
@@ -92,7 +92,7 @@ export default function AdminPage() {
         <Card padding="lg" className="gap-md flex flex-col items-start">
           <p className="text-body text-text-muted max-w-[46ch]">
             Sign in with the club's Google account to add events and post photographs. Changes go
-            live immediately — there is no deploy to wait for.
+            live immediately. There is no deploy to wait for.
           </p>
           {error && <Notice tone="error">{error}</Notice>}
           <Button onClick={signIn}>Sign in with Google</Button>

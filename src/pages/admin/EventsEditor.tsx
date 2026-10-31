@@ -232,7 +232,7 @@ function EventForm({
 
       <Field
         label="About heading"
-        hint="The heading over the paragraphs — e.g. “Your bridge to international academia”."
+        hint="The heading over the paragraphs. For example: “Your bridge to international academia”."
       >
         <input
           value={draft.aboutTitle ?? ''}
@@ -253,7 +253,7 @@ function EventForm({
         />
       </Field>
 
-      <Field label="Why attend — intro" hint="One line under the “Why attend” heading.">
+      <Field label="Why attend intro" hint="One line under the “Why attend” heading.">
         <input
           value={draft.whyIntro ?? ''}
           onChange={(input) => set({ whyIntro: input.target.value })}
@@ -262,7 +262,7 @@ function EventForm({
       </Field>
 
       <Field
-        label="Why attend — cards"
+        label="Why attend cards"
         hint="One card per line, written as: Title | what it means. Three or four is right."
       >
         <textarea
@@ -273,7 +273,10 @@ function EventForm({
         />
       </Field>
 
-      <Field label="Who it is for" hint="One line — e.g. Pre-final year students, all disciplines.">
+      <Field
+        label="Who it is for"
+        hint="One line. For example: Pre-final year students, all disciplines."
+      >
         <input
           value={draft.audience ?? ''}
           onChange={(input) => set({ audience: input.target.value })}

@@ -38,7 +38,7 @@ export const GALLERY_INTRO = {
   eyebrow: 'Gallery',
   title: 'Every moment, captured.',
   description:
-    'From first steps to final celebrations \u2014 explore the moments, memories, and milestones that shaped our journey.',
+    'From first steps to final celebrations. Explore the moments, memories, and milestones that shaped our journey.',
 } as const;
 
 export interface GalleryPhoto {
