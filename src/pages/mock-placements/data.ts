@@ -1,4 +1,4 @@
-import { Briefcase, MessagesSquare, PencilRuler, type LucideIcon } from 'lucide-react';
+import { Briefcase, FileText, MessagesSquare, PencilRuler, type LucideIcon } from 'lucide-react';
 
 /**
  * Mock Placement — page content.
@@ -29,7 +29,7 @@ export const MOCK_PLACEMENTS_INTRO = {
   eyebrow: 'How it works',
   title: 'From the aptitude paper to the final interview',
   description:
-    'Mock placements run in three rounds: an aptitude paper, a group discussion, and a one-to-one interview with an HR who does this for a living.',
+    'Mock placements run in three rounds — an aptitude paper, a group discussion, and a one-to-one interview with an HR who does this for a living — and end with a written report for every student.',
 } as const;
 
 /**
@@ -357,6 +357,23 @@ export const PROCESS_STEPS: ProcessStep[] = [
     description:
       'HRs from different companies conduct one-on-one mock interviews. Students bring their report into the room and leave with direct feedback from the people who do this for a living.',
     icon: Briefcase,
+  },
+  {
+    /**
+     * The day's own output, and the reason a student can act on it.
+     *
+     * ⚠️ The report itself is the club's — scores compiled per student,
+     * generated as a PDF — and that much is carried over from the step this
+     * page used to call Allocation. What is *in* it beyond the scores is not
+     * written down anywhere I have seen, so this says "where they stood"
+     * rather than claiming the panels' written remarks go into it. Worth a
+     * sentence from whoever produces it.
+     */
+    id: 'report',
+    title: 'Performance report',
+    description:
+      'Scores from across the rounds are compiled into an individual performance report, generated as a PDF and shared with each student — the day, in writing, rather than an impression of how it went.',
+    icon: FileText,
   },
 ];
 
