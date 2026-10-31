@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
@@ -9,6 +9,7 @@ import { IntroContext } from '@/components/motion/IntroContext';
 import { findRoute, resolveRouteMeta } from '@/app/routes';
 import { applyPageMeta } from '@/lib/seo';
 import { SITE } from '@/data/site';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 /**
  * The app shell wrapping every route.
@@ -25,6 +26,7 @@ const seenIntro =
 
 export function RootLayout() {
   const location = useLocation();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [introDone, setIntroDone] = useState(seenIntro);
   const meta = resolveRouteMeta(location.pathname);
 
@@ -41,13 +43,32 @@ export function RootLayout() {
    */
   const page = findRoute(location.pathname)?.route.path ?? location.pathname;
 
-  // Scroll belongs to the address rather than to the page, now that the two
-  // are not the same thing: switching guide has to land at the top even
-  // though nothing remounted. A layout effect, so it happens before the
-  // browser paints the new content at the old offset.
+  /**
+   * Back to the top on every navigation, and how it gets there.
+   *
+   * Scroll belongs to the address rather than to the page, now that the two
+   * are not the same thing: switching guide has to land at the top even
+   * though nothing remounted. A layout effect, so it happens before the
+   * browser paints the new content at the old offset.
+   *
+   * **Instant between pages, smooth within one.** Arriving on a new page
+   * part-way down is a bug, so that one is a cut. But a reader half-way down
+   * a guide who clicks the next tab has not gone anywhere: the hero and the
+   * rail are still in front of them, and snapping the ground out from under
+   * a page that visibly stayed put reads as a glitch. Travelling there says
+   * what happened.
+   */
+  const previous = useRef(page);
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-  }, [location.pathname]);
+    const samePage = previous.current === page;
+    previous.current = page;
+
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: samePage && !prefersReducedMotion ? 'smooth' : 'instant',
+    });
+  }, [location.pathname, page, prefersReducedMotion]);
 
   // Title and meta tags, driven by the route table.
   useEffect(() => {

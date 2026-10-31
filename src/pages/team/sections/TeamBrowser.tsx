@@ -244,14 +244,24 @@ function roleRows(members: ClubMember[]): ClubMember[][] {
 }
 
 /**
- * A core card's width, matched to the five-column grid the members use.
+ * A core card's width.
  *
  * Written out rather than left to a grid because these rows centre, and a
  * centred flex row has no columns to inherit a width from. The subtraction is
- * the gaps: four of them across five cards, two across three, one across two.
+ * the gaps: four of them across the desktop row, two across three cards, one
+ * across two.
+ *
+ * **Four and a half columns at desktop, which is not a typo.** Five came out
+ * at 205px, and a core card shows its quote over the photograph rather than
+ * under the name once its *content box* reaches 12rem — that is 192px inside
+ * 16px of padding, so a 205px card missed it by three pixels and every core
+ * member lost the reveal. 4.5 gives 227px, which clears it, is still well
+ * short of the 261px the four-column grid had, and still lays four to a row.
+ * The club asked for both: a little larger, and the quotes back where they
+ * were. They are the same number.
  */
 const CORE_CARD =
-  'w-[calc((100%-1.5rem)/2)] tablet:w-[calc((100%-3rem)/3)] desktop:w-[calc((100%-6rem)/5)]';
+  'w-[calc((100%-1.5rem)/2)] tablet:w-[calc((100%-3rem)/3)] desktop:w-[calc((100%-6rem)/4.5)]';
 
 /** One card, with the entrance the grid used to give it. */
 function Card({
