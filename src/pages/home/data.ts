@@ -104,6 +104,19 @@ export interface WorkflowEventEntry {
   tag: string;
   /** The line the parked bar types before it opens. */
   prompt: string;
+  /**
+   * Photographs for this board, for a board whose source album is not of it.
+   *
+   * Group Discussion below reads Mock Placements' album for its name and date
+   * — the round belongs to that day — but that album is interviews and
+   * corridors, so the board was captioned "Group Discussion" over photographs
+   * of something else. These are the club's own pictures of a discussion, and
+   * when a board has them they are used in place of the album's.
+   *
+   * The first three are the three nodes; the last is the photograph behind
+   * them. Supply four or the backdrop repeats a node.
+   */
+  images?: readonly string[];
 }
 
 export const HOME_WORKFLOW = {
@@ -121,14 +134,22 @@ export const HOME_WORKFLOW = {
     { id: 'leap-2026', tag: 'LEAP', prompt: 'Show me what employers actually expect' },
     {
       // Group Discussion is a round inside Mock Placements, not a club event
-      // of its own — there is no separate gallery to build a board from, so
-      // this one reuses Mock Placements' photos under its own name and blurb.
+      // of its own — so this board takes that event's name, date and blurb as
+      // its source, and its own photographs: the album behind Mock Placements
+      // is interviews and corridors, which is not what a discussion looks
+      // like.
       id: 'group-discussion-2026',
       source: 'mock-placement-drive-2026',
       name: 'Group Discussion',
       blurb: 'Practise thinking on your feet, structuring a point, and holding it under pressure.',
       tag: 'Group Discussion',
       prompt: 'Let me practise holding my own in a group discussion',
+      images: [
+        '/images/group-discussion/01.jpg',
+        '/images/group-discussion/02.jpg',
+        '/images/group-discussion/03.jpg',
+        '/images/group-discussion/04.jpg',
+      ],
     },
   ] satisfies WorkflowEventEntry[],
 } as const;

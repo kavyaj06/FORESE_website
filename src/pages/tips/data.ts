@@ -115,13 +115,18 @@ export const FIRST_TOPIC = TIPS_TOPICS[0];
 /**
  * The photograph beside the opening.
  *
- * Named by id rather than by path so it travels with the gallery: the picture
- * is the group discussion round of LEAP 2026, and the page falls back to the
- * text column alone if the club ever removes it. The caption is the old site's
- * own line; the alt text stays whatever the gallery says the picture shows,
- * which is a description rather than a slogan.
+ * One of the club's own pictures of a discussion, supplied for exactly this.
+ * It used to borrow a frame from the LEAP album by id, which meant the guide
+ * quietly lost its picture if that album were ever re-ordered; this one is a
+ * file in the repository and cannot go missing. `width` and `height` are the
+ * file's real ones, so the figure holds its box before the image arrives.
  */
-export const GROUP_DISCUSSION_PHOTO_ID = 'leap-2026-6';
+export const GROUP_DISCUSSION_PHOTO = {
+  src: '/images/group-discussion/05.jpg',
+  width: 1400,
+  height: 1050,
+  alt: 'A discussion under way around a long table in a seminar room, the rest of the group listening to the person speaking.',
+} as const;
 
 export const GROUP_DISCUSSION_INTRO = {
   eyebrow: 'Learn the art of strategic communication',

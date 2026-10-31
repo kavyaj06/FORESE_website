@@ -174,8 +174,17 @@ interface WorkflowEvent {
 const EVENTS: WorkflowEvent[] = HOME_WORKFLOW.events.flatMap((entry): WorkflowEvent[] => {
   const sourceId = entry.source ?? entry.id;
   const event = findEvent(sourceId);
-  const photos = albumFor(sourceId)?.photos ?? [];
-  if (!event || photos.length === 0) return [];
+
+  // A board's own photographs where it has them, the source album's where it
+  // does not — see `images` on the entry. Group Discussion is the case: it
+  // borrows Mock Placements' name and date, but a discussion does not look
+  // like the interviews in that album.
+  const album = albumFor(sourceId)?.photos ?? [];
+  const images: string[] = entry.images
+    ? [...entry.images]
+    : album.map((photo) => photo.src).filter((src): src is string => Boolean(src));
+
+  if (!event || images.length === 0) return [];
 
   const name = entry.name ?? event.name;
 
@@ -191,10 +200,16 @@ const EVENTS: WorkflowEvent[] = HOME_WORKFLOW.events.flatMap((entry): WorkflowEv
       prompt: entry.prompt,
       tag: entry.tag,
       stages: Array.from({ length: NODES_PER_EVENT }, (_, i): Stage => ({
-        image: photos[Math.floor((i * photos.length) / NODES_PER_EVENT)]?.src,
+        image: images[Math.floor((i * images.length) / NODES_PER_EVENT)],
       })),
-      cover: event.cover ?? photos[0]?.src ?? '',
-      backdrop: Array.from({ length: 6 }, (_, i) => photos[i % photos.length]?.src ?? ''),
+      // A board with its own photographs takes the last of them as the picture
+      // behind the composition — the three before it are already the nodes, and
+      // the scene behind a node should not be that same node. The event's
+      // editorial cover still wins everywhere else.
+      cover: entry.images
+        ? (images[images.length - 1] ?? images[0] ?? '')
+        : (event.cover ?? images[0] ?? ''),
+      backdrop: Array.from({ length: 6 }, (_, i) => images[i % images.length] ?? ''),
     },
   ];
 });

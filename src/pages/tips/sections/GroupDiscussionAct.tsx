@@ -1,7 +1,6 @@
 import { Container } from '@/components/layout/Container';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
-import { circulatingPhotos } from '@/pages/gallery/data';
 import { ActHeader } from '../components/ActHeader';
 import { PhaseRail } from '../components/PhaseRail';
 import { StrategyColumns } from '../components/StrategyColumns';
@@ -10,18 +9,11 @@ import {
   GROUP_DISCUSSION_BENEFITS,
   GROUP_DISCUSSION_INTRO,
   GROUP_DISCUSSION_MISTAKES,
-  GROUP_DISCUSSION_PHOTO_ID,
+  GROUP_DISCUSSION_PHOTO,
   GROUP_DISCUSSION_PLAYBOOK,
   GROUP_DISCUSSION_STRATEGIES,
   TIPS_TOPICS,
 } from '../data';
-
-/**
- * The club's own picture of a discussion round, if it is still in the gallery
- * and still allowed to travel. `undefined` is a normal outcome, not a bug: the
- * opener then runs as a single column of text.
- */
-const PHOTO = circulatingPhotos().find((photo) => photo.id === GROUP_DISCUSSION_PHOTO_ID);
 
 /**
  * Act one — the group discussion.
@@ -41,26 +33,24 @@ export function GroupDiscussionAct() {
           title={GROUP_DISCUSSION_INTRO.title}
           lead={GROUP_DISCUSSION_INTRO.lead}
           media={
-            PHOTO?.src && (
-              <figure className="relative overflow-hidden rounded-lg">
-                <img
-                  src={PHOTO.src}
-                  alt={PHOTO.alt}
-                  width={PHOTO.width}
-                  height={PHOTO.height}
-                  loading="lazy"
-                  decoding="async"
-                  className="aspect-[4/3] w-full object-cover"
-                />
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent"
-                />
-                <figcaption className="text-small p-lg absolute inset-x-0 bottom-0 text-white">
-                  {GROUP_DISCUSSION_INTRO.caption}
-                </figcaption>
-              </figure>
-            )
+            <figure className="relative overflow-hidden rounded-lg">
+              <img
+                src={GROUP_DISCUSSION_PHOTO.src}
+                alt={GROUP_DISCUSSION_PHOTO.alt}
+                width={GROUP_DISCUSSION_PHOTO.width}
+                height={GROUP_DISCUSSION_PHOTO.height}
+                loading="lazy"
+                decoding="async"
+                className="aspect-[4/3] w-full object-cover"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent"
+              />
+              <figcaption className="text-small p-lg absolute inset-x-0 bottom-0 text-white">
+                {GROUP_DISCUSSION_INTRO.caption}
+              </figcaption>
+            </figure>
           }
         />
 
