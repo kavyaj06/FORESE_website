@@ -18,7 +18,7 @@ export default function MockPlacementsPage() {
         title={MOCK_PLACEMENTS_HERO.title}
         description={MOCK_PLACEMENTS_HERO.description}
         meta={[
-          `${PROCESS_STEPS.length} stages`,
+          `${PROCESS_STEPS.length} rounds`,
           'Run every academic year',
           'For all pre-final years',
         ]}

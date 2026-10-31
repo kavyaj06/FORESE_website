@@ -19,7 +19,7 @@ import { MOCK_PLACEMENTS_INTRO, PROCESS_STEPS } from '../data';
 const SPINE_HEAD = 0.65;
 
 /**
- * The six-stage vertical timeline.
+ * The vertical timeline of the day, one card per round.
  *
  * The band is dark and dotted, and the stage the line has reached lights
  * orange — the same surface and the same accent as the home page's event

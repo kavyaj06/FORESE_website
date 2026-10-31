@@ -1,12 +1,4 @@
-import {
-  Briefcase,
-  ClipboardCheck,
-  Contact,
-  MessagesSquare,
-  PencilRuler,
-  PhoneCall,
-  type LucideIcon,
-} from 'lucide-react';
+import { Briefcase, MessagesSquare, PencilRuler, type LucideIcon } from 'lucide-react';
 
 /**
  * Mock Placement — page content.
@@ -35,9 +27,9 @@ export const MOCK_PLACEMENTS_HERO = {
 
 export const MOCK_PLACEMENTS_INTRO = {
   eyebrow: 'How it works',
-  title: 'From first call to final interview',
+  title: 'From the aptitude paper to the final interview',
   description:
-    'Mock placements run in six stages. The first two are the work the team does before any student sits down: finding the professionals who will sit on the panels. The rest is the process students go through.',
+    'Mock placements run in three rounds: an aptitude paper, a group discussion, and a one-to-one interview with an HR who does this for a living.',
 } as const;
 
 /**
@@ -339,20 +331,6 @@ export interface ProcessStep {
 
 export const PROCESS_STEPS: ProcessStep[] = [
   {
-    id: 'contact-collection',
-    title: 'Contact collection',
-    description:
-      'The team builds the list the whole process depends on: HR and talent-acquisition contacts across companies, gathered through alumni, past recruiters and industry connections.',
-    icon: Contact,
-  },
-  {
-    id: 'hr-calling',
-    title: 'HR calling',
-    description:
-      'Members reach out to every contact on that list, explain what the mock placements are for, and confirm which professionals are able to take a panel.',
-    icon: PhoneCall,
-  },
-  {
     id: 'aptitude',
     title: 'Aptitude',
     description:
@@ -372,13 +350,6 @@ export const PROCESS_STEPS: ProcessStep[] = [
     description:
       'The college brings in panellists who run the discussion rounds and evaluate each participant on structure, clarity and how they carry a group.',
     icon: MessagesSquare,
-  },
-  {
-    id: 'allocation',
-    title: 'Allocation',
-    description:
-      'Aptitude and GD scores are compiled into an individual performance report, generated as a PDF and shared with each student. Students are then allocated to their interview panels.',
-    icon: ClipboardCheck,
   },
   {
     id: 'mock-placements',
