@@ -175,14 +175,14 @@ export default function EventPage() {
                 {facts.map(({ icon: Icon, label, value }) => (
                   <li key={label} className="gap-sm flex items-start">
                     <Icon
-                      size={16}
+                      size={18}
                       strokeWidth={1.75}
                       aria-hidden="true"
-                      className="text-text-subtle mt-0.5 shrink-0"
+                      className="text-text-subtle mt-1 shrink-0"
                     />
                     <span className="flex flex-col">
-                      <span className="text-eyebrow text-text-subtle uppercase">{label}</span>
-                      <span className="text-small">{value}</span>
+                      <span className="text-label text-text-subtle uppercase">{label}</span>
+                      <span className="text-body">{value}</span>
                     </span>
                   </li>
                 ))}
@@ -192,7 +192,8 @@ export default function EventPage() {
                 <Button
                   to={`/gallery/${event.slug}`}
                   variant="secondary"
-                  iconLeft={<Images size={16} strokeWidth={1.75} aria-hidden="true" />}
+                  size="lg"
+                  iconLeft={<Images size={18} strokeWidth={1.75} aria-hidden="true" />}
                 >
                   {photoCount} {EVENT_PAGE.photos}
                 </Button>
@@ -206,10 +207,10 @@ export default function EventPage() {
         <div className="border-border gap-md pt-lg flex flex-wrap items-center justify-between border-t">
           <Link
             to="/events"
-            className="text-label text-text-muted hover:text-text gap-xs duration-fast group inline-flex items-center transition-colors"
+            className="text-body text-text-muted hover:text-text gap-xs duration-fast group inline-flex items-center transition-colors"
           >
             <ArrowLeft
-              size={16}
+              size={18}
               aria-hidden="true"
               className="duration-fast transition-transform group-hover:-translate-x-0.5"
             />
@@ -219,12 +220,12 @@ export default function EventPage() {
           {next && (
             <Link
               to={`/events/${next.slug}`}
-              className="text-label gap-xs duration-fast group inline-flex items-center transition-colors"
+              className="text-body gap-xs duration-fast group inline-flex items-center transition-colors"
             >
               <span className="text-text-muted">{EVENT_PAGE.next}</span>
               <span className="text-text">{next.name}</span>
               <ArrowRight
-                size={16}
+                size={18}
                 aria-hidden="true"
                 className="duration-fast transition-transform group-hover:translate-x-0.5"
               />
