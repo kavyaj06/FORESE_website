@@ -125,6 +125,7 @@ function toEvent(doc: FirestoreDocument): ForeseEvent | null {
     blurb: text(f.blurb),
     cover: text(f.cover),
     venue: text(f.venue),
+    pageHref: text(f.pageHref),
     headline: text(f.headline),
     tagline: text(f.tagline),
     aboutTitle: text(f.aboutTitle),

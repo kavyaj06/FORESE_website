@@ -54,25 +54,22 @@ export function GalleryIndex() {
   return (
     <section className="py-section">
       <Container>
-        {/* Featured — the leading event runs full width, the next two pair up
-            beneath it. An even grid of three would give the most recent event
-            no more weight than the one before it. */}
-        <div className="gap-lg flex flex-col">
-          {featured[0] && (
-            <Reveal motionStyle="scale">
-              <AlbumCard entry={featured[0]} size="feature" eager />
-            </Reveal>
-          )}
+        {/* One size, evenly spaced, at the club's request. The leading event
+            used to run full width with the next two paired beneath it, which
+            gave the album at the front of the list several times the weight of
+            the ones behind it — and since Mock Placements is pinned there, it
+            was always the same album getting it. They are all the club's
+            events; the grid says so now.
 
-          {featured.length > 1 && (
-            <div className="gap-lg tablet:grid-cols-2 grid">
-              {featured.slice(1).map((entry) => (
-                <Reveal key={entry.event.id} motionStyle="scale">
-                  <AlbumCard entry={entry} size="standard" />
-                </Reveal>
-              ))}
-            </div>
-          )}
+            The first card still loads eagerly: it is the one above the fold,
+            and waiting for the lazy loader to notice it is a blank rectangle
+            on arrival. */}
+        <div className="gap-lg tablet:grid-cols-2 desktop:grid-cols-3 grid">
+          {featured.map((entry, index) => (
+            <Reveal key={entry.event.id} motionStyle="scale">
+              <AlbumCard entry={entry} size="standard" eager={index === 0} />
+            </Reveal>
+          ))}
         </div>
 
         {archived.length > 0 && (

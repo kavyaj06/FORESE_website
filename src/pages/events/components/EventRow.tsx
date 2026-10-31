@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, CalendarDays, MapPin } from 'lucide-react';
-import { eventStatus, formatEventWhen, relativeWhen, type ForeseEvent } from '@/data/events';
+import {
+  eventHref,
+  eventStatus,
+  formatEventWhen,
+  relativeWhen,
+  type ForeseEvent,
+} from '@/data/events';
 import { Badge } from '@/components/ui';
 import { cn } from '@/lib/cn';
 import { EVENT_PAGE } from '../data';
@@ -33,7 +39,7 @@ export function EventRow({ event }: EventRowProps) {
 
   return (
     <Link
-      to={`/events/${event.slug}`}
+      to={eventHref(event)}
       className={cn(
         'group border-border bg-surface-raised gap-lg p-md tablet:flex-row tablet:items-center flex flex-col rounded-lg border',
         'duration-base ease-out-brand transition-[border-color,box-shadow]',

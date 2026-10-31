@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Globe, Images, MapPin, Users } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
 import { PageHero } from '@/components/sections/PageHero';
@@ -55,6 +55,12 @@ export default function EventPage() {
       </>
     );
   }
+
+  // An event whose content lives on a page of this site has no page of its
+  // own: `/events/mock-placement-drive-2026` is the same day as `/mocks`, and
+  // two addresses for it would split the links and the search results between
+  // a full page and a thinner one.
+  if (event.pageHref) return <Navigate to={event.pageHref} replace />;
 
   const paragraphs = eventParagraphs(event);
   const highlights = eventHighlights(event);

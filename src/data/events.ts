@@ -39,6 +39,16 @@ export interface ForeseEvent {
   /** Where it happens. Shown on the cards. */
   venue?: string;
   /**
+   * A page on this site that already covers this event.
+   *
+   * Mock Placements has one of its own at `/mocks`, with the rounds, the
+   * panels and the timeline on it. When this is set the event has no page of
+   * its own: every link to it goes here instead, and `/events/<slug>`
+   * redirects, so there is one address for the event rather than two pages
+   * saying the same thing less well.
+   */
+  pageHref?: string;
+  /**
    * The headline on the event's own page. Falls back to `name`.
    *
    * A page earns a title that is not merely the event's name: FORED's own is
@@ -102,6 +112,17 @@ export function eventParagraphs(event: ForeseEvent): string[] {
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
+}
+
+/**
+ * Where an event lives on this site.
+ *
+ * Its own page, unless `pageHref` names one that already covers it. Read by
+ * the row, the featured carousel and the event page itself, which is why it
+ * is a function rather than a template string written out three times.
+ */
+export function eventHref(event: ForeseEvent): string {
+  return event.pageHref ?? `/events/${event.slug}`;
 }
 
 /** One "why attend" card. */
@@ -291,24 +312,38 @@ const SEED_EVENTS: ForeseEvent[] = [
     date: '2026-07-28',
     endDate: '2026-08-07',
     blurb: 'A run of talks on what employers expect of graduates, and how to prepare for it.',
-    // ⚠️ DRAFT, as above. The one thing here that is not a guess is the
-    // shape of the room: the album shows a full hall and a student on his feet
-    // with a microphone, which is where the second sentence comes from.
+    // ⚠️ DRAFT. Every line below is mine, written to the shape of the club's
+    // own FORED page because they asked for one like it and there is no old
+    // LEAP page to lift from. It is grounded in what is known: the fortnight
+    // the dates describe, and what the album shows — a full seminar hall,
+    // students on their feet with a microphone, and one round running as a
+    // group discussion with the topic on the screen. Nothing here is a
+    // number, a name or a promise. Correct it in the club editor.
+    headline: 'LEAP: Know What the Placement Season Expects',
+    tagline:
+      'A fortnight of sessions on what employers look for in a graduate, and how to become one they pick.',
+    aboutTitle: 'From the Classroom to the Hiring Room',
     about: [
-      'LEAP, the Learners Employability Awareness Programme, is a run of talks held over a fortnight. Each one takes a part of what employers expect from a graduate.',
-      'Sessions are given to a full hall, with time at the end for students to put their own questions to the speaker.',
+      'The Learners Employability Awareness Programme (LEAP) is FORESE’s awareness run for students heading towards placements. Across a fortnight, sessions in the seminar hall set out what employers look for in a graduate, how a hiring process actually runs, and what the years before it are for.',
+      'The sessions are built around questions from the floor rather than slides from the front. Students take the microphone and put their own case to the speaker, and one of the rounds runs as a group discussion with the topic on the screen, which is the format the placement process itself uses.',
     ].join('\n\n'),
-    whyIntro: 'What a fortnight of sessions is for, and who they are aimed at.',
+    whyIntro: 'Understand what the placement season asks of you, early enough to prepare for it.',
     whyAttend: [
-      'What employers expect | Hear it set out by the people who do the hiring, rather than second hand.',
-      'Practice in public | Put your own question to a speaker in front of a full hall. It is the cheapest version of what every interview asks of you.',
-      'Across a fortnight | Sessions run over two weeks, so you can come to the ones that matter to you.',
+      'Straight From the Hiring Side | Hear what employers expect of a graduate from the people who do the hiring, rather than second hand.',
+      'Questions From the Floor | Take the microphone and put your own question to a speaker in front of a full hall.',
+      'A Group Discussion Round | Sit a discussion with the topic on the screen, in the same format the placement process uses.',
+      'A Fortnight of Sessions | Sessions run across two weeks, so you can come to the ones that matter most to you.',
     ].join('\n'),
+    closingTitle: 'Start Before the Season Does',
+    closing:
+      'LEAP runs in the weeks before the placement season, while the gap between what you know and what you will need is still one you can close.',
     audience: 'Any student heading into placements.',
   },
   {
     id: 'mock-placement-drive-2026',
     slug: 'mock-placement-drive-2026',
+    // The club's own page, which says all of this at length.
+    pageHref: '/mocks',
     cover: '/gallery/mock-placement-drive-2026/01.jpg',
     name: 'Mock Placements 2026',
     date: '2026-02-15',
@@ -338,13 +373,51 @@ const SEED_EVENTS: ForeseEvent[] = [
  * Undated events sort last; they have no place on a chronological list.
  */
 /**
- * The live list: what the club has published, or what was built in.
+ * What the club has published, filled in from what is written here.
  *
- * Read once, at module scope, exactly as before — `data/remote.ts` is filled
- * before this module is ever imported, so nothing downstream has to know that
- * the content now has two possible origins.
+ * **Field by field, not list for list.** The published record used to replace
+ * the built-in one outright, and that quietly threw away everything this file
+ * knows: the club imported their events when the editor was new, so Firestore
+ * holds a name, a slug, a date, a blurb and a cover for each of them and
+ * nothing else. Every page of writing added here since arrived as an empty
+ * section on a live site, because an event that exists in Firestore stopped
+ * reading this file at all.
+ *
+ * So a published event is now laid over the written one rather than instead of
+ * it. Anything the club has typed wins; anything they have not yet typed comes
+ * from here. The two stop being rival copies of an event and become what they
+ * always were: the club's edits, and the text the site ships with.
+ *
+ * The consequence to know about: clearing a box in the editor does not blank
+ * that field on an event this file also describes, it restores the written
+ * text, because `saveEvent` drops empty strings rather than storing them. For
+ * an event the club created themselves there is nothing underneath and
+ * clearing is clearing. If a built-in line genuinely has to go, it goes from
+ * here.
+ *
+ * Read once, at module scope — `data/remote.ts` is filled before this module
+ * is ever imported, so nothing downstream has to know the content has two
+ * origins.
  */
-export const EVENTS: ForeseEvent[] = remoteEvents() ?? SEED_EVENTS;
+export const EVENTS: ForeseEvent[] = (() => {
+  const published = remoteEvents();
+  if (!published) return SEED_EVENTS;
+
+  return published.map((event) => {
+    const written = SEED_EVENTS.find((candidate) => candidate.id === event.id);
+    if (!written) return event;
+
+    // `undefined` and `''` are "not filled in", and both have to be stepped
+    // over for the written value underneath to show. `null` is not: a date of
+    // `null` means announced without a date, which is a decision the club made
+    // and not a gap.
+    const filledIn = Object.fromEntries(
+      Object.entries(event).filter(([, value]) => value !== undefined && value !== ''),
+    );
+
+    return { ...written, ...filledIn } as ForeseEvent;
+  });
+})();
 
 export const EVENTS_BY_RECENCY: ForeseEvent[] = [...EVENTS].sort((a, b) =>
   (b.date ?? '').localeCompare(a.date ?? ''),

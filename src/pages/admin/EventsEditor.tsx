@@ -207,6 +207,17 @@ function EventForm({
         />
       </Field>
 
+      <Field
+        label="Existing page"
+        hint="A page on this site that already covers this event, e.g. /mocks. Set it and the event has no page of its own: every link goes there instead."
+      >
+        <input
+          value={draft.pageHref ?? ''}
+          onChange={(input) => set({ pageHref: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
       {/* Everything below fills the event's own page at /events/<slug>. All of
           it is optional, and the page falls back field by field — to the
           name, to the blurb, to a default heading — so a half-filled event

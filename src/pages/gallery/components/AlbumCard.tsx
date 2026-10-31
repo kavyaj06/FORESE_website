@@ -61,10 +61,17 @@ export function AlbumCard({ entry, size, eager = false }: AlbumCardProps) {
         />
 
         <div className="p-lg gap-xs absolute inset-x-0 bottom-0 flex flex-col text-white">
-          <p className="text-eyebrow gap-xs flex items-center uppercase opacity-80">
-            {formatEventWhen(event)}
-            <span aria-hidden="true">·</span>
-            {photoCount} {photoCount === 1 ? 'photo' : 'photos'}
+          {/* Wraps as two lines rather than breaking "6 photos" in half: a
+              date range in a card this wide leaves the count a few characters
+              of room, and "6" sat on one line with "PHOTOS" under it. */}
+          <p className="text-eyebrow gap-xs flex flex-wrap items-center uppercase opacity-80">
+            <span className="gap-xs flex items-center">
+              {formatEventWhen(event)}
+              <span aria-hidden="true">·</span>
+            </span>
+            <span className="whitespace-nowrap">
+              {photoCount} {photoCount === 1 ? 'photo' : 'photos'}
+            </span>
           </p>
 
           <h3 className={cn('gap-sm flex items-center', isFeature ? 'text-h2' : 'text-h3')}>

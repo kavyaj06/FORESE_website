@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, MapPin } from 'lucide-react';
 import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import { Tilt3D } from '@/components/motion/Tilt3D';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
-import { eventStatus, formatEventWhen, type ForeseEvent } from '@/data/events';
+import { eventHref, eventStatus, formatEventWhen, type ForeseEvent } from '@/data/events';
 import { cn } from '@/lib/cn';
 
 interface FeaturedCarouselProps {
@@ -151,7 +151,7 @@ export function FeaturedCarousel({ events }: FeaturedCarouselProps) {
                       lower half, which is where the text is. */}
                   <h2 className="text-h1 max-w-[22ch]">
                     <Link
-                      to={`/events/${event.slug}`}
+                      to={eventHref(event)}
                       className="rounded-md after:absolute after:inset-x-0 after:top-1/3 after:bottom-0 after:content-['']"
                     >
                       {event.name}
