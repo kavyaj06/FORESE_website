@@ -285,6 +285,29 @@ function EventForm({
       </Field>
 
       <Field
+        label="Closing heading"
+        hint="The heading on the last line of the page. For example: “Meet universities from around the world”."
+      >
+        <input
+          value={draft.closingTitle ?? ''}
+          onChange={(input) => set({ closingTitle: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
+      <Field
+        label="Closing line"
+        hint="One or two sentences to end on. Shown large and centred. Needs a closing heading to appear."
+      >
+        <textarea
+          rows={3}
+          value={draft.closing ?? ''}
+          onChange={(input) => set({ closing: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
+      <Field
         label="Cover image"
         hint="A path or URL. Leave empty to use the album’s first photograph."
       >

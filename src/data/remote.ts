@@ -132,6 +132,8 @@ function toEvent(doc: FirestoreDocument): ForeseEvent | null {
     whyIntro: text(f.whyIntro),
     whyAttend: text(f.whyAttend),
     audience: text(f.audience),
+    closingTitle: text(f.closingTitle),
+    closing: text(f.closing),
   };
 }
 

@@ -75,8 +75,19 @@ export interface ForeseEvent {
    * who types a plain sentence still gets something sensible.
    */
   whyAttend?: string;
-  /** Who it is for — "Pre-final year, all departments". One line. */
+  /** Who it is for, in one line: "Pre-final year, all departments". */
   audience?: string;
+  /**
+   * The heading on the line the page closes with. Optional, and only shown
+   * when `closing` is written too.
+   */
+  closingTitle?: string;
+  /**
+   * The last thing the page says. One or two sentences, set large and
+   * centred: FORED closes on who turns up to it, which is the fact that
+   * decides whether a student comes.
+   */
+  closing?: string;
 }
 
 /**
@@ -258,6 +269,9 @@ const SEED_EVENTS: ForeseEvent[] = [
     ].join('\n\n'),
     whyIntro:
       'Gain a comprehensive understanding of studying abroad, from applications to career prospects.',
+    closingTitle: 'Meet Universities From Around the World',
+    closing:
+      'Representatives from leading universities in the US, UK, Australia, and more participate in the fair, guiding students through every step of their journey.',
     whyAttend: [
       'Direct University Interaction | Connect with admission experts from top universities in the US, UK, Australia, and more to get personalized insights.',
       'Scholarships & Financial Aid | Explore diverse academic specializations, scholarships, and financial aid options to make your dream a reality.',

@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Images, MapPin, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Globe, Images, MapPin, Users } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
 import { PageHero } from '@/components/sections/PageHero';
 import { SectionHeading } from '@/components/sections/SectionHeading';
@@ -133,6 +133,21 @@ export default function EventPage() {
         </section>
       )}
 
+      {event.closingTitle && event.closing && (
+        // The note the page ends on. Centred and set large, because it is one
+        // thought rather than a section: FORED closes on who turns up to it,
+        // which is the fact a student is deciding on.
+        <section className="py-section">
+          <Container>
+            <Reveal className="gap-md mx-auto flex max-w-[52rem] flex-col items-center text-center">
+              <Globe size={28} strokeWidth={1.5} aria-hidden="true" className="text-text-subtle" />
+              <h2 className="text-h2 text-balance">{event.closingTitle}</h2>
+              <p className="text-body-lg text-text-muted">{event.closing}</p>
+            </Reveal>
+          </Container>
+        </section>
+      )}
+
       {(facts.length > 0 || photoCount > 0) && (
         <section className="py-2xl">
           <Container>
@@ -141,8 +156,13 @@ export default function EventPage() {
                 button reads as a section that failed to load. */}
             <Reveal
               className={cn(
-                'gap-lg tablet:flex-row tablet:items-center tablet:justify-between flex flex-col',
-                facts.length > 0 && 'border-border border-y py-6',
+                'gap-lg tablet:flex-row tablet:items-center flex flex-col',
+                // With no audience and no venue written, the album button is
+                // the whole row: ranged right with nothing opposite it, it
+                // reads as a thing that lost its label.
+                facts.length > 0
+                  ? 'border-border tablet:justify-between border-y py-6'
+                  : 'tablet:justify-center',
               )}
             >
               <ul className="gap-lg tablet:flex-row flex flex-col">
