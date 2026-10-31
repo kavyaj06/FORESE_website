@@ -6,6 +6,7 @@ import MockPlacementsPage from '@/pages/mock-placements/MockPlacementsPage';
 import TipsPage from '@/pages/tips/TipsPage';
 import { findTopic } from '@/pages/tips/data';
 import EventsPage from '@/pages/events/EventsPage';
+import EventPage from '@/pages/events/EventPage';
 import TeamPage from '@/pages/team/TeamPage';
 import GalleryPage from '@/pages/gallery/GalleryPage';
 import AlbumPage from '@/pages/gallery/AlbumPage';
@@ -143,6 +144,20 @@ const ALL_ROUTES: AppRoute[] = [
     description: 'Upcoming and completed FORESE Club events.',
     inPrimaryNav: true,
     footerGroup: 'quickLinks',
+  },
+  {
+    // One event. Not in any navigation — it is reached from the list — but a
+    // real URL, which is the point: the club sends these to students, and
+    // "read about FORED" should be a link to FORED.
+    path: '/events/:slug',
+    label: 'Event',
+    Component: EventPage,
+    title: (params) => (params.slug ? (findEventBySlug(params.slug)?.name ?? 'Event') : 'Event'),
+    description: (params) => {
+      const event = params.slug ? findEventBySlug(params.slug) : undefined;
+      return event?.tagline ?? event?.blurb ?? 'A FORESE event.';
+    },
+    inPrimaryNav: false,
   },
   {
     path: '/team',

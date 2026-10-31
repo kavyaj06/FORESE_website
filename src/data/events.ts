@@ -39,22 +39,40 @@ export interface ForeseEvent {
   /** Where it happens. Shown on the cards. */
   venue?: string;
   /**
-   * What the event is, for the details a row opens on the events page.
+   * The headline on the event's own page. Falls back to `name`.
    *
-   * Prose, not a second blurb: `blurb` is the one line a row shows closed,
-   * this is the two or three paragraphs it shows open. A blank line starts a
-   * new paragraph — the page splits on it.
+   * A page earns a title that is not merely the event's name: FORED's own is
+   * "FORED: Your Gateway to Global Education", which says what it is for
+   * where the name only says what it is called.
+   */
+  headline?: string;
+  /** The line under that headline. Falls back to `blurb`. */
+  tagline?: string;
+  /** The heading over the prose. Falls back to a default in the page's copy. */
+  aboutTitle?: string;
+  /**
+   * What the event is, in prose, for its own page.
+   *
+   * `blurb` is the one line a row carries; this is the two or three
+   * paragraphs the page opens with. A blank line starts a new paragraph —
+   * the page splits on it.
    */
   about?: string;
+  /** The line under "Why attend". Optional. */
+  whyIntro?: string;
   /**
-   * Why a student should come, **one reason per line**.
+   * Why a student should come: **one card per line**, written
+   * `Title | what it means`.
    *
-   * A list stored as a string, which looks like a shortcut and is not. The
-   * Firestore reader in `@/data/remote` decodes scalars only — there is no
-   * `arrayValue` in its `FirestoreValue` type — so a real array here would
-   * mean a new decoder and a new shape in the editor for the sake of three
-   * bullet points. Split on newlines at render, it is a list everywhere it
-   * matters and a textarea everywhere it is written.
+   * A list of pairs stored as a string, which looks like a shortcut and is
+   * not. The Firestore reader in `@/data/remote` decodes scalars only —
+   * there is no `arrayValue` in its `FirestoreValue` type — so a real array
+   * of objects would mean a new decoder, a repeating sub-form in the editor
+   * and a migration, for four cards. Split at render it is a grid of cards
+   * everywhere it is read and a textarea everywhere it is written.
+   *
+   * A line written without a `|` is kept as a card with no title, so someone
+   * who types a plain sentence still gets something sensible.
    */
   whyAttend?: string;
   /** Who it is for — "Pre-final year, all departments". One line. */
@@ -75,25 +93,39 @@ export function eventParagraphs(event: ForeseEvent): string[] {
     .filter(Boolean);
 }
 
+/** One "why attend" card. */
+export interface EventHighlight {
+  /** Absent when the line was written without a `|`. */
+  title?: string;
+  body: string;
+}
+
 /**
- * An event's `whyAttend` as the list it is written as: one reason per line.
+ * An event's `whyAttend` as the cards it is written as: one per line, written
+ * `Title | body`.
  *
  * A leading bullet or number is stripped. Somebody writing a list in a
- * textarea types `- ` or `1. ` without being asked to, and the markers would
- * otherwise end up inside list items that already have one of their own. The
- * contract is a convention rather than a type, so it is enforced here and
- * nowhere else.
+ * textarea types `- ` or `1. ` without being asked to, and the marker would
+ * otherwise end up inside the card's own title. The contract is a convention
+ * rather than a type, so it is enforced here and nowhere else.
  */
-export function eventReasons(event: ForeseEvent): string[] {
+export function eventHighlights(event: ForeseEvent): EventHighlight[] {
   return (event.whyAttend ?? '')
     .split('\n')
-    .map((reason) =>
-      reason
+    .map((line) =>
+      line
         .trim()
-        .replace(/^(?:[-•*\u2013\u2014]|\d+[.)])\s*/, '')
+        .replace(/^(?:[-•*–—]|\d+[.)])\s*/, '')
         .trim(),
     )
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((line) => {
+      const at = line.indexOf('|');
+      if (at === -1) return { body: line };
+      const title = line.slice(0, at).trim();
+      const body = line.slice(at + 1).trim();
+      return title && body ? { title, body } : { body: title || body };
+    });
 }
 
 /**
@@ -213,21 +245,25 @@ const SEED_EVENTS: ForeseEvent[] = [
     date: '2026-08-07',
     blurb:
       'Representatives from overseas universities met students for one-to-one sessions on studying abroad.',
-    // ⚠️ DRAFT — mine, not the club's. Written out from the one line
-    // above and from what the album shows, because the row had nothing to
-    // open onto. Every sentence is a reasonable description of a university
-    // fair rather than a record of this one: correct it in the club editor,
-    // where all three of these are now fields.
+    // The club's own words, lifted from their previous site's FORED page at
+    // forese.co.in/Event/ForeignEducationFairs. American spelling and all —
+    // it is their copy, not a paraphrase of it.
+    headline: 'FORED: Your Gateway to Global Education',
+    tagline:
+      'Connect with leading international universities and chart your path to studying abroad.',
+    aboutTitle: 'Your Bridge to International Academia',
     about: [
-      'FORED is the club’s foreign-education fair. Representatives from universities abroad come onto campus for the day, and students meet them one to one.',
-      'They are conversations rather than presentations — what a course actually covers, what an application asks for, and what studying in that country is like.',
+      'FORESE’s Foreign Universities Education Fair (FORED) connects students with admission experts and education consultants who provide tailored guidance on international study options. The event enables students to explore academic programs, scholarships, and financial aid, supporting informed decisions about studying abroad. Representatives from leading universities in the US, UK, Australia, and other countries offer advice on applications, post-graduation work opportunities, and insights into academic and cultural environments.',
+      'The fair also offers essential guidance on standardized tests such as the TOEFL, IELTS, and GRE, which are often required for international study. Experts explain test formats, preparation strategies, and score requirements for different institutions. This comprehensive support helps students navigate the challenges of studying abroad and prepares them for academic and personal success in a new country.',
     ].join('\n\n'),
+    whyIntro:
+      'Gain a comprehensive understanding of studying abroad, from applications to career prospects.',
     whyAttend: [
-      'Ask admissions representatives your own questions, instead of working from a prospectus.',
-      'Compare several universities, and several countries, in one afternoon.',
-      'Find out what an application needs, and by when, while there is still time to prepare it.',
+      'Direct University Interaction | Connect with admission experts from top universities in the US, UK, Australia, and more to get personalized insights.',
+      'Scholarships & Financial Aid | Explore diverse academic specializations, scholarships, and financial aid options to make your dream a reality.',
+      'Career & Visa Guidance | Receive expert advice on application processes, post-study work opportunities, and the academic landscape abroad.',
+      'Standardized Test Support | Get critical guidance on TOEFL, IELTS, and GRE, including exam structures, prep strategies, and score requirements.',
     ].join('\n'),
-    audience: 'Any student considering studying abroad.',
   },
   {
     id: 'leap-2026',
@@ -249,10 +285,11 @@ const SEED_EVENTS: ForeseEvent[] = [
       'LEAP — the Learners Employability Awareness Programme — is a run of talks held over a fortnight, each on a part of what employers expect from a graduate.',
       'Sessions are given to a full hall, with time at the end for students to put their own questions to the speaker.',
     ].join('\n\n'),
+    whyIntro: 'What a fortnight of sessions is for, and who they are aimed at.',
     whyAttend: [
-      'Hear what employers look for from the people who do the looking.',
-      'Find out where you stand before the placement season rather than during it.',
-      'It runs across a fortnight, so you can come to the sessions that matter to you.',
+      'What employers expect | Hear it set out by the people who do the hiring, rather than second hand.',
+      'Practice in public | Put your own question to a speaker in front of a full hall — the cheapest version of what every interview asks of you.',
+      'Across a fortnight | Sessions run over two weeks, so you can come to the ones that matter to you.',
     ].join('\n'),
     audience: 'Any student heading into placements.',
   },
@@ -272,10 +309,12 @@ const SEED_EVENTS: ForeseEvent[] = [
       'FORESE’s Mock Placements, the flagship annual initiative of Sri Venkateswara College of Engineering, is designed to prepare pre-final year students from all disciplines for the challenges of their placement journey. Conducted in both online and offline modes, the event provides a complete simulation of the recruitment process through aptitude tests, group discussions, and personal interviews, offering students an authentic taste of real placement dynamics in a competitive yet supportive environment.',
       'The day runs in three rounds — an aptitude paper, a group discussion and a one-to-one interview with an HR — and ends with a written performance report for every student.',
     ].join('\n\n'),
+    aboutTitle: 'Bridging talent with opportunity',
+    whyIntro: 'The whole recruitment process, rehearsed once before it counts.',
     whyAttend: [
-      'Sit the whole process once before it counts: aptitude, group discussion and interview in a day.',
-      '130+ HRs and industry experts were on the 2026 panels, so the interview is with someone who does this for a living.',
-      'You leave with a written report of how you did, not an impression of how it went.',
+      'Three rounds, end to end | An aptitude paper, a group discussion, and a one-to-one interview, in a day.',
+      'Real panels | The interviews are run by HRs from different companies — 130+ sat on the 2026 panels.',
+      'A written report | Every student leaves with an individual performance report, compiled as a PDF.',
     ].join('\n'),
     audience: 'Pre-final year students, all disciplines.',
   },

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, CalendarDays, MapPin } from 'lucide-react';
 import { EASE_OUT_BRAND } from '@/components/motion/variants';
@@ -142,7 +143,20 @@ export function FeaturedCarousel({ events }: FeaturedCarouselProps) {
                     {formatEventWhen(event)}
                   </span>
 
-                  <h2 className="text-h1 max-w-[22ch]">{event.name}</h2>
+                  {/* The slide is a link now that an event has a page to
+                      go to. The anchor wraps only the title rather than the
+                      whole slide: the carousel's own prev/next buttons sit
+                      inside that box, and a link wrapped around them would
+                      swallow them. `after:` stretches the hit area over the
+                      lower half, which is where the text is. */}
+                  <h2 className="text-h1 max-w-[22ch]">
+                    <Link
+                      to={`/events/${event.slug}`}
+                      className="rounded-md after:absolute after:inset-x-0 after:top-1/3 after:bottom-0 after:content-['']"
+                    >
+                      {event.name}
+                    </Link>
+                  </h2>
 
                   {event.venue && (
                     <p className="text-small gap-xs flex items-center opacity-85">

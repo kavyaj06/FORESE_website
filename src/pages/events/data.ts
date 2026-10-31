@@ -31,17 +31,28 @@ export const EVENT_GROUPS = {
 } as const;
 
 /**
- * The words on the details a row opens.
+ * The words on an event's own page.
  *
- * Here rather than in the component for the usual reason — nothing on this
- * site says anything from inside its own JSX — and because these are the
- * labels a reader scans before they read the paragraph under them.
+ * Only the furniture is here. What an event *says* — its headline, its
+ * paragraphs, its reasons to attend — is on the event itself in
+ * `@/data/events`, because the club edits that in the club editor and this
+ * file is not reachable from there.
  */
-export const EVENT_DETAILS = {
-  show: 'Details',
-  hide: 'Hide details',
-  about: 'What it is',
-  why: 'Why attend',
-  /** Follows the count: "6 photographs". */
+export const EVENT_PAGE = {
+  back: 'All events',
+  next: 'Next',
+  /** Used when an event has no `aboutTitle` of its own. */
+  aboutFallback: 'What it is',
+  /** "Why attend FORED?" — the acronym, not the registered name in full. */
+  why: (short: string) => `Why attend ${short}?`,
+  audienceLabel: 'Who it is for',
+  venueLabel: 'Where',
   photos: 'photographs',
+  /** Follows the count on the row: "Details". */
+  rowAction: 'Details',
+  missing: {
+    eyebrow: 'Events',
+    title: 'Event not found',
+    description: 'There is nothing at this address. It may have been renamed.',
+  },
 } as const;

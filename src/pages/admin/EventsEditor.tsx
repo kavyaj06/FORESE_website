@@ -207,8 +207,40 @@ function EventForm({
         />
       </Field>
 
-      {/* The three that fill the details a row opens on the events page. All
-          three are optional: a row with none of them simply does not open. */}
+      {/* Everything below fills the event's own page at /events/<slug>. All of
+          it is optional, and the page falls back field by field — to the
+          name, to the blurb, to a default heading — so a half-filled event
+          still reads as a page rather than as a gap. */}
+      <Field
+        label="Page headline"
+        hint="The big line on the event's own page. Empty uses the name."
+      >
+        <input
+          value={draft.headline ?? ''}
+          onChange={(input) => set({ headline: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
+      <Field label="Page tagline" hint="One line under the headline. Empty uses the blurb.">
+        <input
+          value={draft.tagline ?? ''}
+          onChange={(input) => set({ tagline: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
+      <Field
+        label="About heading"
+        hint="The heading over the paragraphs — e.g. “Your bridge to international academia”."
+      >
+        <input
+          value={draft.aboutTitle ?? ''}
+          onChange={(input) => set({ aboutTitle: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
       <Field
         label="About"
         hint="What the event is, in a paragraph or two. A blank line starts a new paragraph."
@@ -221,9 +253,20 @@ function EventForm({
         />
       </Field>
 
-      <Field label="Why attend" hint="One reason per line. Each line becomes a bullet point.">
+      <Field label="Why attend — intro" hint="One line under the “Why attend” heading.">
+        <input
+          value={draft.whyIntro ?? ''}
+          onChange={(input) => set({ whyIntro: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
+      <Field
+        label="Why attend — cards"
+        hint="One card per line, written as: Title | what it means. Three or four is right."
+      >
         <textarea
-          rows={4}
+          rows={5}
           value={draft.whyAttend ?? ''}
           onChange={(input) => set({ whyAttend: input.target.value })}
           className="admin-input"
