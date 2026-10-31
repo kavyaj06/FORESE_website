@@ -51,22 +51,62 @@ export const TIPS_HERO = {
 } as const;
 
 /**
- * The three acts, in order.
+ * The three guides, in order.
  *
- * Read twice — by the sticky rail at the top of the page and by each act's own
- * header — so the number beside a heading and the number in the rail cannot
- * disagree. The `id` is the anchor target as well as the key.
+ * One page each — `/tips/<id>` — rather than three acts of one long page.
+ * Six thousand pixels of scrolling meant a student sent here for resume
+ * advice had to travel through the whole group discussion to reach it; now
+ * that is a link they can be sent directly.
+ *
+ * Read in four places: the route table builds a page title and a meta
+ * description from `title` and `blurb`, the rail at the top of every guide
+ * lists all three, each guide's header prints its own number, and the page
+ * itself picks its content by `id`. One list, so the number beside a heading
+ * and the number in the rail cannot disagree, and a fourth guide is an entry
+ * here plus a section component.
  */
 export interface TipsTopic {
+  /** URL segment, and the key everything else is looked up by. */
   id: string;
+  /** Rail label. Two words at most — three of these sit in a row on a phone. */
   label: string;
+  /** Document title for this guide's own page. */
+  title: string;
+  /** Its meta description. One sentence, written for a search result. */
+  blurb: string;
 }
 
 export const TIPS_TOPICS: TipsTopic[] = [
-  { id: 'group-discussion', label: 'Group discussion' },
-  { id: 'aptitude', label: 'Aptitude' },
-  { id: 'resume', label: 'Resume' },
+  {
+    id: 'group-discussion',
+    label: 'Group discussion',
+    title: 'Group Discussion Tips',
+    blurb:
+      'How to carry a FORESE mock group discussion: what it is worth, the four phases of a round, what to do in one, and what to avoid.',
+  },
+  {
+    id: 'aptitude',
+    label: 'Aptitude',
+    title: 'Aptitude Tips',
+    blurb:
+      'What the FORESE aptitude test covers — quantitative, logical and verbal — and what it is built to tell a student about themselves.',
+  },
+  {
+    id: 'resume',
+    label: 'Resume',
+    title: 'Resume Tips',
+    blurb:
+      'Six things that decide whether a resume survives the few seconds a recruiter spends on it, from tailoring to proofreading.',
+  },
 ];
+
+/** A guide by its URL segment. `undefined` for anything that is not one. */
+export function findTopic(id: string | undefined): TipsTopic | undefined {
+  return TIPS_TOPICS.find((topic) => topic.id === id);
+}
+
+/** Where `/tips` sends a reader, and the first guide in the rail. */
+export const FIRST_TOPIC = TIPS_TOPICS[0];
 
 /* ============================================================================
  * 01 — GROUP DISCUSSION

@@ -65,7 +65,13 @@ export function Navbar() {
           >
             <ul className="gap-xl flex items-center">
               {PRIMARY_NAV.map((route) => {
-                const isActive = pathname === route.path;
+                // Prefix, not equality: the tips guides live at `/tips/<topic>`
+                // and a gallery album at `/gallery/<slug>`, and the bar losing
+                // its underline the moment a reader opens one says they have
+                // left that part of the site when they have gone further into
+                // it. `/` is exempt, or it would match everything.
+                const isActive =
+                  route.path === '/' ? pathname === '/' : pathname.startsWith(route.path);
                 return (
                   <li key={route.path} className="relative">
                     <NavLink

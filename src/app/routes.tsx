@@ -4,6 +4,7 @@ import { matchPath, type Params } from 'react-router-dom';
 import HomePage from '@/pages/home/HomePage';
 import MockPlacementsPage from '@/pages/mock-placements/MockPlacementsPage';
 import TipsPage from '@/pages/tips/TipsPage';
+import { findTopic } from '@/pages/tips/data';
 import EventsPage from '@/pages/events/EventsPage';
 import TeamPage from '@/pages/team/TeamPage';
 import GalleryPage from '@/pages/gallery/GalleryPage';
@@ -105,6 +106,12 @@ const ALL_ROUTES: AppRoute[] = [
     footerGroup: 'quickLinks',
   },
   {
+    /**
+     * The guides are three pages, not three sections of one — see the note in
+     * `TipsPage`. This entry is the one the navigation points at, and it
+     * redirects to the first of them, so there is a single address for "the
+     * tips" and a single canonical URL for each guide underneath it.
+     */
     path: '/tips',
     label: 'Interview Tips',
     Component: TipsPage,
@@ -113,6 +120,20 @@ const ALL_ROUTES: AppRoute[] = [
       'Group discussion, aptitude and resume guidance from FORESE, for students preparing for placements.',
     inPrimaryNav: true,
     footerGroup: 'quickLinks',
+  },
+  {
+    // One guide. Not in any navigation — the rail at the top of each guide is
+    // how a reader moves between them — but a real URL, which is the point:
+    // a student can be sent to the resume advice rather than to the top of
+    // all three.
+    path: '/tips/:topic',
+    label: 'Interview Tips',
+    Component: TipsPage,
+    title: (params) => findTopic(params.topic)?.title ?? 'Interview Tips',
+    description: (params) =>
+      findTopic(params.topic)?.blurb ??
+      'Group discussion, aptitude and resume guidance from FORESE, for students preparing for placements.',
+    inPrimaryNav: false,
   },
   {
     path: '/events',
