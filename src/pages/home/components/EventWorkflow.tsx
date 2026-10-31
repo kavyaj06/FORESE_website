@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/cn';
 import { ArrowRight } from 'lucide-react';
 import { DotField } from '@/components/motion/DotField';
 import { findEvent, formatEventWhen } from '@/data/events';
@@ -99,26 +100,31 @@ const GROUP_SPAN = 1;
  * no `y` exceeds 54 — verified by measurement at 1024/1280/1440/1920, not by
  * eye.
  *
- * The first slot's `x` is negative in two of the three sets on purpose: that
- * group's first node straddles its own left edge, so it is cut by the board
- * when its event is current and — because the groups butt together — the next
- * event's first node is already half in view at the right.
+ * Every node starts fully inside the board. Two of these sets used to open at
+ * a negative `x`, so the first node was cut by the board's own left edge —
+ * deliberately, as a canvas that carries on past its frame. The club read it
+ * as photographs being hidden, which is the more honest reading of a picture
+ * with a third of it missing, so the slots are inset now: `x` never below 4,
+ * and never past 64, which is the last column a 32%-wide node fits in.
+ *
+ * They are a starting arrangement rather than the arrangement — the nodes can
+ * be dragged anywhere inside the board. See `Node`.
  */
 const SLOT_SETS = [
   [
-    { x: -6, y: 0, w: 32 },
-    { x: 52, y: 0, w: 32 },
-    { x: 22, y: 52, w: 32 },
-  ],
-  [
-    { x: 30, y: 0, w: 32 },
-    { x: -4, y: 52, w: 32 },
-    { x: 56, y: 52, w: 32 },
-  ],
-  [
-    { x: 6, y: 0, w: 32 },
+    { x: 4, y: 0, w: 32 },
     { x: 62, y: 0, w: 32 },
-    { x: 34, y: 52, w: 32 },
+    { x: 30, y: 52, w: 32 },
+  ],
+  [
+    { x: 34, y: 0, w: 32 },
+    { x: 4, y: 52, w: 32 },
+    { x: 62, y: 52, w: 32 },
+  ],
+  [
+    { x: 8, y: 2, w: 32 },
+    { x: 58, y: 0, w: 32 },
+    { x: 36, y: 52, w: 32 },
   ],
 ] as const;
 
@@ -456,6 +462,27 @@ function Group({
   index: number;
   board: { width: number; height: number };
 }) {
+  /**
+   * How far each node has been dragged from its slot.
+   *
+   * Held here rather than in the node that moved, because the connectors are
+   * drawn between nodes: a line whose ends did not follow the pictures would
+   * be the first thing to look broken. The nodes report their own position as
+   * it changes and this is what the paths below are routed from.
+   */
+  const [offsets, setOffsets] = useState<Point[]>(() =>
+    Array.from({ length: NODES_PER_EVENT }, () => ({ x: 0, y: 0 })),
+  );
+
+  const report = useCallback((node: number, point: Point) => {
+    setOffsets((current) => {
+      if (current[node]?.x === point.x && current[node]?.y === point.y) return current;
+      const next = [...current];
+      next[node] = point;
+      return next;
+    });
+  }, []);
+
   const width = board.width * GROUP_SPAN;
   const height = board.height;
   if (!width || !height) return null;
@@ -477,6 +504,15 @@ function Group({
     };
   });
 
+  // Where each node is *now*: its slot plus however far it has been dragged.
+  // Everything downstream — both connectors and all four endpoints — is routed
+  // from these rather than from the slots, so the lines follow the pictures.
+  const placed = boxes.map((box, i) => ({
+    ...box,
+    x: box.x + (offsets[i]?.x ?? 0),
+    y: box.y + (offsets[i]?.y ?? 0),
+  }));
+
   // Two connectors: the first node feeds the second, and also the third. A
   // chain would say the third comes after the second, which is not what the
   // three photographs are — they are one event seen three ways.
@@ -489,7 +525,7 @@ function Group({
     <div className="absolute inset-0">
       <svg className="absolute inset-0 h-full w-full" fill="none">
         {edges.map(([from, to], i) => {
-          const path = route(boxes[from], boxes[to]);
+          const path = route(placed[from], placed[to]);
 
           return (
             <g key={i}>
@@ -536,18 +572,7 @@ function Group({
       </svg>
 
       {boxes.map((box, i) => (
-        <motion.div
-          key={i}
-          // Up from below as the board arrives, one after another — the
-          // reference's own entry, and the reason each event now reads as
-          // turning up rather than as the same card changing its pictures.
-          initial={{ opacity: 0, y: 40, scale: 0.94 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
-          viewport={VIEWPORT}
-          transition={{ duration: 0.7, ease: EASE, delay: i * 0.12 }}
-          style={{ left: box.x, top: box.y, width: box.w }}
-          className="absolute"
-        >
+        <Node key={i} index={i} box={box} board={board} offset={offsets[i]} onMove={report}>
           {/* The label line sits *above* the card, not inside it — which is
               where the reference puts it, and it is what makes a node read as
               a step with a name rather than as a picture with a caption bar
@@ -571,14 +596,165 @@ function Group({
                   alt=""
                   loading="lazy"
                   decoding="async"
+                  // The browser drags images by itself, and that native drag
+                  // fires `pointercancel` — which ended our own gesture one
+                  // frame in, so a node followed the cursor for 12px and then
+                  // stopped dead. Measured, not guessed at.
+                  draggable={false}
                   className="h-full w-full object-cover"
                 />
               )}
             </div>
           </div>
-        </motion.div>
+        </Node>
       ))}
     </div>
+  );
+}
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+/**
+ * One node: a picture with a name over it, which can be picked up and put
+ * somewhere else on the board.
+ *
+ * **Two elements, not one, and that is the whole trick.** The outer one owns
+ * the slot and the entry animation — it rises 40px as the board arrives. The
+ * inner one carries the drag offset. One element could not do both: the entry
+ * animates `y`, and a re-render mid-drag would re-assert its `y: 0` and snap
+ * the picture out from under the cursor.
+ *
+ * **The pointer handling is ours rather than the animation library's.**
+ * `drag` on a `motion.div` sets its `touch-action` and its cursor here but
+ * never starts a gesture — measured, with `onDragStart` wired to state and
+ * the element's transform read mid-drag: no drag, no transform. This is a
+ * pointer-capture drag instead, which is what `LogoCarousel3D` and `DotField`
+ * already do on this site, and it comes out shorter than the props it
+ * replaces because the clamp below is exact rather than measured.
+ *
+ * **A node cannot leave the board.** The offset is clamped to the box the
+ * board leaves it, so a picture stops dead at the edge. That matters given
+ * why dragging is here at all — the club's complaint was photographs
+ * disappearing into the frame, and a drag that let you shove one back out
+ * would be the same bug with a handle on it.
+ *
+ * **Touch scrolls, it does not drag.** Only mouse and pen start a gesture. A
+ * draggable element has to take `touch-action: none` to work under a finger,
+ * and these cover most of a board that covers most of a phone screen — a
+ * reader swiping to scroll the page would move a photograph instead. Nothing
+ * is lost there: the arrangement is fully inside the frame to begin with, and
+ * dragging is for arranging, not for reading.
+ */
+function Node({
+  index,
+  box,
+  board,
+  offset,
+  onMove,
+  children,
+}: {
+  index: number;
+  box: Box;
+  board: { width: number; height: number };
+  offset: Point;
+  onMove: (index: number, point: Point) => void;
+  children: React.ReactNode;
+}) {
+  const [dragging, setDragging] = useState(false);
+  /** Where the pointer went down, and where the node was at that moment. */
+  const from = useRef<{ pointer: Point; offset: Point } | null>(null);
+  const nodeRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * The offset that still leaves the whole node — label included — on the
+   * board.
+   *
+   * Measured off the element rather than taken from `box`. `box.h` is the
+   * picture plus `NODE_CHROME`, and that constant is an estimate of the label
+   * line and the tag strip: six pixels short in practice, which is exactly
+   * how far a node hung off the bottom edge before this read the real height.
+   */
+  const clamp = (point: Point): Point => {
+    const width = nodeRef.current?.offsetWidth ?? box.w;
+    const height = nodeRef.current?.offsetHeight ?? box.h;
+    const right = Math.max(board.width - width - box.x, -box.x);
+    const bottom = Math.max(board.height - height - box.y, -box.y);
+    return {
+      x: Math.min(Math.max(point.x, -box.x), right),
+      y: Math.min(Math.max(point.y, -box.y), bottom),
+    };
+  };
+
+  return (
+    <motion.div
+      // Up from below as the board arrives, one after another — the
+      // reference's own entry, and the reason each event now reads as
+      // turning up rather than as the same card changing its pictures.
+      initial={{ opacity: 0, y: 40, scale: 0.94 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={VIEWPORT}
+      transition={{ duration: 0.7, ease: EASE, delay: index * 0.12 }}
+      style={{ left: box.x, top: box.y, width: box.w }}
+      className="absolute"
+    >
+      <div
+        ref={nodeRef}
+        data-dragging={dragging || undefined}
+        onDragStart={(event) => event.preventDefault()}
+        onPointerDown={(event) => {
+          // Touch is left alone so the page still scrolls; a secondary button
+          // is a context menu, not a drag.
+          if (event.pointerType === 'touch' || event.button !== 0) return;
+          event.currentTarget.setPointerCapture(event.pointerId);
+          from.current = {
+            pointer: { x: event.clientX, y: event.clientY },
+            offset,
+          };
+          setDragging(true);
+        }}
+        onPointerMove={(event) => {
+          const start = from.current;
+          if (!start) return;
+          onMove(
+            index,
+            clamp({
+              x: start.offset.x + (event.clientX - start.pointer.x),
+              y: start.offset.y + (event.clientY - start.pointer.y),
+            }),
+          );
+        }}
+        onPointerUp={(event) => {
+          if (!from.current) return;
+          event.currentTarget.releasePointerCapture(event.pointerId);
+          from.current = null;
+          setDragging(false);
+        }}
+        onPointerCancel={() => {
+          from.current = null;
+          setDragging(false);
+        }}
+        style={{
+          transform: `translate3d(${offset.x}px, ${offset.y}px, 0)`,
+          // Held above its neighbours, so a node dragged across another passes
+          // over it rather than through it.
+          zIndex: dragging ? 30 : 10,
+        }}
+        className={cn(
+          // No transition on this element's transform: eased, every drag frame
+          // would arrive a quarter of a second behind the cursor, which reads
+          // as lag rather than as polish. The card inside keeps its own hover
+          // lift — a different element, so the two transforms compose rather
+          // than overwrite each other.
+          'relative cursor-grab touch-pan-y select-none',
+          dragging && 'cursor-grabbing',
+        )}
+      >
+        {children}
+      </div>
+    </motion.div>
   );
 }
 
