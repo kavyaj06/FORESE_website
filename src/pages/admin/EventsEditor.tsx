@@ -207,6 +207,37 @@ function EventForm({
         />
       </Field>
 
+      {/* The three that fill the details a row opens on the events page. All
+          three are optional: a row with none of them simply does not open. */}
+      <Field
+        label="About"
+        hint="What the event is, in a paragraph or two. A blank line starts a new paragraph."
+      >
+        <textarea
+          rows={6}
+          value={draft.about ?? ''}
+          onChange={(input) => set({ about: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
+      <Field label="Why attend" hint="One reason per line. Each line becomes a bullet point.">
+        <textarea
+          rows={4}
+          value={draft.whyAttend ?? ''}
+          onChange={(input) => set({ whyAttend: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
+      <Field label="Who it is for" hint="One line — e.g. Pre-final year students, all disciplines.">
+        <input
+          value={draft.audience ?? ''}
+          onChange={(input) => set({ audience: input.target.value })}
+          className="admin-input"
+        />
+      </Field>
+
       <Field
         label="Cover image"
         hint="A path or URL. Leave empty to use the album’s first photograph."

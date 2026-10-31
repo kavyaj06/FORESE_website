@@ -38,6 +38,62 @@ export interface ForeseEvent {
   cover?: string;
   /** Where it happens. Shown on the cards. */
   venue?: string;
+  /**
+   * What the event is, for the details a row opens on the events page.
+   *
+   * Prose, not a second blurb: `blurb` is the one line a row shows closed,
+   * this is the two or three paragraphs it shows open. A blank line starts a
+   * new paragraph — the page splits on it.
+   */
+  about?: string;
+  /**
+   * Why a student should come, **one reason per line**.
+   *
+   * A list stored as a string, which looks like a shortcut and is not. The
+   * Firestore reader in `@/data/remote` decodes scalars only — there is no
+   * `arrayValue` in its `FirestoreValue` type — so a real array here would
+   * mean a new decoder and a new shape in the editor for the sake of three
+   * bullet points. Split on newlines at render, it is a list everywhere it
+   * matters and a textarea everywhere it is written.
+   */
+  whyAttend?: string;
+  /** Who it is for — "Pre-final year, all departments". One line. */
+  audience?: string;
+}
+
+/**
+ * An event's `about` as paragraphs.
+ *
+ * A blank line starts a new one, which is what people already do in a
+ * textarea without being asked. Returns an empty array when there is nothing
+ * to show, so a caller can ask for the length rather than for the field.
+ */
+export function eventParagraphs(event: ForeseEvent): string[] {
+  return (event.about ?? '')
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+}
+
+/**
+ * An event's `whyAttend` as the list it is written as: one reason per line.
+ *
+ * A leading bullet or number is stripped. Somebody writing a list in a
+ * textarea types `- ` or `1. ` without being asked to, and the markers would
+ * otherwise end up inside list items that already have one of their own. The
+ * contract is a convention rather than a type, so it is enforced here and
+ * nowhere else.
+ */
+export function eventReasons(event: ForeseEvent): string[] {
+  return (event.whyAttend ?? '')
+    .split('\n')
+    .map((reason) =>
+      reason
+        .trim()
+        .replace(/^(?:[-•*\u2013\u2014]|\d+[.)])\s*/, '')
+        .trim(),
+    )
+    .filter(Boolean);
 }
 
 /**
@@ -157,6 +213,21 @@ const SEED_EVENTS: ForeseEvent[] = [
     date: '2026-08-07',
     blurb:
       'Representatives from overseas universities met students for one-to-one sessions on studying abroad.',
+    // ⚠️ DRAFT — mine, not the club's. Written out from the one line
+    // above and from what the album shows, because the row had nothing to
+    // open onto. Every sentence is a reasonable description of a university
+    // fair rather than a record of this one: correct it in the club editor,
+    // where all three of these are now fields.
+    about: [
+      'FORED is the club’s foreign-education fair. Representatives from universities abroad come onto campus for the day, and students meet them one to one.',
+      'They are conversations rather than presentations — what a course actually covers, what an application asks for, and what studying in that country is like.',
+    ].join('\n\n'),
+    whyAttend: [
+      'Ask admissions representatives your own questions, instead of working from a prospectus.',
+      'Compare several universities, and several countries, in one afternoon.',
+      'Find out what an application needs, and by when, while there is still time to prepare it.',
+    ].join('\n'),
+    audience: 'Any student considering studying abroad.',
   },
   {
     id: 'leap-2026',
@@ -171,6 +242,19 @@ const SEED_EVENTS: ForeseEvent[] = [
     endDate: '2026-08-07',
     blurb:
       'A run of talks on employability — what employers expect of graduates, and how to prepare for it.',
+    // ⚠️ DRAFT, as above. The one thing here that is not a guess is the
+    // shape of the room: the album shows a full hall and a student on his feet
+    // with a microphone, which is where the second sentence comes from.
+    about: [
+      'LEAP — the Learners Employability Awareness Programme — is a run of talks held over a fortnight, each on a part of what employers expect from a graduate.',
+      'Sessions are given to a full hall, with time at the end for students to put their own questions to the speaker.',
+    ].join('\n\n'),
+    whyAttend: [
+      'Hear what employers look for from the people who do the looking.',
+      'Find out where you stand before the placement season rather than during it.',
+      'It runs across a fortnight, so you can come to the sessions that matter to you.',
+    ].join('\n'),
+    audience: 'Any student heading into placements.',
   },
   {
     id: 'mock-placement-drive-2026',
@@ -179,6 +263,21 @@ const SEED_EVENTS: ForeseEvent[] = [
     name: 'Mock Placements 2026',
     date: '2026-02-15',
     blurb: 'The full rehearsal: aptitude, group discussion and interview panels.',
+    // Not drafted. The first paragraph is the club's own, carried over from
+    // `MOCK_PLACEMENTS_ABOUT` on the mock placements page; the second is that
+    // page's own timeline in a sentence. The two copies will drift apart the
+    // first time one of them is edited, which is the trade for letting the
+    // club edit this one in Firestore without touching the repository.
+    about: [
+      'FORESE’s Mock Placements, the flagship annual initiative of Sri Venkateswara College of Engineering, is designed to prepare pre-final year students from all disciplines for the challenges of their placement journey. Conducted in both online and offline modes, the event provides a complete simulation of the recruitment process through aptitude tests, group discussions, and personal interviews, offering students an authentic taste of real placement dynamics in a competitive yet supportive environment.',
+      'The day runs in three rounds — an aptitude paper, a group discussion and a one-to-one interview with an HR — and ends with a written performance report for every student.',
+    ].join('\n\n'),
+    whyAttend: [
+      'Sit the whole process once before it counts: aptitude, group discussion and interview in a day.',
+      '130+ HRs and industry experts were on the 2026 panels, so the interview is with someone who does this for a living.',
+      'You leave with a written report of how you did, not an impression of how it went.',
+    ].join('\n'),
+    audience: 'Pre-final year students, all disciplines.',
   },
 ];
 

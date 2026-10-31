@@ -29,3 +29,19 @@ export const EVENT_GROUPS = {
     empty: 'Completed events will be listed here.',
   },
 } as const;
+
+/**
+ * The words on the details a row opens.
+ *
+ * Here rather than in the component for the usual reason — nothing on this
+ * site says anything from inside its own JSX — and because these are the
+ * labels a reader scans before they read the paragraph under them.
+ */
+export const EVENT_DETAILS = {
+  show: 'Details',
+  hide: 'Hide details',
+  about: 'What it is',
+  why: 'Why attend',
+  /** Follows the count: "6 photographs". */
+  photos: 'photographs',
+} as const;

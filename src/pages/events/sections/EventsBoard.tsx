@@ -40,6 +40,16 @@ const HOVER = {
 } as const;
 
 /**
+ * Hover, with the scale taken out, for a row that is open.
+ *
+ * A target rather than `undefined`: a row hovered at the moment it opens would
+ * otherwise be left holding the 1.015 it had, with nothing to animate it back.
+ * And 1.5% of a 500px panel is eight pixels of travel under two paragraphs
+ * somebody is in the middle of reading.
+ */
+const HOVER_OPEN = { scale: 1, transition: HOVER.transition } as const;
+
+/**
  * The events board: a featured carousel, a filter, and the list.
  *
  * The three states are now a filter rather than three stacked sections. With
@@ -60,6 +70,16 @@ export function EventsBoard() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [filter, setFilter] = useState<EventFilter>('all');
   const [page, setPage] = useState(0);
+
+  /**
+   * The one row whose details are open.
+   *
+   * Here and not inside the row, because only the list can see that a second
+   * row has been opened. The same mistake on the team page left every card a
+   * reader had touched sitting open behind them — a card cannot close itself
+   * when it never hears about its neighbours.
+   */
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const groups = useMemo(() => groupEventsByStatus(), []);
   const featured = useMemo(
@@ -103,6 +123,10 @@ export function EventsBoard() {
    * clears the sticky header lives next to the thing being cleared.
    */
   const goToPage = (next: number) => {
+    // The list is keyed by filter and page and remounts, but this state lives
+    // up here and would survive it — leaving a row open that is no longer on
+    // screen, and a second one opening beside it on the way back.
+    setOpenId(null);
     setPage(next);
     listRef.current?.scrollIntoView({
       block: 'start',
@@ -111,6 +135,7 @@ export function EventsBoard() {
   };
 
   const changeFilter = (next: EventFilter) => {
+    setOpenId(null);
     setFilter(next);
     // Back to the first page: staying on page 3 of a filter that now has one
     // page shows an empty list and looks like a bug.
@@ -167,24 +192,46 @@ export function EventsBoard() {
                 exit={prefersReducedMotion ? { opacity: 0 } : LIST_EXIT}
                 className="gap-md flex flex-col [grid-area:1/1]"
               >
-                {visible.map((event, index) => (
-                  <motion.li
-                    key={event.id}
-                    // Hover lives on the row wrapper, outside both the scroll
-                    // reveal and Tilt3D, so the three compose instead of
-                    // fighting for the same transform.
-                    whileHover={prefersReducedMotion ? undefined : HOVER}
-                  >
-                    <ScrollRevealRow index={index}>
-                      <Tilt3D max={3} perspective={1600} liftZ={14}>
-                        <EventRow
-                          event={event}
-                          photoCount={albumFor(event.id)?.photos.length ?? 0}
-                        />
-                      </Tilt3D>
-                    </ScrollRevealRow>
-                  </motion.li>
-                ))}
+                {visible.map((event, index) => {
+                  const open = openId === event.id;
+
+                  const row = (
+                    <EventRow
+                      event={event}
+                      photoCount={albumFor(event.id)?.photos.length ?? 0}
+                      open={open}
+                      onToggle={() =>
+                        setOpenId((current) => (current === event.id ? null : event.id))
+                      }
+                    />
+                  );
+
+                  return (
+                    <motion.li
+                      key={event.id}
+                      // Hover lives on the row wrapper, outside both the scroll
+                      // reveal and Tilt3D, so the three compose instead of
+                      // fighting for the same transform.
+                      //
+                      // Both stand down while the row is open. Three degrees of
+                      // tilt and a 1.5% scale read as polish on a 120px row and
+                      // as a wobble on an open one five times as tall — and the
+                      // tilt puts the paragraphs it is now holding on a slant.
+                      whileHover={prefersReducedMotion ? undefined : open ? HOVER_OPEN : HOVER}
+                    >
+                      <ScrollRevealRow index={index}>
+                        {/* Driven to flat rather than unmounted. Rendering the
+                            row without this wrapper changes the element type,
+                            which remounts `EventRow` — and the panel then
+                            appears already open, with the transition it was
+                            about to play skipped entirely. */}
+                        <Tilt3D max={open ? 0 : 3} perspective={1600} liftZ={open ? 0 : 14}>
+                          {row}
+                        </Tilt3D>
+                      </ScrollRevealRow>
+                    </motion.li>
+                  );
+                })}
               </motion.ul>
             </AnimatePresence>
           </div>
