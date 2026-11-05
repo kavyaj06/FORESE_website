@@ -117,92 +117,104 @@ export function EventsBoard() {
   };
 
   return (
-    <section className="py-section">
-      <Container>
-        {featured.length > 0 && (
+    <section>
+      {/* Two surfaces, split where the page changes job. The carousel is what
+          is coming up — one thing, to look at. Everything below the tabs is
+          the archive, which is a list to work through. The page used to run
+          both on one sheet of white from the hero to the footer, and that is
+          the shape the club's reviewers called bland. */}
+      {featured.length > 0 && (
+        <Container className="py-section">
           <Reveal motionStyle="scale">
             <FeaturedCarousel events={featured} />
           </Reveal>
-        )}
+        </Container>
+      )}
 
-        <Reveal className={featured.length > 0 ? 'mt-3xl' : ''}>
-          <EventFilterTabs value={filter} onChange={changeFilter} counts={counts} />
-        </Reveal>
+      <div className="bg-surface py-section">
+        <Container>
+          <Reveal>
+            <EventFilterTabs value={filter} onChange={changeFilter} counts={counts} />
+          </Reveal>
 
-        {visible.length === 0 ? (
-          <p className="text-body text-text-muted mt-2xl">
-            {filter === 'completed' ? EVENT_GROUPS.completed.empty : EVENT_GROUPS.upcoming.empty}
-          </p>
-        ) : (
-          /* The list is a stack, not a flow: both the outgoing and incoming
+          {visible.length === 0 ? (
+            <p className="text-body text-text-muted mt-2xl">
+              {filter === 'completed' ? EVENT_GROUPS.completed.empty : EVENT_GROUPS.upcoming.empty}
+            </p>
+          ) : (
+            /* The list is a stack, not a flow: both the outgoing and incoming
              lists occupy grid cell 1/1, so the container is always as tall as
              the taller of the two. Without that the old list unmounts, the
              section collapses to nothing for the length of the swap, and the
              pagination and footer jump up the screen and back. */
-          <div
-            data-events-stack
-            ref={listRef}
-            className="mt-2xl grid scroll-mt-28"
-            style={{ perspective: 1200 }}
-          >
-            {/* No `initial={false}` here. It suppresses the mount animation
+            <div
+              data-events-stack
+              ref={listRef}
+              className="mt-2xl grid scroll-mt-28"
+              style={{ perspective: 1200 }}
+            >
+              {/* No `initial={false}` here. It suppresses the mount animation
                 for the whole subtree, which silently defeated the rows'
                 scroll reveal: they rendered already-visible and only ever
                 animated on a filter switch. */}
-            <AnimatePresence>
-              <motion.ul
-                // Keyed by the filter and page, so no row is ever shared
-                // between two states. This is the whole fix for rows sliding
-                // across the screen when you moved from Completed to All: a
-                // row present in both lists kept its key, and `layout` then
-                // did exactly what it is for — animated it from its old
-                // position to its new one. Correct behaviour, wrong effect.
-                // Switching a filter is a replacement, not a rearrangement.
-                key={`${filter}-${safePage}`}
-                // Only the exit lives here. The incoming list is revealed by
-                // its rows, which stagger themselves — fading the whole list
-                // in on top of that would flatten the cascade back into the
-                // single blink it exists to remove.
-                exit={prefersReducedMotion ? { opacity: 0 } : LIST_EXIT}
-                className="gap-md flex flex-col [grid-area:1/1]"
-              >
-                {visible.map((event, index) => (
-                  <motion.li
-                    key={event.id}
-                    // Hover lives on the row wrapper, outside both the scroll
-                    // reveal and Tilt3D, so the three compose instead of
-                    // fighting for the same transform.
-                    whileHover={prefersReducedMotion ? undefined : HOVER}
-                  >
-                    <ScrollRevealRow index={index}>
-                      <Tilt3D max={3} perspective={1600} liftZ={14}>
-                        <EventRow event={event} />
-                      </Tilt3D>
-                    </ScrollRevealRow>
-                  </motion.li>
-                ))}
-              </motion.ul>
-            </AnimatePresence>
-          </div>
-        )}
+              <AnimatePresence>
+                <motion.ul
+                  // Keyed by the filter and page, so no row is ever shared
+                  // between two states. This is the whole fix for rows sliding
+                  // across the screen when you moved from Completed to All: a
+                  // row present in both lists kept its key, and `layout` then
+                  // did exactly what it is for — animated it from its old
+                  // position to its new one. Correct behaviour, wrong effect.
+                  // Switching a filter is a replacement, not a rearrangement.
+                  key={`${filter}-${safePage}`}
+                  // Only the exit lives here. The incoming list is revealed by
+                  // its rows, which stagger themselves — fading the whole list
+                  // in on top of that would flatten the cascade back into the
+                  // single blink it exists to remove.
+                  exit={prefersReducedMotion ? { opacity: 0 } : LIST_EXIT}
+                  className="gap-md flex flex-col [grid-area:1/1]"
+                >
+                  {visible.map((event, index) => (
+                    <motion.li
+                      key={event.id}
+                      // Hover lives on the row wrapper, outside both the scroll
+                      // reveal and Tilt3D, so the three compose instead of
+                      // fighting for the same transform.
+                      whileHover={prefersReducedMotion ? undefined : HOVER}
+                    >
+                      <ScrollRevealRow index={index}>
+                        <Tilt3D max={3} perspective={1600} liftZ={14}>
+                          <EventRow event={event} />
+                        </Tilt3D>
+                      </ScrollRevealRow>
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              </AnimatePresence>
+            </div>
+          )}
 
-        {pageCount > 1 && (
-          <nav aria-label="Events pages" className="mt-2xl gap-xs flex items-center justify-center">
-            {Array.from({ length: pageCount }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => goToPage(i)}
-                aria-current={i === safePage ? 'page' : undefined}
-                aria-label={`Page ${i + 1}`}
-                className={cnPage(i === safePage)}
-              >
-                {String(i + 1).padStart(2, '0')}
-              </button>
-            ))}
-          </nav>
-        )}
-      </Container>
+          {pageCount > 1 && (
+            <nav
+              aria-label="Events pages"
+              className="mt-2xl gap-xs flex items-center justify-center"
+            >
+              {Array.from({ length: pageCount }, (_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => goToPage(i)}
+                  aria-current={i === safePage ? 'page' : undefined}
+                  aria-label={`Page ${i + 1}`}
+                  className={cnPage(i === safePage)}
+                >
+                  {String(i + 1).padStart(2, '0')}
+                </button>
+              ))}
+            </nav>
+          )}
+        </Container>
+      </div>
     </section>
   );
 }
@@ -212,6 +224,6 @@ function cnPage(active: boolean) {
     'text-caption rounded-pill duration-fast size-10 tabular-nums transition-colors',
     active
       ? 'bg-accent text-accent-fg'
-      : 'text-text-muted hover:text-text hover:bg-surface border border-border',
+      : 'text-text-muted hover:text-text hover:bg-surface-raised border border-border',
   ].join(' ');
 }

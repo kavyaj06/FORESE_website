@@ -21,6 +21,8 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
+import { circulatingPhotos, type GalleryPhoto } from '@/pages/gallery/data';
+import type { BandPhoto } from '@/components/sections/PhotoBand';
 
 /**
  * Placement Prep — page content.
@@ -109,6 +111,65 @@ export function findTopic(id: string | undefined): TipsTopic | undefined {
 export const FIRST_TOPIC = TIPS_TOPICS[0];
 
 /* ============================================================================
+ * THE PHOTOGRAPH EVERY GUIDE OPENS WITH
+ * ==========================================================================*/
+
+/**
+ * One line under each guide's photograph.
+ *
+ * What the picture is doing here, not what is in it — the description of the
+ * frame is the photograph's own alt text, and a caption that repeats it is
+ * read out twice.
+ */
+const GUIDE_CAPTIONS: Record<string, string> = {
+  'group-discussion': 'Real-world preparation for professional success.',
+  aptitude: 'The aptitude paper, at the club\u2019s own mock placements.',
+  resume: 'A panellist reading a student\u2019s resume at mock placements.',
+};
+
+/** The caption under a guide's photograph, if it has one. */
+export function guideCaption(topicId: string): string | undefined {
+  return GUIDE_CAPTIONS[topicId];
+}
+
+/**
+ * The photograph a guide opens with.
+ *
+ * Two of the three guides had no picture anywhere in them, which is half of
+ * why the page was reviewed as bland. Rather than three more files in
+ * `public/`, the two without one borrow a frame from the gallery through
+ * `circulatingPhotos()` — the site's one selector for photographs that may
+ * appear outside their own album.
+ *
+ * **Chosen by hashing the guide's id, not by index.** An index would be a
+ * position in a list the club re-orders from the admin editor, so adding a
+ * photograph to an album could silently change which picture the resume guide
+ * shows. The hash is stable for a given id and spreads the three guides across
+ * the list, so two of them do not open on the same frame.
+ *
+ * The group discussion keeps the picture the club supplied for it. It is a
+ * file in the repository and cannot go missing, which is better than borrowing
+ * for the one guide that already has an answer.
+ */
+export function guidePhoto(topicId: string): BandPhoto | undefined {
+  if (topicId === FIRST_TOPIC.id) return GROUP_DISCUSSION_PHOTO;
+
+  // Only photographs that have actually been supplied: a `GalleryPhoto` has
+  // no `src` until the club uploads one, and a band around nothing is a grey
+  // rectangle where a picture was promised.
+  const pool = circulatingPhotos().filter((photo): photo is GalleryPhoto & { src: string } =>
+    Boolean(photo.src),
+  );
+  if (pool.length === 0) return undefined;
+
+  let hash = 0;
+  for (const character of topicId) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+
+  const { src, alt, width, height } = pool[hash % pool.length];
+  return { src, alt, width, height };
+}
+
+/* ============================================================================
  * 01 — GROUP DISCUSSION
  * ==========================================================================*/
 
@@ -132,7 +193,6 @@ export const GROUP_DISCUSSION_INTRO = {
   eyebrow: 'Learn the art of strategic communication',
   title: 'Group discussion mastery guide',
   lead: 'Transform your communication skills with our proven strategies. This guide is designed to help you excel in the mock group discussions and stand out in your placements.',
-  caption: 'Real-world preparation for professional success.',
 } as const;
 
 export const GROUP_DISCUSSION_BENEFITS: {

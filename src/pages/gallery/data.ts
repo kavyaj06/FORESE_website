@@ -318,3 +318,21 @@ export function albumFor(eventId: string): GalleryAlbum | undefined {
 export function coverPhoto(eventId: string): GalleryPhoto | undefined {
   return albumFor(eventId)?.photos[0];
 }
+
+/**
+ * The photograph the index closes on.
+ *
+ * The gallery index is three cover cards and nothing else — `FEATURED_COUNT`
+ * is 3 and there are three albums, so the archive list underneath never
+ * renders and the page is a black hero over one row. A full-bleed frame at
+ * the foot of it is the page doing the thing it is for.
+ *
+ * Deliberately not a cover. Every cover is already on screen directly above
+ * this band, and repeating one of them at six times the size says the club
+ * has four photographs. This takes the last circulating frame instead, which
+ * is the one furthest from the covers in album order.
+ */
+export function closingPhoto(): GalleryPhoto | undefined {
+  const circulating = circulatingPhotos().filter((photo) => photo.src);
+  return circulating[circulating.length - 1];
+}

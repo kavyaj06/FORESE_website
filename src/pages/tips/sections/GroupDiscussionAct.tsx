@@ -1,6 +1,8 @@
 import { Container } from '@/components/layout/Container';
+import { PhotoBand } from '@/components/sections/PhotoBand';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
+import { cn } from '@/lib/cn';
 import { ActHeader } from '../components/ActHeader';
 import { PhaseRail } from '../components/PhaseRail';
 import { StrategyColumns } from '../components/StrategyColumns';
@@ -9,49 +11,46 @@ import {
   GROUP_DISCUSSION_BENEFITS,
   GROUP_DISCUSSION_INTRO,
   GROUP_DISCUSSION_MISTAKES,
-  GROUP_DISCUSSION_PHOTO,
   GROUP_DISCUSSION_PLAYBOOK,
   GROUP_DISCUSSION_STRATEGIES,
+  guideCaption,
+  guidePhoto,
   TIPS_TOPICS,
 } from '../data';
+
+const TOPIC = TIPS_TOPICS[0];
 
 /**
  * Act one — the group discussion.
  *
  * Four blocks in the order a student needs them: what the round is worth,
- * how it unfolds minute by minute, what to do in it, and what not to. The
- * last of those is the only one on a black band, because it is the only one
- * that is a warning.
+ * how it unfolds minute by minute, what to do in it, and what not to.
+ *
+ * **The photograph is full-bleed under the opening rather than beside it.**
+ * It used to take the second column of the header, which is a perfectly good
+ * figure — but the other two guides had no picture at all, and once they were
+ * given one, an inline figure here against a full-width band there would have
+ * made the three guides open three different ways. They are one feature with
+ * a rail switching between them; they should arrive the same.
+ *
+ * Four surfaces, alternating: the opening and the picture on white, the
+ * benefits on grey, the playbook and the strategies on white, the mistakes on
+ * grey. The mistakes keep a band of their own because they are the one
+ * warning on the page, and it stays grey rather than black — a black section
+ * mid-guide read as the end of the guide, and a reader who stopped there
+ * missed the two the rail was offering.
  */
 export function GroupDiscussionAct() {
-  return (
-    <section id={TIPS_TOPICS[0].id}>
-      <div className="py-section gap-3xl flex flex-col">
-        <ActHeader
-          title={GROUP_DISCUSSION_INTRO.title}
-          lead={GROUP_DISCUSSION_INTRO.lead}
-          media={
-            <figure className="relative overflow-hidden rounded-lg">
-              <img
-                src={GROUP_DISCUSSION_PHOTO.src}
-                alt={GROUP_DISCUSSION_PHOTO.alt}
-                width={GROUP_DISCUSSION_PHOTO.width}
-                height={GROUP_DISCUSSION_PHOTO.height}
-                loading="lazy"
-                decoding="async"
-                className="aspect-[4/3] w-full object-cover"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent"
-              />
-              <figcaption className="text-small p-lg absolute inset-x-0 bottom-0 text-white">
-                {GROUP_DISCUSSION_INTRO.caption}
-              </figcaption>
-            </figure>
-          }
-        />
+  const photo = guidePhoto(TOPIC.id);
 
+  return (
+    <section id={TOPIC.id}>
+      <div className={cn('pt-section gap-3xl flex flex-col', !photo && 'pb-section')}>
+        <ActHeader title={GROUP_DISCUSSION_INTRO.title} lead={GROUP_DISCUSSION_INTRO.lead} />
+        {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
+      </div>
+
+      <div className="bg-surface py-section">
         <Container>
           <SectionHeading
             as="h3"
@@ -67,7 +66,9 @@ export function GroupDiscussionAct() {
             ))}
           </Reveal>
         </Container>
+      </div>
 
+      <div className="py-section gap-3xl flex flex-col">
         <Container>
           <SectionHeading
             as="h3"
@@ -89,10 +90,6 @@ export function GroupDiscussionAct() {
         </Container>
       </div>
 
-      {/* A band of its own, because it is the one warning on the page, but a
-          light one: a black section in the middle of a guide read as the end
-          of it, and a reader who stopped there missed the two guides the rail
-          was offering. Grey against the white above it is separation enough. */}
       <div className="bg-surface py-section">
         <Container>
           <SectionHeading

@@ -8,8 +8,6 @@ interface ActHeaderProps {
   lead: string;
   /** A second column of prose, when the act opens with two paragraphs. */
   children?: ReactNode;
-  /** A photograph beside the text. Takes the second column if both are given. */
-  media?: ReactNode;
 }
 
 /**
@@ -20,10 +18,13 @@ interface ActHeaderProps {
  * know which of them they had reached. They are separate pages now, each with
  * the rail above it saying which one is open, so the row was answering a
  * question nobody was still asking. The club asked for it gone.
+ *
+ * It also used to take a photograph in its second column. Every guide now
+ * opens on a full-bleed `PhotoBand` instead, so the only thing that can sit
+ * beside the lead is a second paragraph of prose — which is what the
+ * aptitude guide has.
  */
-export function ActHeader({ title, lead, children, media }: ActHeaderProps) {
-  const aside = media ?? children;
-
+export function ActHeader({ title, lead, children: aside }: ActHeaderProps) {
   return (
     <Container>
       <Reveal staggerChildren className="gap-xl flex flex-col">

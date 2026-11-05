@@ -116,43 +116,52 @@ export function TeamBrowser() {
   const featured = group === 'core';
 
   return (
-    <section className="pt-2xl pb-section">
-      <Container>
-        <Reveal className="gap-md flex flex-col items-center">
-          <SegmentedTabs
-            tabs={groupTabs}
-            value={group}
-            onChange={choose(setGroup)}
-            layoutId="team-group-pill"
-            ariaLabel="Which part of the club to show"
-          />
+    <section>
+      {/* The controls get a surface of their own. They are not part of the
+          roster — they are how you ask for a piece of it — and on the same
+          white as the hundred and sixty-five cards below them there was
+          nothing to say so: the page ran one flat colour from the hero to the
+          footer, which is what the club's reviewers were reacting to. */}
+      <div className="bg-surface py-2xl">
+        <Container>
+          <Reveal className="gap-md flex flex-col items-center">
+            <SegmentedTabs
+              tabs={groupTabs}
+              value={group}
+              onChange={choose(setGroup)}
+              layoutId="team-group-pill"
+              ariaLabel="Which part of the club to show"
+            />
 
-          {/* Senior members get no second row. They are divided by working
+            {/* Senior members get no second row. They are divided by working
               team in the data like everyone else, but the club presents them
               as one body — so a filter here would invent a distinction the
               club does not make. Members keep it, where thirty-one cards are
               worth narrowing. */}
-          {group === 'core' && (
-            <SegmentedTabs
-              tabs={coreTabs}
-              value={coreRank}
-              onChange={choose(setCoreRank)}
-              layoutId="team-sub-pill"
-              ariaLabel="Which core rank to show"
-            />
-          )}
-          {group === 'member' && (
-            <SegmentedTabs
-              tabs={teamTabs}
-              value={team}
-              onChange={choose(setTeam)}
-              layoutId="team-sub-pill"
-              ariaLabel="Filter by working team"
-            />
-          )}
-        </Reveal>
+            {group === 'core' && (
+              <SegmentedTabs
+                tabs={coreTabs}
+                value={coreRank}
+                onChange={choose(setCoreRank)}
+                layoutId="team-sub-pill"
+                ariaLabel="Which core rank to show"
+              />
+            )}
+            {group === 'member' && (
+              <SegmentedTabs
+                tabs={teamTabs}
+                value={team}
+                onChange={choose(setTeam)}
+                layoutId="team-sub-pill"
+                ariaLabel="Filter by working team"
+              />
+            )}
+          </Reveal>
+        </Container>
+      </div>
 
-        <div key={`${group}-${group === 'core' ? coreRank : team}`} className="mt-2xl">
+      <Container className="pt-2xl pb-section">
+        <div key={`${group}-${group === 'core' ? coreRank : team}`}>
           {featured ? (
             // Rows rather than a grid, for two reasons the grid could not
             // answer. A rank whose count is not a multiple of the columns left

@@ -1,9 +1,20 @@
 import { Container } from '@/components/layout/Container';
+import { PhotoBand } from '@/components/sections/PhotoBand';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
+import { cn } from '@/lib/cn';
 import { ActHeader } from '../components/ActHeader';
 import { TipCard } from '../components/TipCard';
-import { APTITUDE_FOCUS, APTITUDE_INTRO, APTITUDE_OBJECTIVES, TIPS_TOPICS } from '../data';
+import {
+  APTITUDE_FOCUS,
+  APTITUDE_INTRO,
+  APTITUDE_OBJECTIVES,
+  guideCaption,
+  guidePhoto,
+  TIPS_TOPICS,
+} from '../data';
+
+const TOPIC = TIPS_TOPICS[1];
 
 /**
  * Act two — the aptitude paper.
@@ -15,15 +26,27 @@ import { APTITUDE_FOCUS, APTITUDE_INTRO, APTITUDE_OBJECTIVES, TIPS_TOPICS } from
  * The three areas below it are set as plain columns rather than cards. They
  * are a definition of the paper, not advice to act on, and giving them the
  * same treatment as the objectives underneath would flatten the difference.
+ *
+ * Three surfaces, reading down: the opening and its photograph on white, what
+ * the paper tests on grey, what to do about it on white again. The whole act
+ * used to be one grey block, which is why the three parts of it read as one
+ * undifferentiated page — the content was already in three pieces, the page
+ * just never said so.
  */
 export function AptitudeAct() {
+  const photo = guidePhoto(TOPIC.id);
+
   return (
-    <section id={TIPS_TOPICS[1].id} className="bg-surface">
-      <div className="py-section gap-3xl flex flex-col">
+    <section id={TOPIC.id}>
+      <div className={cn('pt-section gap-3xl flex flex-col', !photo && 'pb-section')}>
         <ActHeader title={APTITUDE_INTRO.title} lead={APTITUDE_INTRO.lead}>
           <p className="text-body text-text-muted">{APTITUDE_INTRO.body}</p>
         </ActHeader>
 
+        {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
+      </div>
+
+      <div className="bg-surface py-section">
         <Container>
           <Reveal staggerChildren className="gap-xl desktop:grid-cols-3 grid grid-cols-1">
             {APTITUDE_FOCUS.map(({ icon: Icon, title, body }) => (
@@ -37,7 +60,9 @@ export function AptitudeAct() {
             ))}
           </Reveal>
         </Container>
+      </div>
 
+      <div className="py-section">
         <Container>
           <SectionHeading
             as="h3"
