@@ -3,6 +3,7 @@ import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { PhotoBand } from '@/components/sections/PhotoBand';
+import { Tilt3D } from '@/components/motion/Tilt3D';
 import { AlbumCard } from '../components/AlbumCard';
 import { ArchiveRow } from '../components/ArchiveRow';
 import { closingPhoto, FEATURED_COUNT, galleryIndexEntries } from '../data';
@@ -71,7 +72,15 @@ export function GalleryIndex() {
         <div className="gap-lg tablet:grid-cols-2 desktop:grid-cols-3 grid">
           {featured.map((entry, index) => (
             <Reveal key={entry.event.id} motionStyle="scale">
-              <AlbumCard entry={entry} size="standard" eager={index === 0} />
+              {/* Three instances, pointer only, already off on touch and
+                  under reduced motion — so the cost is nil and the index
+                  gains the one interaction it had none of. Gentler than the
+                  events list's: these cards are much larger, and the same
+                  degrees across a bigger rectangle swings the far corner
+                  several times as far. */}
+              <Tilt3D max={4} perspective={1400} liftZ={18} className="h-full">
+                <AlbumCard entry={entry} size="standard" eager={index === 0} />
+              </Tilt3D>
             </Reveal>
           ))}
         </div>

@@ -1,4 +1,7 @@
+import { motion } from 'framer-motion';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
+import { drawX } from '@/components/motion/variants';
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import type { DiscussionPhase } from '../data';
 
 interface PhaseRailProps {
@@ -20,6 +23,8 @@ interface PhaseRailProps {
  * grid's own `gap-xl` — and the last step simply has none.
  */
 export function PhaseRail({ phases }: PhaseRailProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
   return (
     <Reveal
       staggerChildren
@@ -29,9 +34,14 @@ export function PhaseRail({ phases }: PhaseRailProps) {
       {phases.map(({ icon: Icon, title, timing, body }, index) => (
         <RevealItem key={title} as="li" className="gap-sm relative flex flex-col">
           {index < phases.length - 1 && (
-            <span
+            // Drawn left to right behind each node as its step arrives, so
+            // the rail builds itself in the order it is meant to be read.
+            // No variants under reduced motion: the span then sits at its CSS
+            // default, which is the finished line.
+            <motion.span
               aria-hidden="true"
-              className="bg-border desktop:block -right-xl absolute top-5 left-10 hidden h-px"
+              variants={prefersReducedMotion ? undefined : drawX}
+              className="bg-border desktop:block -right-xl absolute top-5 left-10 hidden h-px origin-left"
             />
           )}
 

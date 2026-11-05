@@ -35,6 +35,21 @@ export const riseScaleIn: Variants = {
   },
 };
 
+/**
+ * A hairline that draws itself as its row arrives.
+ *
+ * Pair with `origin-left` on the element, and nest it inside a `RevealItem`
+ * so it inherits that item's `hidden`/`visible` state rather than needing a
+ * viewport observer of its own — one observer per row instead of two.
+ *
+ * Delayed past the row's own rise, so the line is drawn onto a node that has
+ * already arrived rather than travelling with it.
+ */
+export const drawX: Variants = {
+  hidden: { scaleX: 0 },
+  visible: { scaleX: 1, transition: { duration: 0.5, ease: EASE_OUT_BRAND, delay: 0.18 } },
+};
+
 /** Reduced-motion equivalent: state change without movement. */
 export const fadeInOnly: Variants = {
   hidden: { opacity: 0 },
