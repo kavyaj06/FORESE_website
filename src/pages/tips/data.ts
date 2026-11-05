@@ -463,3 +463,56 @@ export const RESUME_TIPS: {
     },
   ],
 };
+
+/* ============================================================================
+ * SHARED — the heading the aptitude focus band never had, and the close
+ * every guide ends on.
+ * ==========================================================================*/
+
+/**
+ * The heading over the three areas of the aptitude paper.
+ *
+ * The band rendered three bare `h3`s straight under the page's `h2` with no
+ * title over them, so the outline read "FORESE Aptitude, Quantitative,
+ * Logical, Verbal, Key objectives" and the group's purpose lived only in a
+ * comment in the component. A screen reader had no way to know the three
+ * belonged together, and a reader skimming headings got two sections that
+ * looked like peers when one is a definition and the other is advice.
+ */
+export const APTITUDE_FOCUS_INTRO = {
+  title: 'What the paper tests',
+  description:
+    'Three areas, each weighted the same. Knowing which one costs you time is most of the preparation.',
+} as const;
+
+/**
+ * The end of a guide.
+ *
+ * Every guide used to stop dead: the last card, then the footer. Three
+ * pages of preparation advice on a placement club's site with nothing to do
+ * at the bottom of them, while the mock placements the advice is for sit one
+ * route away. So each guide now closes on the next guide and on the thing the
+ * reading is preparation for.
+ *
+ * One object, not one per guide. The closing offer is the same whichever
+ * guide you have just finished, and the guide-specific part is the link to
+ * the next one, which `nextTopic` derives from the list rather than storing.
+ */
+export const GUIDE_CLOSE = {
+  eyebrow: 'Keep going',
+  nextEyebrow: 'Next guide',
+  title: 'Reading about a round is not sitting in one.',
+  body: 'The club runs mock placements with real panellists, a real aptitude paper and a group discussion in front of people who will tell you afterwards what they saw. That feedback is where most of the progress happens.',
+  action: 'See mock placements',
+} as const;
+
+/**
+ * The guide after this one, wrapping at the end of the list.
+ *
+ * Derived so a fourth guide needs no edit here: add it to `TIPS_TOPICS` and
+ * the close at the bottom of the third one points at it.
+ */
+export function nextTopic(topicId: string): TipsTopic {
+  const index = TIPS_TOPICS.findIndex((topic) => topic.id === topicId);
+  return TIPS_TOPICS[(index + 1) % TIPS_TOPICS.length];
+}

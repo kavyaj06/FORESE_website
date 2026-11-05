@@ -7,6 +7,7 @@ import { GuideStatement } from '../components/GuideStatement';
 import { TipCard } from '../components/TipCard';
 import {
   APTITUDE_FOCUS,
+  APTITUDE_FOCUS_INTRO,
   APTITUDE_INTRO,
   APTITUDE_OBJECTIVES,
   guideCaption,
@@ -38,7 +39,7 @@ export function AptitudeAct() {
   const photo = guidePhoto(TOPIC.id);
 
   return (
-    <section id={TOPIC.id}>
+    <section id={TOPIC.id} className="scroll-mt-28">
       <div className="py-section gap-3xl flex flex-col">
         <ActHeader title={APTITUDE_INTRO.title} />
         {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
@@ -47,13 +48,26 @@ export function AptitudeAct() {
 
       <div className="bg-surface py-section">
         <Container>
+          <SectionHeading
+            as="h3"
+            measure="measure"
+            title={APTITUDE_FOCUS_INTRO.title}
+            description={APTITUDE_FOCUS_INTRO.description}
+            className="mb-xl"
+          />
           <Reveal staggerChildren className="gap-xl desktop:grid-cols-3 grid grid-cols-1">
             {APTITUDE_FOCUS.map(({ icon: Icon, title, body }) => (
               <RevealItem key={title} className="border-text pt-md gap-sm flex flex-col border-t">
                 <span aria-hidden="true" className="text-text">
                   <Icon size={20} strokeWidth={1.75} />
                 </span>
-                <h3 className="text-h3">{title}</h3>
+                {/* `h4`, not the `h3` this used to be. Three areas of the
+                    paper are content inside this band, not three sections
+                    ranking level with "Key objectives" below. The size is
+                    unchanged: `text-h3` on an `h4` is the system working as
+                    intended, where the level says where a thing sits in the
+                    outline and the class says how big it looks. */}
+                <h4 className="text-h3">{title}</h4>
                 <p className="text-small text-text-muted">{body}</p>
               </RevealItem>
             ))}
@@ -65,6 +79,7 @@ export function AptitudeAct() {
         <Container>
           <SectionHeading
             as="h3"
+            measure="measure"
             title={APTITUDE_OBJECTIVES.title}
             description={APTITUDE_OBJECTIVES.description}
             className="mb-xl"

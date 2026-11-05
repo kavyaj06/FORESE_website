@@ -28,6 +28,17 @@ interface PageHeroProps {
    */
   tone?: 'inverse' | 'light';
   pattern?: boolean;
+  /**
+   * How wide the description is allowed to run.
+   *
+   * `narrow` (48rem) is the default every existing caller gets. At the 18px
+   * this renders in, 48rem is an 85-character line, which is past the measure
+   * a reader holds comfortably. `measure` caps it at about 64 characters.
+   *
+   * Opt-in rather than the default so that narrowing one page's hero does not
+   * reflow five others at the same time.
+   */
+  measure?: 'narrow' | 'measure';
   className?: string;
 }
 
@@ -52,6 +63,7 @@ export function PageHero({
   size = 'display',
   tone = 'inverse',
   pattern = true,
+  measure = 'narrow',
   className,
 }: PageHeroProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -111,7 +123,10 @@ export function PageHero({
           {description && (
             <motion.p
               variants={prefersReducedMotion ? fadeInOnly : riseIn}
-              className="text-body-lg text-text-muted max-w-content-narrow"
+              className={cn(
+                'text-body-lg text-text-muted',
+                measure === 'measure' ? 'max-w-measure' : 'max-w-content-narrow',
+              )}
             >
               {description}
             </motion.p>

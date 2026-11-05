@@ -253,6 +253,17 @@
      does the column start widening, capping at 90rem (1440px) so it never
      grows into the same "uncomfortably wide" problem it exists to avoid. */
   --container-content: clamp(75rem, 60vw, 90rem); /* 1200px, fluid to 1440px */
+  /* The comfortable reading measure for 18px lead prose: about 64 characters,
+     which is inside the 45-75 band a line of text wants to stay in.
+
+     This exists because `content-narrow` cannot serve both sizes. At the 24px
+     of a `text-h3` statement 48rem is 64 characters and exactly right; at the
+     18px of a `text-body-lg` description the same 48rem is 85 characters,
+     which is a measurably tiring line. One token was doing two jobs and was
+     only correct at one of them. Opt into this one wherever body-lg runs the
+     full width of a column rather than inside a grid cell. */
+  --container-measure: 36rem; /* 576px */
+
   --container-content-narrow: 48rem; /* 768px — prose line length, deliberately fixed:
      a comfortable reading measure doesn't get more comfortable on a bigger
      monitor, so this one never grows. */

@@ -24,7 +24,7 @@ export function ResumeAct() {
   const photo = guidePhoto(TOPIC.id);
 
   return (
-    <section id={TOPIC.id}>
+    <section id={TOPIC.id} className="scroll-mt-28">
       <div className="py-section gap-3xl flex flex-col">
         <ActHeader title={RESUME_INTRO.title} />
         {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
@@ -35,6 +35,7 @@ export function ResumeAct() {
         <Container>
           <SectionHeading
             as="h3"
+            measure="measure"
             title={RESUME_TIPS.title}
             description={RESUME_TIPS.description}
             className="mb-xl"

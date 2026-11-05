@@ -38,16 +38,28 @@ export const riseScaleIn: Variants = {
 /**
  * A hairline that draws itself as its row arrives.
  *
- * Pair with `origin-left` on the element, and nest it inside a `RevealItem`
- * so it inherits that item's `hidden`/`visible` state rather than needing a
- * viewport observer of its own — one observer per row instead of two.
+ * Pair with `origin-top-left` on the element, and nest it inside a
+ * `RevealItem` so it inherits that item's `hidden`/`visible` state rather
+ * than needing a viewport observer of its own — one observer per row
+ * instead of two.
+ *
+ * Both axes scale, which is what lets one variant draw a line in either
+ * direction. A horizontal hairline is 1px tall, so scaling its height from 0
+ * to 1 is invisible and the width is what you see being drawn; a vertical one
+ * is 1px wide and the same variant draws its height. That matters because the
+ * playbook rail runs across the page on a desktop and down it on a phone, and
+ * two variants for one line would be two ways for them to drift apart.
  *
  * Delayed past the row's own rise, so the line is drawn onto a node that has
  * already arrived rather than travelling with it.
  */
-export const drawX: Variants = {
-  hidden: { scaleX: 0 },
-  visible: { scaleX: 1, transition: { duration: 0.5, ease: EASE_OUT_BRAND, delay: 0.18 } },
+export const drawIn: Variants = {
+  hidden: { scaleX: 0, scaleY: 0 },
+  visible: {
+    scaleX: 1,
+    scaleY: 1,
+    transition: { duration: 0.5, ease: EASE_OUT_BRAND, delay: 0.18 },
+  },
 };
 
 /** Reduced-motion equivalent: state change without movement. */

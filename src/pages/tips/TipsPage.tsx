@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { PageHero } from '@/components/sections/PageHero';
+import { GuideClose } from './components/GuideClose';
 import { TopicRail } from './components/TopicRail';
 import { GroupDiscussionAct } from './sections/GroupDiscussionAct';
 import { AptitudeAct } from './sections/AptitudeAct';
@@ -52,6 +53,10 @@ export default function TipsPage() {
         eyebrow={TIPS_HERO.eyebrow}
         title={TIPS_HERO.title}
         description={TIPS_HERO.description}
+        // The description is the first prose on the page and it ran to 85
+        // characters a line at desktop width. `measure` brings it to about 64,
+        // which is inside the band a line of text is comfortably read at.
+        measure="measure"
       />
       <TopicRail />
 
@@ -66,6 +71,14 @@ export default function TipsPage() {
         transition={{ duration: 0.22, ease: EASE_OUT_BRAND }}
       >
         <Guide />
+
+        {/* After the guide's own `<section>`, not inside it. Every guide ended
+            on its last card and handed the reader the footer; this is the one
+            place that is true for all three, so it is mounted once here
+            rather than three times in the Acts. Inside the keyed subtree, so
+            it arrives with the guide it belongs to and its "next guide" link
+            changes with the topic. */}
+        <GuideClose topicId={topic.id} />
       </motion.div>
     </>
   );

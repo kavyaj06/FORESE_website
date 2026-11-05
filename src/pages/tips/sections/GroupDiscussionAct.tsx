@@ -44,7 +44,7 @@ export function GroupDiscussionAct() {
   const photo = guidePhoto(TOPIC.id);
 
   return (
-    <section id={TOPIC.id}>
+    <section id={TOPIC.id} className="scroll-mt-28">
       <div className="py-section gap-3xl flex flex-col">
         <ActHeader title={GROUP_DISCUSSION_INTRO.title} />
         {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
@@ -55,6 +55,7 @@ export function GroupDiscussionAct() {
         <Container>
           <SectionHeading
             as="h3"
+            measure="measure"
             title={GROUP_DISCUSSION_BENEFITS.title}
             description={GROUP_DISCUSSION_BENEFITS.description}
             className="mb-xl"
@@ -73,6 +74,7 @@ export function GroupDiscussionAct() {
         <Container>
           <SectionHeading
             as="h3"
+            measure="measure"
             title={GROUP_DISCUSSION_PLAYBOOK.title}
             description={GROUP_DISCUSSION_PLAYBOOK.description}
             className="mb-xl"
@@ -83,6 +85,7 @@ export function GroupDiscussionAct() {
         <Container>
           <SectionHeading
             as="h3"
+            measure="measure"
             title={GROUP_DISCUSSION_STRATEGIES.title}
             description={GROUP_DISCUSSION_STRATEGIES.description}
             className="mb-xl"
@@ -95,6 +98,7 @@ export function GroupDiscussionAct() {
         <Container>
           <SectionHeading
             as="h3"
+            measure="measure"
             title={GROUP_DISCUSSION_MISTAKES.title}
             description={GROUP_DISCUSSION_MISTAKES.description}
             className="mb-xl"

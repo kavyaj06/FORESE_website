@@ -20,13 +20,20 @@ interface GuideStatementProps {
  * Set narrow on purpose. A line of 60-odd characters is one eye movement,
  * and the lit edge travelling along it is legible; across a 1200px column it
  * becomes a bar sweeping the screen.
+ *
+ * Narrow but **not centred**. It was centred to begin with, which put it on a
+ * third left edge: the guide's heading starts at the page gutter, the cards
+ * below start at the gutter, and a centred block between them began 170px
+ * further in. Three stacked blocks on three different axes is the wobble that
+ * makes a page feel unresolved even when every individual piece is fine. The
+ * measure is what matters here, and it survives being left-aligned.
  */
 export function GuideStatement({ paragraphs }: GuideStatementProps) {
   return (
     <Container>
       <ScrollLitText
         paragraphs={paragraphs}
-        className="text-h3 max-w-content-narrow mx-auto text-balance"
+        className="text-h3 max-w-content-narrow text-balance"
       />
     </Container>
   );

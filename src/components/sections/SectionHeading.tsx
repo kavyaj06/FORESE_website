@@ -13,6 +13,18 @@ interface SectionHeadingProps {
    * outline correct — never to change the visual size.
    */
   as?: 'h2' | 'h3';
+  /**
+   * How wide the description is allowed to run.
+   *
+   * `narrow` (48rem) is the default and what every existing caller gets. At
+   * the 18px this description renders in, 48rem is an 85-character line,
+   * which is past the point a reader starts losing their place on the return
+   * sweep. `measure` caps it at about 64 characters instead.
+   *
+   * Opt-in rather than the default only because changing the default would
+   * reflow every section on the site at once. New work should pass `measure`.
+   */
+  measure?: 'narrow' | 'measure';
   className?: string;
 }
 
@@ -29,6 +41,7 @@ export function SectionHeading({
   description,
   align = 'left',
   as: Tag = 'h2',
+  measure = 'narrow',
   className,
 }: SectionHeadingProps) {
   return (
@@ -46,7 +59,8 @@ export function SectionHeading({
       {description && (
         <p
           className={cn(
-            'text-body-lg text-text-muted max-w-content-narrow',
+            'text-body-lg text-text-muted',
+            measure === 'measure' ? 'max-w-measure' : 'max-w-content-narrow',
             align === 'center' && 'mx-auto',
           )}
         >
