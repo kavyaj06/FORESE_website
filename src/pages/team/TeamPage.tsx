@@ -1,5 +1,6 @@
 import { PageHero } from '@/components/sections/PageHero';
 import { CORE_RANKS, membersByRank } from '@/data/teams';
+import { PortraitRail } from './components/PortraitRail';
 import { TeamBrowser } from './sections/TeamBrowser';
 import { TEAM_INTRO } from './data';
 
@@ -10,6 +11,10 @@ import { TEAM_INTRO } from './data';
  * rows of tabs in `TeamBrowser`. A person is stored once and rendered once,
  * which is what stops the same face appearing in two places — a property of
  * the data rather than something the layout has to keep remembering.
+ *
+ * The rail between the hero and the tabs is this page's one flourish: the
+ * club's own faces drifting past, so the page shows who it is about before
+ * anybody has scrolled.
  */
 export default function TeamPage() {
   return (
@@ -27,6 +32,7 @@ export default function TeamPage() {
           `${membersByRank('member').length} members`,
         ]}
       />
+      <PortraitRail />
       <TeamBrowser />
     </>
   );

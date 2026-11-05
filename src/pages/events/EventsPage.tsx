@@ -1,6 +1,7 @@
 import { PageHero } from '@/components/sections/PageHero';
 import { groupEventsByStatus } from '@/data/events';
 import { EventsBoard } from './sections/EventsBoard';
+import { EventsFigures } from './sections/EventsFigures';
 import { EVENTS_INTRO } from './data';
 
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -31,6 +32,7 @@ export default function EventsPage() {
           `${pad(groups.completed.length)} completed`,
         ]}
       />
+      <EventsFigures />
       <EventsBoard />
     </>
   );

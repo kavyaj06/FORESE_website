@@ -1,17 +1,12 @@
-import type { ReactNode } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
-import { cn } from '@/lib/cn';
 
 interface ActHeaderProps {
   title: string;
-  lead: string;
-  /** A second column of prose, when the act opens with two paragraphs. */
-  children?: ReactNode;
 }
 
 /**
- * The opening of one of the three guides.
+ * The opening of one of the three guides: the headline, and nothing else.
  *
  * It used to carry a rule with a number and a kicker over it, back when the
  * three guides were three acts of one scrolling page and a reader needed to
@@ -19,35 +14,23 @@ interface ActHeaderProps {
  * the rail above it saying which one is open, so the row was answering a
  * question nobody was still asking. The club asked for it gone.
  *
- * It also used to take a photograph in its second column. Every guide now
- * opens on a full-bleed `PhotoBand` instead, so the only thing that can sit
- * beside the lead is a second paragraph of prose — which is what the
- * aptitude guide has.
+ * It also used to carry the lead paragraph, and a photograph beside it. Both
+ * have moved below: the photograph to a full-bleed band, the lead to
+ * `GuideStatement`, where it is lit word by word as the reader scrolls into
+ * it. A statement cannot be read that way while it is already on screen at
+ * page load, which is what it was up here.
+ *
+ * What is left is a headline on white under a black hero — which is what an
+ * article opening looks like, and is the right amount of furniture above a
+ * full-width photograph.
  */
-export function ActHeader({ title, lead, children: aside }: ActHeaderProps) {
+export function ActHeader({ title }: ActHeaderProps) {
   return (
     <Container>
-      <Reveal staggerChildren className="gap-xl flex flex-col">
-        <div
-          className={cn(
-            'gap-xl desktop:gap-3xl grid grid-cols-1',
-            aside && 'desktop:grid-cols-2 desktop:items-start',
-          )}
-        >
-          <div className="gap-md flex flex-col">
-            <RevealItem as="h2" className={cn('text-h2 text-balance', !aside && 'max-w-[20ch]')}>
-              {title}
-            </RevealItem>
-            <RevealItem
-              as="p"
-              className={cn('text-body-lg text-text-muted', !aside && 'max-w-content-narrow')}
-            >
-              {lead}
-            </RevealItem>
-          </div>
-
-          {aside && <RevealItem>{aside}</RevealItem>}
-        </div>
+      <Reveal staggerChildren>
+        <RevealItem as="h2" className="text-h2 max-w-[20ch] text-balance">
+          {title}
+        </RevealItem>
       </Reveal>
     </Container>
   );

@@ -2,8 +2,8 @@ import { Container } from '@/components/layout/Container';
 import { PhotoBand } from '@/components/sections/PhotoBand';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
-import { cn } from '@/lib/cn';
 import { ActHeader } from '../components/ActHeader';
+import { GuideStatement } from '../components/GuideStatement';
 import { PhaseRail } from '../components/PhaseRail';
 import { StrategyColumns } from '../components/StrategyColumns';
 import { TipCard } from '../components/TipCard';
@@ -45,9 +45,10 @@ export function GroupDiscussionAct() {
 
   return (
     <section id={TOPIC.id}>
-      <div className={cn('pt-section gap-3xl flex flex-col', !photo && 'pb-section')}>
-        <ActHeader title={GROUP_DISCUSSION_INTRO.title} lead={GROUP_DISCUSSION_INTRO.lead} />
+      <div className="py-section gap-3xl flex flex-col">
+        <ActHeader title={GROUP_DISCUSSION_INTRO.title} />
         {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
+        <GuideStatement paragraphs={[GROUP_DISCUSSION_INTRO.lead]} />
       </div>
 
       <div className="bg-surface py-section">

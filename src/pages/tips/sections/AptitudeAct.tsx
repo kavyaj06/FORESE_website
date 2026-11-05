@@ -2,8 +2,8 @@ import { Container } from '@/components/layout/Container';
 import { PhotoBand } from '@/components/sections/PhotoBand';
 import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
-import { cn } from '@/lib/cn';
 import { ActHeader } from '../components/ActHeader';
+import { GuideStatement } from '../components/GuideStatement';
 import { TipCard } from '../components/TipCard';
 import {
   APTITUDE_FOCUS,
@@ -19,9 +19,10 @@ const TOPIC = TIPS_TOPICS[1];
 /**
  * Act two — the aptitude paper.
  *
- * Opens as two columns of the club's own prose, because that is what it is:
- * an explanation of what the test is for, which does not improve for being
- * broken into cards.
+ * Opens on the club's own prose, because that is what it is: an explanation
+ * of what the test is for, which does not improve for being broken into
+ * cards. Both paragraphs go to `GuideStatement` as one block, so the lit
+ * edge runs through them continuously instead of restarting at the break.
  *
  * The three areas below it are set as plain columns rather than cards. They
  * are a definition of the paper, not advice to act on, and giving them the
@@ -38,12 +39,10 @@ export function AptitudeAct() {
 
   return (
     <section id={TOPIC.id}>
-      <div className={cn('pt-section gap-3xl flex flex-col', !photo && 'pb-section')}>
-        <ActHeader title={APTITUDE_INTRO.title} lead={APTITUDE_INTRO.lead}>
-          <p className="text-body text-text-muted">{APTITUDE_INTRO.body}</p>
-        </ActHeader>
-
+      <div className="py-section gap-3xl flex flex-col">
+        <ActHeader title={APTITUDE_INTRO.title} />
         {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
+        <GuideStatement paragraphs={[APTITUDE_INTRO.lead, APTITUDE_INTRO.body]} />
       </div>
 
       <div className="bg-surface py-section">

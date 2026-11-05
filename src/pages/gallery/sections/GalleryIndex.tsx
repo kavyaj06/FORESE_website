@@ -6,7 +6,8 @@ import { PhotoBand } from '@/components/sections/PhotoBand';
 import { Tilt3D } from '@/components/motion/Tilt3D';
 import { AlbumCard } from '../components/AlbumCard';
 import { ArchiveRow } from '../components/ArchiveRow';
-import { closingPhoto, FEATURED_COUNT, galleryIndexEntries } from '../data';
+import { PhotoStrip } from '../components/PhotoStrip';
+import { closingPhoto, FEATURED_COUNT, galleryIndexEntries, stripPhotos } from '../data';
 
 /**
  * The gallery index.
@@ -23,6 +24,15 @@ import { closingPhoto, FEATURED_COUNT, galleryIndexEntries } from '../data';
  * The split point is `FEATURED_COUNT`. Below it there is no archive section at
  * all, so a club with three events never sees an empty heading.
  */
+/**
+ * How many photographs the closing strip holds.
+ *
+ * Eight across a desktop leaves the open panel wide enough to be a
+ * photograph rather than a thumbnail: one at `flex-[6]` beside seven at
+ * `flex-[1]` is a little under half the row.
+ */
+const STRIP_SIZE = 8;
+
 export function GalleryIndex() {
   const entries = useMemo(() => galleryIndexEntries(), []);
   const featured = entries.slice(0, FEATURED_COUNT);
@@ -54,6 +64,7 @@ export function GalleryIndex() {
   let position = featured.length;
 
   const closing = closingPhoto();
+  const strip = stripPhotos(STRIP_SIZE);
   const photoCount = entries.reduce((total, entry) => total + entry.photoCount, 0);
 
   return (
@@ -123,7 +134,19 @@ export function GalleryIndex() {
 
       {/* The page's closing frame. Three cover cards on white was the whole
           of the gallery index, which made the one page on this site that is
-          about photographs the one with the least photograph on it. */}
+          about photographs the one with the least photograph on it.
+
+          Two of them, for two input devices rather than a layout and a
+          fallback — the same split the album pages make. The strip is a
+          hover interaction and only exists where there is a pointer; a phone
+          gets the full-bleed band, which is the better closing frame there
+          anyway. Each hides itself at the other's width. */}
+      {strip.length > 1 && (
+        <Container className="pb-section">
+          <PhotoStrip items={strip} />
+        </Container>
+      )}
+
       {closing?.src && (
         <PhotoBand
           photo={{
@@ -136,6 +159,7 @@ export function GalleryIndex() {
             entries.length === 1 ? 'event' : 'events'
           }.`}
           size="tall"
+          className="desktop:hidden"
         />
       )}
     </section>
