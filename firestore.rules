@@ -31,6 +31,39 @@ service cloud.firestore {
       allow write: if admin();
     }
 
+    // The resume drop box on /tips/resume.
+    //
+    // This is the one collection a stranger can write to, and it is deliberate:
+    // a student is not signed in and never will be. What keeps it safe is that
+    // writing is ALL they can do. They cannot read a submission, cannot list
+    // them, cannot change or delete one, and cannot write any shape of document
+    // other than the one below.
+    //
+    // The file itself lives in a second collection under the same id so that
+    // the club's inbox can list fifty submissions without downloading fifty
+    // PDFs. Both are created in one commit.
+    match /resume_uploads/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['name', 'size', 'uploadedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() < 200
+        && request.resource.data.size is int
+        && request.resource.data.uploadedAt is string;
+      allow read, delete: if admin();
+      allow update: if false;
+    }
+
+    // A Firestore document stops at 1,048,576 bytes and a bytes field counts
+    // its own length plus one, so a million bytes of PDF leaves room for the
+    // field name and the path. The page refuses a larger file before it is
+    // sent; this is what enforces it.
+    match /resume_files/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['file'])
+        && request.resource.data.file is bytes
+        && request.resource.data.file.size() < 1000000;
+      allow read, delete: if admin();
+      allow update: if false;
+    }
+
     // Anything else: no.
     match /{document=**} {
       allow read, write: if false;

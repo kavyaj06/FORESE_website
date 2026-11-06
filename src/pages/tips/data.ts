@@ -464,6 +464,41 @@ export const RESUME_TIPS: {
   ],
 };
 
+/**
+ * The drop box at the foot of the resume guide.
+ *
+ * The guide gave six pieces of advice and then stopped, on a page belonging to
+ * the club students come to for exactly this. So the end of it is a place to
+ * hand the thing over.
+ *
+ * The copy promises only what the club can keep. There is no review, no reply
+ * and no deadline, because none was asked for, and a page that implies one
+ * leaves a student waiting on an answer that is not coming. It also says why
+ * no email address is asked for, which is the question the absence of a form
+ * otherwise raises.
+ */
+export const RESUME_DROP = {
+  eyebrow: 'Your turn',
+  title: 'Send the club your resume',
+  description:
+    'Drop a PDF here and the club has it. Nothing is published, and nobody outside the club sees it.',
+  hint: 'PDF only, up to 1 MB. A one page resume is usually a tenth of that.',
+  note: 'There is no reply to this. The form asks for no email address on purpose, and your name and number are already inside the file, which is where the club will read them.',
+  choose: 'Drop a PDF here, or choose a file',
+  change: 'Choose another',
+  send: 'Send it',
+  sending: 'Sending',
+  done: 'That is with the club.',
+  again: 'Send another',
+  errors: {
+    type: 'That is not a PDF. Export your resume as a PDF and try it again.',
+    size: 'That one is over the 1 MB limit. Export it again at a smaller size, or leave out the full page background, and it will fit.',
+    empty: 'That file is empty.',
+    closed: 'The drop box is not open yet. The club has one setting left to switch on.',
+    failed: 'That did not go through. Check your connection and try it again.',
+  },
+} as const;
+
 /* ============================================================================
  * SHARED — the heading the aptitude focus band never had, and the close
  * every guide ends on.

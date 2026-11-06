@@ -1,7 +1,9 @@
 import {
+  Bytes,
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   setDoc,
   writeBatch,
@@ -35,6 +37,8 @@ export interface PhotoRow {
 
 const EVENTS = 'events';
 const PHOTOS = 'album_photos';
+const RESUMES = 'resume_uploads';
+const RESUME_FILES = 'resume_files';
 
 function db(): Firestore {
   return firestore();
@@ -130,6 +134,69 @@ export async function importSeedContent(
 
   await batch.commit();
   return { events: seedEvents.length, photos };
+}
+
+/* ----------------------------------------------------------------------------
+ * The resume drop box
+ * --------------------------------------------------------------------------*/
+
+/** One submission, without the file. This is what the inbox lists. */
+export interface ResumeRow {
+  id: string;
+  /** The name the file had on the student's machine. The only label there is. */
+  name: string;
+  size: number;
+  /** An ISO string, written by the browser that sent it. */
+  uploadedAt: string;
+}
+
+/**
+ * Every submission, newest first.
+ *
+ * Reads `resume_uploads` only. The PDFs live in a second collection under the
+ * same ids precisely so that opening this tab does not download them: fifty
+ * resumes list as a few kilobytes here and are fetched one at a time, when the
+ * club actually asks for one.
+ */
+export async function listResumes(): Promise<ResumeRow[]> {
+  const snapshot = await getDocs(collection(db(), RESUMES));
+  return snapshot.docs
+    .map((entry) => ({ id: entry.id, ...entry.data() }) as ResumeRow)
+    .sort((a, b) => (b.uploadedAt ?? '').localeCompare(a.uploadedAt ?? ''));
+}
+
+/**
+ * One submission's bytes.
+ *
+ * Returned as bytes rather than as a URL on purpose. Nothing here mints a link
+ * that works outside the signed-in browser that asked for it, which is the
+ * whole reason these are in Firestore rather than in a bucket of public URLs.
+ */
+export async function readResume(id: string): Promise<Blob> {
+  const snapshot = await getDoc(doc(db(), RESUME_FILES, id));
+  const value = snapshot.data()?.file;
+  if (!(value instanceof Bytes)) throw new Error('That file is missing from the database.');
+  // `toUint8Array()` is typed over `ArrayBufferLike`, which includes
+  // `SharedArrayBuffer` and therefore is not a `BlobPart`. This view is always
+  // over a plain buffer; the cast says so rather than copying the file to
+  // prove it.
+  return new Blob([value.toUint8Array() as Uint8Array<ArrayBuffer>], {
+    type: 'application/pdf',
+  });
+}
+
+/**
+ * Remove a submission.
+ *
+ * Both halves in one batch: a row whose file is gone would list as a
+ * submission the club cannot open, and a file with no row would sit in the
+ * database with nothing pointing at it.
+ */
+export async function deleteResume(id: string): Promise<void> {
+  const batch = writeBatch(db());
+  batch.delete(doc(db(), RESUMES, id));
+  batch.delete(doc(db(), RESUME_FILES, id));
+  await batch.commit();
 }
 
 /**

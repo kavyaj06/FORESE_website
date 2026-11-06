@@ -4,6 +4,7 @@ import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { ActHeader } from '../components/ActHeader';
 import { GuideStatement } from '../components/GuideStatement';
+import { ResumeDrop } from '../components/ResumeDrop';
 import { TipCard } from '../components/TipCard';
 import { guideCaption, guidePhoto, RESUME_INTRO, RESUME_TIPS, TIPS_TOPICS } from '../data';
 
@@ -15,10 +16,11 @@ const TOPIC = TIPS_TOPICS[2];
  * Six pieces of advice, unnumbered: they are a set to apply all of, not a
  * sequence to work through, and numbering them would say otherwise.
  *
- * Two surfaces, not one. This guide used to be a black hero over a single
+ * Three surfaces, not one. This guide used to be a black hero over a single
  * sheet of white that ran to the footer, which is the shape the club's
  * reviewers called bland. The headline, the photograph and the statement
- * hold the white; the six cards sit on grey below it.
+ * hold the white; the six cards sit on grey below it; and the drop box
+ * returns to white at the foot, where the advice turns into something to do.
  */
 export function ResumeAct() {
   const photo = guidePhoto(TOPIC.id);
@@ -49,6 +51,12 @@ export function ResumeAct() {
           </Reveal>
         </Container>
       </div>
+
+      {/* Back on white, so the drop box is its own moment rather than the last
+          card in the grey band. This guide is the only one that ends on
+          something to do, which is why it is mounted here and not beside
+          `GuideClose` in the page shell. */}
+      <ResumeDrop />
     </section>
   );
 }

@@ -8,6 +8,7 @@ import { firebaseConfigured } from '@/data/remote';
 import { ADMIN_EMAIL, firebaseAuth, signInWithGoogle, signOutOfGoogle } from '@/lib/firebase';
 import { EventsEditor } from './EventsEditor';
 import { GalleryUploader } from './GalleryUploader';
+import { ResumeInbox } from './ResumeInbox';
 import { importSeedContent, listEvents, listPhotos } from './api';
 import { Notice } from './ui';
 
@@ -31,7 +32,7 @@ export default function AdminPage() {
   const [user, setUser] = useState<User | null>(null);
   const [checking, setChecking] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<'events' | 'gallery'>('events');
+  const [tab, setTab] = useState<'events' | 'gallery' | 'resumes'>('events');
 
   useEffect(() => {
     // The page is noindex in the markup too; this is the belt to that's braces,
@@ -127,6 +128,9 @@ export default function AdminPage() {
             <TabButton active={tab === 'gallery'} onClick={() => setTab('gallery')}>
               Gallery
             </TabButton>
+            <TabButton active={tab === 'resumes'} onClick={() => setTab('resumes')}>
+              Resumes
+            </TabButton>
           </div>
           <div className="gap-sm flex items-center">
             <span className="text-caption text-text-muted">{user.email}</span>
@@ -138,7 +142,9 @@ export default function AdminPage() {
 
         <SeedImport />
 
-        {tab === 'events' ? <EventsEditor /> : <GalleryUploader />}
+        {tab === 'events' && <EventsEditor />}
+        {tab === 'gallery' && <GalleryUploader />}
+        {tab === 'resumes' && <ResumeInbox />}
       </div>
     </Shell>
   );
@@ -224,7 +230,7 @@ function Shell({ children }: { children: React.ReactNode }) {
             expects to move off the Vercel address, and a domain spelled out in
             the source is a line that goes stale the day they do. */}
         <p className="text-small text-text-muted mt-xs mb-xl">
-          Events and photographs for {window.location.host}
+          Events, photographs and resumes for {window.location.host}
         </p>
         {children}
       </Container>
