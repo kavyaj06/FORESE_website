@@ -1,11 +1,10 @@
 import { Container } from '@/components/layout/Container';
 import { PhotoBand } from '@/components/sections/PhotoBand';
 import { SectionHeading } from '@/components/sections/SectionHeading';
-import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { ActHeader } from '../components/ActHeader';
 import { GuideStatement } from '../components/GuideStatement';
 import { ResumeDrop } from '../components/ResumeDrop';
-import { TipCard } from '../components/TipCard';
+import { TipFlight } from '../components/TipFlight';
 import { guideCaption, guidePhoto, RESUME_INTRO, RESUME_TIPS, TIPS_TOPICS } from '../data';
 
 const TOPIC = TIPS_TOPICS[2];
@@ -42,14 +41,14 @@ export function ResumeAct() {
             description={RESUME_TIPS.description}
             className="mb-xl"
           />
-          <Reveal staggerChildren className="gap-lg tablet:grid-cols-2 desktop:grid-cols-3 grid">
-            {RESUME_TIPS.items.map((item) => (
-              <RevealItem key={item.title} className="h-full">
-                <TipCard item={item} />
-              </RevealItem>
-            ))}
-          </Reveal>
         </Container>
+
+        {/* Outside the Container on purpose. The grid is pinned and the cards
+            fly past the edges of the screen, so the element that clips them
+            has to be the full width of the page rather than the content
+            column. `TipFlight` puts the Container back around the grid
+            itself, so what renders is the layout this section always had. */}
+        <TipFlight items={RESUME_TIPS.items} />
       </div>
 
       {/* Back on white, so the drop box is its own moment rather than the last
