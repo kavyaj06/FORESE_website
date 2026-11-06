@@ -13,19 +13,6 @@ export const EVENTS_INTRO = {
     'From workshops and corporate sessions to placement drives and community events. See what\u2019s happening now, what\u2019s coming up, and what we\u2019ve already done.',
 } as const;
 
-/**
- * The labels under the three figures on the events band.
- *
- * Only the labels. The numbers are counted off the roster, the event list and
- * the albums at render — see `EventsFigures` — so there is nothing here to
- * go stale when the club adds an event.
- */
-export const EVENTS_FIGURES = {
-  events: 'Events run',
-  photographs: 'Photographs taken',
-  people: 'People in the club',
-} as const;
-
 export const EVENT_GROUPS = {
   ongoing: {
     eyebrow: 'Ongoing',
