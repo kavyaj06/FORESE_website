@@ -319,58 +319,6 @@ export function coverPhoto(eventId: string): GalleryPhoto | undefined {
   return albumFor(eventId)?.photos[0];
 }
 
-/** A photograph together with the event whose album it belongs to. */
-export interface StripPhoto {
-  photo: GalleryPhoto & { src: string };
-  event: ForeseEvent;
-}
-
-/**
- * Photographs for the strip at the foot of the index, taken across albums.
- *
- * Round-robin rather than the first `n` of the list: taken in order, eight
- * photographs are the whole of the first album and none of the second, so the
- * strip would advertise one event while claiming to be the gallery. One from
- * each album in turn means every album is represented before any album is
- * represented twice.
- *
- * Covers are skipped. An album's first photograph is the one already on its
- * card in the grid directly above the strip, and the open panel landing on
- * the same picture as the card two hundred pixels up reads as the page having
- * repeated itself. An album with nothing but a cover keeps it — one
- * photograph twice is better than an album missing from the strip entirely.
- */
-function coverlessPhotos(eventId: string): GalleryPhoto[] {
-  const photos = albumFor(eventId)?.photos ?? [];
-  return photos.length > 1 ? photos.slice(1) : photos;
-}
-
-export function stripPhotos(limit: number): StripPhoto[] {
-  const albums = galleryIndexEntries()
-    .map((entry) => ({
-      event: entry.event,
-      photos: coverlessPhotos(entry.event.id).filter(
-        (photo): photo is GalleryPhoto & { src: string } =>
-          Boolean(photo.src) && photo.circulate !== false,
-      ),
-    }))
-    .filter((album) => album.photos.length > 0);
-
-  const picked: StripPhoto[] = [];
-  for (let round = 0; picked.length < limit; round += 1) {
-    const before = picked.length;
-    for (const album of albums) {
-      if (picked.length >= limit) break;
-      const photo = album.photos[round];
-      if (photo) picked.push({ photo, event: album.event });
-    }
-    // Every album exhausted: there are simply fewer photographs than asked
-    // for, which is a smaller strip rather than an infinite loop.
-    if (picked.length === before) break;
-  }
-  return picked;
-}
-
 /**
  * The photograph the index closes on.
  *
