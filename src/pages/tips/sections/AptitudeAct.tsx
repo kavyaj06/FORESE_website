@@ -4,7 +4,7 @@ import { SectionHeading } from '@/components/sections/SectionHeading';
 import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { ActHeader } from '../components/ActHeader';
 import { GuideStatement } from '../components/GuideStatement';
-import { TipCard } from '../components/TipCard';
+import { ObjectiveDeck } from '../components/ObjectiveDeck';
 import {
   APTITUDE_FOCUS,
   APTITUDE_FOCUS_INTRO,
@@ -75,23 +75,13 @@ export function AptitudeAct() {
         </Container>
       </div>
 
+      {/* The objectives are dealt from a pile rather than laid out in four
+          columns. They are the one group on Placement Prep that is both real
+          cards and a declared sequence, which is what a deck is for. The
+          heading goes inside the deck so it stays on screen while the cards
+          advance; `ObjectiveDeck` carries both. */}
       <div className="py-section">
-        <Container>
-          <SectionHeading
-            as="h3"
-            measure="measure"
-            title={APTITUDE_OBJECTIVES.title}
-            description={APTITUDE_OBJECTIVES.description}
-            className="mb-xl"
-          />
-          <Reveal staggerChildren className="gap-lg tablet:grid-cols-2 desktop:grid-cols-4 grid">
-            {APTITUDE_OBJECTIVES.items.map((item, index) => (
-              <RevealItem key={item.title} className="h-full">
-                <TipCard item={item} index={index} />
-              </RevealItem>
-            ))}
-          </Reveal>
-        </Container>
+        <ObjectiveDeck copy={APTITUDE_OBJECTIVES} />
       </div>
     </section>
   );
