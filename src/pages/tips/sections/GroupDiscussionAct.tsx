@@ -5,6 +5,7 @@ import { Reveal, RevealItem } from '@/components/motion/Reveal';
 import { ActHeader } from '../components/ActHeader';
 import { GuideStatement } from '../components/GuideStatement';
 import { PhaseRail } from '../components/PhaseRail';
+import { ScrollSettle } from '../components/ScrollSettle';
 import { StrategyColumns } from '../components/StrategyColumns';
 import { TipCard } from '../components/TipCard';
 import {
@@ -60,13 +61,13 @@ export function GroupDiscussionAct() {
             description={GROUP_DISCUSSION_BENEFITS.description}
             className="mb-xl"
           />
-          <Reveal staggerChildren className="gap-lg tablet:grid-cols-2 desktop:grid-cols-3 grid">
-            {GROUP_DISCUSSION_BENEFITS.items.map((item) => (
-              <RevealItem key={item.title} className="h-full">
-                <TipCard item={item} />
-              </RevealItem>
-            ))}
-          </Reveal>
+          <ScrollSettle
+            className="gap-lg tablet:grid-cols-2 desktop:grid-cols-3 grid"
+            items={GROUP_DISCUSSION_BENEFITS.items}
+            getKey={(item) => item.title}
+          >
+            {(item) => <TipCard item={item} />}
+          </ScrollSettle>
         </Container>
       </div>
 
