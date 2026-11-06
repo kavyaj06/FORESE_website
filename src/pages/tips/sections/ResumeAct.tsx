@@ -51,10 +51,8 @@ export function ResumeAct() {
         <TipFlight items={RESUME_TIPS.items} />
       </div>
 
-      {/* Back on white, so the drop box is its own moment rather than the last
-          card in the grey band. This guide is the only one that ends on
-          something to do, which is why it is mounted here and not beside
-          `GuideClose` in the page shell. */}
+      {/* Back on white, so the drop box is its own moment rather than the
+          last card in the grey band. It is the end of this guide. */}
       <ResumeDrop />
     </section>
   );

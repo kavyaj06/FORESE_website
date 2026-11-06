@@ -95,15 +95,13 @@ function DropSection() {
           staggerChildren
           className="gap-3xl desktop:grid-cols-2 desktop:items-start grid grid-cols-1"
         >
-          <RevealItem className="gap-lg flex flex-col">
+          <RevealItem>
             <SectionHeading
               as="h3"
               measure="measure"
-              eyebrow={RESUME_DROP.eyebrow}
               title={RESUME_DROP.title}
               description={RESUME_DROP.description}
             />
-            <p className="text-small text-text-subtle max-w-measure">{RESUME_DROP.note}</p>
           </RevealItem>
 
           <RevealItem className="gap-md flex flex-col">

@@ -2,11 +2,10 @@ import { useMemo } from 'react';
 import { Container } from '@/components/layout/Container';
 import { Reveal } from '@/components/motion/Reveal';
 import { SectionHeading } from '@/components/sections/SectionHeading';
-import { PhotoBand } from '@/components/sections/PhotoBand';
 import { Tilt3D } from '@/components/motion/Tilt3D';
 import { AlbumCard } from '../components/AlbumCard';
 import { ArchiveRow } from '../components/ArchiveRow';
-import { closingPhoto, FEATURED_COUNT, galleryIndexEntries } from '../data';
+import { FEATURED_COUNT, galleryIndexEntries } from '../data';
 
 /**
  * The gallery index.
@@ -52,9 +51,6 @@ export function GalleryIndex() {
   }
 
   let position = featured.length;
-
-  const closing = closingPhoto();
-  const photoCount = entries.reduce((total, entry) => total + entry.photoCount, 0);
 
   return (
     <section className="pt-section">
@@ -120,28 +116,6 @@ export function GalleryIndex() {
           </div>
         )}
       </Container>
-
-      {/* The page's closing frame. Three cover cards on white was the whole
-          of the gallery index, which made the one page on this site that is
-          about photographs the one with the least photograph on it.
-
-          One band at every width. A hover strip of expanding slivers used to
-          stand here on desktop; it was taken out at the club's request, and
-          the band it fell back to on a phone is the closing frame now. */}
-      {closing?.src && (
-        <PhotoBand
-          photo={{
-            src: closing.src,
-            alt: closing.alt,
-            width: closing.width,
-            height: closing.height,
-          }}
-          caption={`${photoCount} photographs across ${entries.length} ${
-            entries.length === 1 ? 'event' : 'events'
-          }.`}
-          size="tall"
-        />
-      )}
     </section>
   );
 }
