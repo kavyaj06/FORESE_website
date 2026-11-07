@@ -212,7 +212,7 @@ function PhaseText({
       className="gap-sm desktop:mt-sm flex flex-col"
     >
       <p className="text-eyebrow text-text-subtle gap-xs flex items-center uppercase">
-        <span className="text-accent tabular-nums">{String(index + 1).padStart(2, '0')}</span>
+        <span className="text-text tabular-nums">{String(index + 1).padStart(2, '0')}</span>
         <span aria-hidden="true">/</span>
         {timing}
       </p>

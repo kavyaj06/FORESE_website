@@ -47,7 +47,7 @@ export function TipCard({ item, index, className }: TipCardProps) {
       <div className="mb-xs flex items-start justify-between">
         <IconChip icon={Icon} />
         {index !== undefined && (
-          <span className="text-eyebrow text-accent tabular-nums">
+          <span className="text-eyebrow text-text-subtle tabular-nums">
             {String(index + 1).padStart(2, '0')}
           </span>
         )}

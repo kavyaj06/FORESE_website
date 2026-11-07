@@ -68,18 +68,21 @@
   --color-accent-fg: #ffffff;
   --color-accent-subtle: #f0f0f0;
 
-  /* The brand orange, and the two variants contrast forces it to have.
-     Same hue as `--color-wf-accent` below, which is where it entered the
-     site: the club's lead called the site too monochrome, so rather than
-     invent a third colour the one already here was promoted.
+  /* The brand orange. Exactly `--color-wf-accent` below, which is where it
+     entered the site: the club's lead called it too monochrome, so rather
+     than invent a colour the one already on the home page was promoted, and
+     it is one value so that every orange on the site is the same orange.
 
-     Three values because one cannot do the job. Measured against white:
-     the bright orange is 3.6:1, which is fine for a hairline, a dot or a
-     filled graphic and fails the 4.5:1 that 12px eyebrow text needs. `ink`
-     is the same hue taken down until it passes, and is what carries text and
-     any surface with white text on it. `soft` is the tint behind a badge. */
+     It is 3.6:1 against white. That clears the 3:1 a hairline, a dot, a
+     border or a filled graphic has to meet, and misses the 4.5:1 that small
+     text needs — so this colour is never small text on a light surface. It
+     is a fill or a stroke, which is how the home page has always used it.
+
+     `fg` is what sits on top of a filled one, and is near-black rather than
+     white for the same reason: black on this orange is 5.8:1 and white is
+     3.6:1. Taken from the home page's own tag, which already does this. */
   --color-brand: #f04e23;
-  --color-brand-ink: #bf3a12;
+  --color-brand-fg: #100e0d;
   --color-brand-soft: #fdeee9;
 
   /* The column rules that run behind the coloured pages. A mid grey rather
@@ -423,24 +426,22 @@
  * ==========================================================================*/
 
 [data-accent='brand'] {
-  /* `ink`, not the bright orange, because this token lands on text and on
-     surfaces that carry white text. White on ink is 5.5:1; on the bright one
-     it would be 3.6:1 and fail. */
-  --color-accent: var(--color-brand-ink);
-  --color-accent-hover: #a63210;
-  --color-accent-fg: #ffffff;
+  --color-accent: var(--color-brand);
+  --color-accent-hover: #d84418;
+  --color-accent-fg: var(--color-brand-fg);
   --color-accent-subtle: var(--color-brand-soft);
 }
 
-/* On a black band the arithmetic reverses: the bright orange is 5.8:1 against
-   black and the ink is too dark to read, so the scope flips back to it. Two
-   selectors because a band can be the element that carries the scope or any
-   element beneath it, and both outrank the plain inverse block above. */
+/* One orange, so a dark band changes only what sits behind it. The accent
+   itself is 5.8:1 on black and 3.6:1 on white, which is why it is a stroke
+   or a fill in both places and never small text in either. Two selectors
+   because a band can be the element carrying the scope or any element
+   beneath it, and both have to outrank the plain inverse block above. */
 [data-accent='brand'] [data-theme='inverse'],
 [data-accent='brand'][data-theme='inverse'] {
   --color-accent: var(--color-brand);
   --color-accent-hover: #f4714e;
-  --color-accent-fg: #000000;
+  --color-accent-fg: var(--color-brand-fg);
   --color-accent-subtle: #2a1510;
 }
 
