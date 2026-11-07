@@ -82,6 +82,13 @@
   --color-brand-ink: #bf3a12;
   --color-brand-soft: #fdeee9;
 
+  /* The column rules that run behind the coloured pages. A mid grey rather
+     than a tint of either end, because one overlay has to read on a white
+     band and on a black one: against white it darkens, against black it
+     lifts, and at this alpha neither is loud enough to compete with text
+     sitting on top of it. */
+  --color-rule: rgba(128, 128, 128, 0.13);
+
   /* Feedback — the sanctioned exception to black and white. A danger state
      rendered in grey is not a danger state. */
   --color-success: #14804a;
@@ -435,4 +442,39 @@
   --color-accent-hover: #f4714e;
   --color-accent-fg: #000000;
   --color-accent-subtle: #2a1510;
+}
+
+/* The column rules.
+ *
+ * The reference the club's lead pointed at draws a faint vertical grid down
+ * the whole viewport, on its light pages and its dark ones alike, and that
+ * single device is most of why those pages do not read as empty. It is the
+ * answer to "bland" that colour alone could not give `/gallery`, which is one
+ * flat sheet with three cards on it.
+ *
+ * Fixed rather than scrolled, so the lines stay put while the page moves
+ * under them, which is what makes them read as a measuring grid rather than
+ * as a texture printed on the content.
+ *
+ * Above the bands and below the chrome. Every section on this site paints its
+ * own opaque background, so an overlay underneath them would never be seen;
+ * z-index 30 puts the rules over those bands and still under the sticky
+ * header at 50 and the topic rail at 40, which must stay clean. It never
+ * takes a click.
+ *
+ * Twelve columns of the viewport, which is the rhythm the reference uses and
+ * close to the content column's own.
+ */
+main[data-accent='brand']::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background-image: linear-gradient(to right, var(--color-rule) 1px, transparent 1px);
+  background-size: calc(100% / 12) 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The rules do not move, so they stay. Nothing to reduce. */
 }

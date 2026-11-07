@@ -112,6 +112,9 @@ export function PageHero({
           <TextReveal
             as="h1"
             text={title}
+            // "What the club runs." and "Every moment, captured." both end in
+            // one, and those are the two pages the club's lead called bland.
+            accentStop
             delay={0.12}
             play={introDone}
             className={cn(
