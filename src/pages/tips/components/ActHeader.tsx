@@ -23,12 +23,18 @@ interface ActHeaderProps {
  * What is left is a headline on white under a black hero — which is what an
  * article opening looks like, and is the right amount of furniture above a
  * full-width photograph.
+ *
+ * The measure is 34ch because the longest of the three titles, "Group
+ * discussion mastery guide", is 30 characters and was being broken across
+ * two lines by the 20ch it used to carry. A guide title is a label, not
+ * prose: it wants to be read in one go. Narrow screens still wrap it, which
+ * is what `text-balance` is here for.
  */
 export function ActHeader({ title }: ActHeaderProps) {
   return (
     <Container>
       <Reveal staggerChildren>
-        <RevealItem as="h2" className="text-h2 max-w-[20ch] text-balance">
+        <RevealItem as="h2" className="text-h2 max-w-[34ch] text-balance">
           {title}
         </RevealItem>
       </Reveal>
