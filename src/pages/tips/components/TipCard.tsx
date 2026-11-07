@@ -47,7 +47,7 @@ export function TipCard({ item, index, className }: TipCardProps) {
       <div className="mb-xs flex items-start justify-between">
         <IconChip icon={Icon} />
         {index !== undefined && (
-          <span className="text-eyebrow text-text-subtle tabular-nums">
+          <span className="text-eyebrow text-accent tabular-nums">
             {String(index + 1).padStart(2, '0')}
           </span>
         )}
@@ -59,7 +59,7 @@ export function TipCard({ item, index, className }: TipCardProps) {
           reflow the paragraph under it the way an animated width would. */}
       <span
         aria-hidden="true"
-        className="bg-text duration-slow ease-out-brand h-px w-10 origin-left scale-x-0 transition-transform group-hover/tip:scale-x-100"
+        className="bg-accent duration-slow ease-out-brand h-px w-10 origin-left scale-x-0 transition-transform group-hover/tip:scale-x-100"
       />
 
       <p className="text-small text-text-muted">{body}</p>

@@ -9,7 +9,7 @@ interface PhaseRailProps {
 
 /** The classes the connector wears, shared by both branches so it cannot drift. */
 const LINE = [
-  'bg-border absolute origin-top-left',
+  'bg-accent absolute origin-top-left',
   // Phone: down the column, from under the node to the next.
   '-bottom-xl top-10 left-5 w-px',
   // Tablet: two columns, so a connector cannot be trusted to point anywhere
@@ -212,7 +212,7 @@ function PhaseText({
       className="gap-sm desktop:mt-sm flex flex-col"
     >
       <p className="text-eyebrow text-text-subtle gap-xs flex items-center uppercase">
-        <span className="text-text tabular-nums">{String(index + 1).padStart(2, '0')}</span>
+        <span className="text-accent tabular-nums">{String(index + 1).padStart(2, '0')}</span>
         <span aria-hidden="true">/</span>
         {timing}
       </p>

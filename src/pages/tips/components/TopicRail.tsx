@@ -95,7 +95,7 @@ export function TopicRail() {
       <motion.span
         aria-hidden="true"
         style={{ scaleX: progress }}
-        className="bg-text absolute -bottom-px left-0 h-px w-full origin-left"
+        className="bg-accent absolute -bottom-px left-0 h-px w-full origin-left"
       />
     </div>
   );

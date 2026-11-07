@@ -39,7 +39,7 @@ export function StrategyColumns({ columns }: StrategyColumnsProps) {
                 this guide answer the pointer the same way. */}
           <span
             aria-hidden="true"
-            className="bg-text duration-slow ease-out-brand mt-md block h-px w-10 origin-left scale-x-0 transition-transform group-hover/tip:scale-x-100"
+            className="bg-accent duration-slow ease-out-brand mt-md block h-px w-10 origin-left scale-x-0 transition-transform group-hover/tip:scale-x-100"
           />
 
           <ul className="mt-md gap-sm flex flex-col">

@@ -19,6 +19,15 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
  * on navigation belongs to `PageTransition`, which mounts when the incoming
  * page does — see the note there.
  */
+/**
+ * The routes the brand orange reaches.
+ *
+ * Prefixes, so an album page and an event page inherit from their index
+ * without being listed. See the scope block at the foot of `theme.css` for
+ * what the attribute actually does.
+ */
+const BRAND_ROUTES = ['/gallery', '/events', '/team', '/tips'];
+
 /** Once per tab. A curtain on every visit makes a site feel slower the more
     of it you look at. */
 const seenIntro =
@@ -98,7 +107,27 @@ export function RootLayout() {
 
         <Navbar />
 
-        <main id="main-content" tabIndex={-1} className="flex-1">
+        {/* The brand scope, set per route rather than per page component.
+            Every page returns a fragment, so there is no element on them to
+            carry the attribute without adding a wrapper div to each, and one
+            list in one file is also the only place to look when asking which
+            pages are coloured. Home and mock placements are absent on
+            purpose: home is not to change, and mocks already carries the
+            orange in its own scoped workflow palette.
+
+            On `main`, so the navbar, the footer and the scroll progress bar
+            stay monochrome. Chrome reading the same on every route is what
+            stops the colour looking like a half finished repaint. */}
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1"
+          data-accent={
+            BRAND_ROUTES.some((prefix) => location.pathname.startsWith(prefix))
+              ? 'brand'
+              : undefined
+          }
+        >
           {/* No AnimatePresence. Keyed by pathname so React mounts a fresh
               PageTransition per route; see the note in that file for why the
               exit animation had to go. */}

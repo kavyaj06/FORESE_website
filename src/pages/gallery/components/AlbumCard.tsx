@@ -33,7 +33,7 @@ export function AlbumCard({ entry, size, eager = false }: AlbumCardProps) {
       className={cn(
         'group border-border relative block overflow-hidden rounded-lg border',
         'duration-base ease-out-brand transition-[border-color,box-shadow]',
-        'hover:border-border-strong hover:shadow-lg',
+        'hover:border-accent hover:shadow-lg',
       )}
     >
       <div

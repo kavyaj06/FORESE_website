@@ -16,8 +16,11 @@ interface IconChipProps {
  * worse than a card which never moved. The chip filling in is the opposite
  * trade — the card acknowledges the pointer without claiming to be a target.
  *
- * It inverts rather than tints, because the whole site is black and white and
- * a tint would be the only coloured hover on it.
+ * It used to invert to black, on the grounds that the whole site was black
+ * and white and a tint would be the only coloured hover on it. The site has a
+ * brand colour now, so the chip takes it. Outside the pages that opt into
+ * that colour `--color-accent` is still black, so this is the same hover it
+ * always was anywhere else.
  *
  * `group-hover/tip` and not plain `group-hover`: these cards sit inside
  * reveal wrappers and grids that may carry groups of their own, and an
@@ -30,7 +33,7 @@ export function IconChip({ icon: Icon, className }: IconChipProps) {
       className={cn(
         'border-border bg-surface text-text flex size-10 shrink-0 items-center justify-center rounded-md border',
         'duration-base ease-out-brand transition-colors',
-        'group-hover/tip:bg-text group-hover/tip:text-bg group-hover/tip:border-text',
+        'group-hover/tip:bg-accent group-hover/tip:text-accent-fg group-hover/tip:border-accent',
         className,
       )}
     >
