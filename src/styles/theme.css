@@ -452,29 +452,30 @@
  * answer to "bland" that colour alone could not give `/gallery`, which is one
  * flat sheet with three cards on it.
  *
- * Fixed rather than scrolled, so the lines stay put while the page moves
- * under them, which is what makes them read as a measuring grid rather than
- * as a texture printed on the content.
+ * **They are background, not an overlay.** The first cut painted them over
+ * everything from a fixed layer at z-index 30, which put lines across the
+ * album covers and the cards. Drawing them into the background instead means
+ * anything with a surface of its own — a card, a photograph, the footer —
+ * covers them exactly as it should, with no stacking to reason about.
  *
- * Above the bands and below the chrome. Every section on this site paints its
- * own opaque background, so an overlay underneath them would never be seen;
- * z-index 30 puts the rules over those bands and still under the sticky
- * header at 50 and the topic rail at 40, which must stay clean. It never
- * takes a click.
+ * It takes three selectors because this site paints its bands three ways.
+ * `main` carries the rules for every section that is transparent, which is
+ * all the white ones; a grey band and a dark band each paint an opaque colour
+ * of their own, so each needs its own copy or the rules would stop at its
+ * edge. The two class hooks are a deliberate coupling to the utilities those
+ * bands are built from, in the same spirit as `[data-theme='inverse']` being
+ * the hook for a dark section.
  *
- * Twelve columns of the viewport, which is the rhythm the reference uses and
- * close to the content column's own.
+ * `background-attachment: fixed` on all three is what keeps them one grid:
+ * the positioning area becomes the viewport, so the columns line up across
+ * every band instead of restarting at each one, and they hold still while
+ * the page scrolls under them. Twelve columns, the rhythm the reference uses.
  */
-main[data-accent='brand']::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  pointer-events: none;
+main[data-accent='brand'],
+main[data-accent='brand'] .bg-surface,
+main[data-accent='brand'] [data-theme='inverse'] {
   background-image: linear-gradient(to right, var(--color-rule) 1px, transparent 1px);
   background-size: calc(100% / 12) 100%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* The rules do not move, so they stay. Nothing to reduce. */
+  background-attachment: fixed;
+  background-repeat: repeat;
 }
