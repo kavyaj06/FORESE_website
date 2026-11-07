@@ -477,6 +477,20 @@ main[data-accent='brand'] .bg-surface,
 main[data-accent='brand'] [data-theme='inverse'] {
   background-image: linear-gradient(to right, var(--color-rule) 1px, transparent 1px);
   background-size: calc(100% / 12) 100%;
-  background-attachment: fixed;
   background-repeat: repeat;
+}
+
+/* `background-attachment: fixed` is what makes the three selectors above read
+   as one grid, and it is also a well known way to make a phone stutter: it
+   forces a full-area repaint on every scroll frame, and iOS Safari does not
+   honour it at all. So it is asked for only where there is a real pointer and
+   a desktop-sized window. A phone gets the same lines scrolling with the
+   page, which costs nothing and looks all but identical on a 390px column
+   where the grid is only three lines wide. */
+@media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+  main[data-accent='brand'],
+  main[data-accent='brand'] .bg-surface,
+  main[data-accent='brand'] [data-theme='inverse'] {
+    background-attachment: fixed;
+  }
 }

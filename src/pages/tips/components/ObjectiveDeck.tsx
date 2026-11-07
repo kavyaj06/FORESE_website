@@ -128,17 +128,20 @@ function Deck({ copy }: { copy: DeckCopy }) {
           });
         });
 
-        const build = (perDeal: number) => {
+        const build = (perDeal: number, pinned: boolean) => {
           const timeline = gsap.timeline({
             scrollTrigger: {
               trigger: pin.current,
-              // Centred rather than pinned to the top. The stage is one card
-              // tall, so centring balances it in the viewport and, unlike the
-              // resume grid, it cannot collide with the 64px header and the
-              // 46px rail at any height.
-              start: 'center center',
-              end: `+=${deals * perDeal}%`,
-              pin: true,
+              // Pinned: centred rather than held at the top. The stage is one
+              // card tall, so centring balances it in the viewport and, unlike
+              // the resume grid, it cannot collide with the 64px header and
+              // the 46px rail at any height.
+              //
+              // Unpinned: the deal plays across the stage's own travel through
+              // the viewport instead, which costs no page height at all.
+              start: pinned ? 'center center' : 'top 90%',
+              end: pinned ? `+=${deals * perDeal}%` : 'bottom 10%',
+              pin: pinned,
               scrub: 0.6,
               anticipatePin: 1,
               invalidateOnRefresh: true,
@@ -184,11 +187,25 @@ function Deck({ copy }: { copy: DeckCopy }) {
         };
 
         const media = gsap.matchMedia();
-        // 60% of the viewport per card at desktop, so four cards cost about
-        // 1,600px of scrolling. Shorter on a phone, where the same distance is
-        // a lot more thumb.
-        media.add('(min-width: 41rem)', () => build(60));
-        media.add('(max-width: 40.999rem)', () => build(45));
+
+        // 60% of the viewport per card, so four cards cost about 1,600px of
+        // scrolling.
+        media.add('(min-width: 41rem)', () => build(60, true));
+
+        /* No pin on a phone, and this one is not a taste call.
+         *
+         * A pin's spacer is sized from the viewport height, and a phone's
+         * viewport height changes every time the address bar hides or shows.
+         * Measured: the spacer here goes from 1,295px to 1,614px on that
+         * change, so the document grows and shrinks by 300px under the
+         * reader's thumb while they are scrolling, and everything below it
+         * jumps. That is the glitch, and no amount of tuning the deal fixes
+         * it while the pin is there.
+         *
+         * The deal still runs; it is driven by the stage's own travel through
+         * the viewport instead. Nothing is held, nothing is added to the page
+         * height, and there is no spacer left to resize. */
+        media.add('(max-width: 40.999rem)', () => build(0, false));
       }, pin);
 
       // The guides carry lazy photographs above this, and every trigger point
