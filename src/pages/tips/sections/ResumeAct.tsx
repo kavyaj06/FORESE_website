@@ -28,7 +28,7 @@ export function ResumeAct() {
     <section id={TOPIC.id} className="scroll-mt-28">
       <div className="py-section gap-3xl flex flex-col">
         <ActHeader title={RESUME_INTRO.title} />
-        {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
+        {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} />}
         <GuideStatement paragraphs={[RESUME_INTRO.lead]} />
       </div>
 

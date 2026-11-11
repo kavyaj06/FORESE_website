@@ -8,7 +8,7 @@ import { CaseStudyStack, type StackSlide } from '../components/CaseStudyStack';
 const PHOTOS = albumFor(MOCK_PLACEMENTS_EVENT_ID)?.photos ?? [];
 
 /**
- * The five topics as a deck of cards.
+ * The four rounds as a deck of cards.
  *
  * Built once at module scope rather than in the component: the stack owns the
  * order of these as state, and handing it a new array identity on every render

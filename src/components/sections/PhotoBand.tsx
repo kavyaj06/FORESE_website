@@ -5,84 +5,65 @@ import { cn } from '@/lib/cn';
 export interface BandPhoto {
   src: string;
   alt: string;
-  /** Intrinsic pixel size, so the band holds its box before the image lands. */
+  /** Intrinsic pixel size, so the figure holds its box before the image lands. */
   width: number;
   height: number;
 }
 
 interface PhotoBandProps {
   photo: BandPhoto;
-  /** One line over the foot of the picture. Omitted, the band is just a picture. */
+  /** One line under the picture. Omitted, the figure is just a picture. */
   caption?: string;
-  /**
-   * `standard` — a break in a page of reading.
-   * `tall`     — a page's one photograph, where it is doing more work.
-   */
-  size?: 'standard' | 'tall';
   className?: string;
 }
 
 /**
- * Heights rather than an aspect ratio.
+ * The photograph that opens a Placement Prep guide.
  *
- * A ratio on a full-bleed element ties the band's height to the window's
- * width: at 1920 a 16:9 band is 1080px tall and fills the screen on its own,
- * which is not a break in the reading, it is a detour. A fixed height crops
- * the photograph instead, and the crop is what keeps the band a band.
- */
-const SIZES = {
-  standard: 'h-[17rem] tablet:h-[21rem] desktop:h-[25rem]',
-  tall: 'h-[21rem] tablet:h-[27rem] desktop:h-[32rem]',
-} as const;
-
-/**
- * A photograph across the full width of the page.
+ * It used to run full bleed at 512px tall, and the argument for that is still
+ * worth stating because it was not a bad one: these pages were reviewed as
+ * bland, and a photograph inset into the content column is, in a sense, just
+ * a larger card. The club has overruled it. At that size the picture was the
+ * page rather than a part of it, and the guide underneath started below the
+ * fold on most laptops.
  *
- * The site's inner pages were reviewed as "bland": five routes ran a black
- * hero and then one unbroken sheet of white to the footer, and two of the
- * three Placement Prep guides contained no picture at all. This is the device
- * that answers that — it is the one element on those pages that is neither
- * type nor a bordered box, and it is full-bleed because a photograph inset
- * into the content column is just a larger card.
+ * So it is a figure in the content column now, on the same left axis as the
+ * heading above it and the prose below, with the column rules running past
+ * either side of it. 320px at desktop rather than 512.
  *
- * The caption sits on the picture rather than under it, over a gradient dark
- * enough to carry white text at any crop. Under it, the band would need a
- * strip of page beneath the image and would stop being full-bleed in the only
- * way that matters — the bottom edge.
+ * **Heights rather than an aspect ratio**, still. A ratio ties the height to
+ * the column's width, and the column is fluid between 1,200 and 1,440px; a
+ * fixed height crops the photograph instead, and the crop is what keeps this
+ * a band rather than a portrait.
+ *
+ * The caption moved out from on top of the picture to under it. Over a
+ * gradient was right when the picture was full bleed and had no bottom edge
+ * to sit below; now that it has one, a line of muted text under the frame is
+ * what the rest of the site does with a caption.
  *
  * Alt text comes from the photograph, caption from the page. They are
  * different jobs: one describes what is in the frame for somebody who cannot
  * see it, the other says what the frame is doing here, and a caption repeated
  * as alt text is read twice by a screen reader.
  */
-export function PhotoBand({ photo, caption, size = 'standard', className }: PhotoBandProps) {
+export function PhotoBand({ photo, caption, className }: PhotoBandProps) {
   return (
-    <Reveal
-      as="figure"
-      motionStyle="scale"
-      className={cn('relative w-full overflow-hidden', SIZES[size], className)}
-    >
-      <img
-        src={photo.src}
-        alt={photo.alt}
-        width={photo.width}
-        height={photo.height}
-        loading="lazy"
-        decoding="async"
-        className="size-full object-cover"
-      />
-
-      {caption && (
-        <>
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"
+    <Container>
+      <Reveal as="figure" motionStyle="scale" className={cn('flex flex-col', className)}>
+        <div className="tablet:h-[17rem] desktop:h-[20rem] relative h-[14rem] w-full overflow-hidden rounded-lg">
+          <img
+            src={photo.src}
+            alt={photo.alt}
+            width={photo.width}
+            height={photo.height}
+            loading="lazy"
+            decoding="async"
+            className="size-full object-cover"
           />
-          <Container width="full" className="pb-lg absolute inset-x-0 bottom-0">
-            <figcaption className="text-small text-white">{caption}</figcaption>
-          </Container>
-        </>
-      )}
-    </Reveal>
+        </div>
+
+        {caption && <figcaption className="text-small text-text-muted mt-sm">{caption}</figcaption>}
+      </Reveal>
+    </Container>
   );
 }

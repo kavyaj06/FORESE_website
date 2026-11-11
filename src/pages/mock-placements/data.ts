@@ -230,24 +230,16 @@ export interface PrepTopic {
 }
 
 /**
- * ⚠️ `tips` and `resume` are DRAFTS. The other three are drawn from the
- * process steps below, which are the club's own words. Nobody has written
- * these two yet, and they read as plausible rather than as true — replace them
- * before this goes anywhere public.
+ * ⚠️ `resume` is a DRAFT. The other three are drawn from the process steps
+ * below, which are the club's own words. Nobody has written this one yet, and
+ * it reads as plausible rather than as true — replace it before this goes
+ * anywhere public.
+ *
+ * `tips` used to lead this list and was the other draft. The club removed it:
+ * it was general advice sitting in front of the four rounds the day actually
+ * consists of, which is the thing a reader came to the deck for.
  */
 export const PREP_TOPICS: PrepTopic[] = [
-  {
-    id: 'tips',
-    label: 'Tips',
-    body: 'A little preparation goes a long way. Know what to expect, stay composed, and make every stage count.',
-    chips: ['Know the process', 'Practice under pressure', 'Know your story', 'Listen well'],
-    chipFlips: [
-      'Understand each stage before you walk in. Preparation gets easier when you know what is coming.',
-      'Timed practice turns preparation into performance. Get comfortable working against the clock.',
-      'Be ready to explain your projects, strengths, choices, and what you learned along the way.',
-      'Good communication is not just about speaking. Listen, understand, and know when to step in.',
-    ],
-  },
   {
     id: 'group-discussion',
     label: 'Group Discussion',

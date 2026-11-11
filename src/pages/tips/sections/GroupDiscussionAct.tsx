@@ -48,7 +48,7 @@ export function GroupDiscussionAct() {
     <section id={TOPIC.id} className="scroll-mt-28">
       <div className="py-section gap-3xl flex flex-col">
         <ActHeader title={GROUP_DISCUSSION_INTRO.title} />
-        {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} size="tall" />}
+        {photo && <PhotoBand photo={photo} caption={guideCaption(TOPIC.id)} />}
         <GuideStatement paragraphs={[GROUP_DISCUSSION_INTRO.lead]} />
       </div>
 
