@@ -103,12 +103,23 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
     id: member.id,
     label: [member.name, member.role].filter(Boolean).join(', '),
     face: (
-      <span className="gap-sm p-md flex h-full w-full flex-col items-center justify-center text-center">
-        <span className="border-border size-16 overflow-hidden rounded-full border">
-          <MemberPortrait member={member} />
+      // The photograph is the card, not a stamp on it. A circular avatar was
+      // tried and the club turned it down: at this size it reduced a person
+      // to a thumbnail on a mostly empty black rectangle, where the whole
+      // point of turning a posting over is to see who holds it.
+      <span className="relative block h-full w-full">
+        <MemberPortrait member={member} />
+        {/* Dark enough at the foot to carry white type over any crop, and
+            clear at the top so it never dims the face. The same treatment the
+            album covers use. */}
+        <span
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"
+        />
+        <span className="p-md absolute inset-x-0 bottom-0 flex flex-col gap-0.5 text-left">
+          <span className="text-small font-semibold">{member.name}</span>
+          <span className="text-caption text-text-muted">{member.role}</span>
         </span>
-        <span className="text-small font-semibold">{member.name}</span>
-        <span className="text-caption text-text-muted">{member.role}</span>
       </span>
     ),
   }));
