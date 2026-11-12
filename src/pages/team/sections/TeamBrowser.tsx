@@ -9,6 +9,7 @@ import { cn } from '@/lib/cn';
 import type { TeamId } from '@/data/teamIds';
 import { CLUB_MEMBERS, type ClubMember, type MemberRank } from '@/data/team';
 import { byRoleThenName, CLUB_TEAMS, CORE_RANKS } from '@/data/teams';
+import { CoreFan } from '../components/CoreFan';
 import { MemberCard } from '../components/MemberCard';
 import { TEAM_CORE_TABS, TEAM_GROUP_TABS } from '../data';
 
@@ -162,7 +163,18 @@ export function TeamBrowser() {
 
       <Container className="pt-2xl pb-section">
         <div key={`${group}-${group === 'core' ? coreRank : team}`}>
-          {featured ? (
+          {featured && !prefersReducedMotion ? (
+            // The core ranks are a hand of cards: posts at the front, and the
+            // people in a post behind it. See `CoreFan` for which ranks show
+            // posts and which show people, and why that is read off the
+            // roster rather than listed.
+            <CoreFan members={visible} />
+          ) : featured ? (
+            // Reduced motion gets what this tab rendered before the fan: the
+            // same people, in rows. A different tree rather than the same one
+            // moving less, which is the site's rule — and a fallback this
+            // page has already been shipping.
+            //
             // Rows rather than a grid, for two reasons the grid could not
             // answer. A rank whose count is not a multiple of the columns left
             // its last row ranged left with empty cells beside it, and the

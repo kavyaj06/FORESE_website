@@ -30,3 +30,20 @@ export const TEAM_CORE_TABS = [
   { id: 'lead', label: 'Leads' },
   { id: 'senior-executive', label: 'Senior Executives' },
 ] as const;
+
+/**
+ * The card fan on the core tabs.
+ *
+ * `{count}` and `{post}` are filled at render. The hint is deliberately about
+ * what to do rather than what the thing is: a fanned hand of cards does not
+ * announce that it can be clicked, and on a pointer device it can also be
+ * flicked upward, which nobody guesses.
+ */
+export const TEAM_FAN = {
+  back: 'All posts',
+  holders: '{count} people hold this post.',
+  hint: 'Pick a card to meet the people in that post.',
+  openPost: '{post}, show {count} people',
+  openPostOne: '{post}, show 1 person',
+  noPost: 'Core',
+} as const;
