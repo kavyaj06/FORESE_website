@@ -1,38 +1,46 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import type { ClubMember } from '@/data/team';
 import { TEAM_FAN } from '../data';
 import { CardFan, type FanCard } from './CardFan';
 import { MemberPortrait } from './MemberPortrait';
 
 /**
- * One rank, as a hand of cards.
+ * One core rank, as two hands of cards.
  *
- * The club asked for the cards to carry posts — President, Vice President,
- * General Secretary — and for clicking one to bring that post's people out
- * and spread them. That is what this does, with one rule the roster forced.
+ * The club supplied a reference for this: a fanned stack of black cards along
+ * the bottom carrying nothing but posting names, and — once one is picked —
+ * that posting's people fanned above it with their photographs, names and
+ * designations. Both stacks stay on screen; the postings do not go away when
+ * their people arrive.
  *
- * **A post fan needs at least one post holding more than one person.**
- * Otherwise the posts and the people are the same list, and the second level
- * is a spread of exactly one card every time: the Leads are three posts of one
- * person each, and so are the Senior Executives. Those ranks fan the people
- * directly, with the post printed under the name. The senior core (1, 2, 6)
- * and the junior core (6, 2, 1, 1) get both levels.
+ * Three things about it are deliberate and would look like oversights.
  *
- * The rule is derived rather than a list of rank names, so a rank that gains a
- * second treasurer starts showing posts on its own. `TeamBrowser` already
- * carries the same judgement in a different form: `roleRows` groups the senior
- * core by role and deliberately does not do it to the junior core, because
- * rows of one card "read as a mistake rather than as a hierarchy".
+ * **The posting cards hold the posting name and nothing else.** No photograph,
+ * no count, no first member's face. The reference is explicit that nothing
+ * about a person appears until their posting is picked, and that is also what
+ * makes the two stacks read as two different kinds of thing rather than as the
+ * same cards twice.
+ *
+ * **The stage is a fixed height and the postings move inside it.** Collapsed,
+ * the stack sits in the middle of the stage; expanded, it slides to the floor
+ * and the people fan into the space above. Nothing animates its own height —
+ * the rule here is transform and opacity only — so the page below never jumps
+ * while the stacks rearrange.
+ *
+ * **It is orange, not the reference's purple.** The club asked for one accent
+ * across the site and chose the home page's orange for it; a second colour
+ * living only on this page would read as a different site. The structure of
+ * the reference is kept exactly: black card, glowing border on the one at the
+ * front, white type.
  */
 export function CoreFan({ members }: { members: ClubMember[] }) {
   const [openPost, setOpenPost] = useState<string | null>(null);
-  // Which post to raise when the hand of posts comes back, so returning does
-  // not dump the reader at the President every time.
-  const [lastPost, setLastPost] = useState<string | null>(null);
+  const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
 
   /**
-   * The posts in this rank, in roster order.
+   * The postings in this rank, in roster order.
    *
    * A Map because insertion order is the order `members` arrives in, and that
    * is already sorted by `byRoleThenName` — so the President leads the hand
@@ -47,11 +55,18 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
     return [...grouped.entries()];
   }, [members]);
 
-  const showsPosts = posts.some(([, people]) => people.length > 1);
-  const open = openPost ? posts.find(([post]) => post === openPost) : undefined;
+  // A rank the tabs switched to has its own postings, and whichever was open
+  // before is not one of them.
+  useEffect(() => {
+    setOpenPost(null);
+    setActiveMemberId(null);
+  }, [posts]);
 
-  // Escape goes back up, the way it closes anything else that opened over the
-  // page. Bound only while a post is open, so it cannot swallow the key from
+  const open = openPost ? posts.find(([post]) => post === openPost) : undefined;
+  const people = open?.[1] ?? [];
+
+  // Escape closes the people, the way it closes anything else that opened over
+  // the page. Bound only while one is open, so it cannot swallow the key from
   // whatever else might want it.
   useEffect(() => {
     if (!open) return;
@@ -62,70 +77,146 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
-  const face = (member: ClubMember) => (
-    <MemberPortrait member={member} className="duration-base ease-out-brand transition-transform" />
-  );
-
-  const peopleCards = (people: ClubMember[]): FanCard[] =>
-    people.map((member) => ({
-      id: member.id,
-      title: member.name,
-      meta: [member.role, member.batch].filter(Boolean).join(' · '),
-      face: face(member),
-    }));
-
-  if (!showsPosts) {
-    return <CardFan cards={peopleCards(members)} />;
-  }
-
-  if (open) {
-    const [post, people] = open;
-    return (
-      <CardFan
-        // Keyed on the post so the hand arrives rather than morphing out of
-        // the previous one: the two sets are different people, and a diff
-        // between them slides faces across the screen into each other.
-        key={post}
-        cards={peopleCards(people)}
-        aside={
-          <button
-            type="button"
-            onClick={() => setOpenPost(null)}
-            className="text-label text-text-muted hover:text-text duration-fast ease-out-brand gap-xs tablet:justify-start inline-flex items-center justify-center transition-colors"
-          >
-            <ArrowLeft size={16} strokeWidth={2} aria-hidden="true" />
-            {TEAM_FAN.back}
-          </button>
-        }
-      />
-    );
-  }
-
-  const postCards: FanCard[] = posts.map(([post, people]) => ({
+  const postCards: FanCard[] = posts.map(([post, holders]) => ({
     id: post,
-    title: post,
-    label: (people.length === 1 ? TEAM_FAN.openPostOne : TEAM_FAN.openPost)
+    label: (holders.length === 1 ? TEAM_FAN.openPostOne : TEAM_FAN.openPost)
       .replace('{post}', post)
-      .replace('{count}', String(people.length)),
-    meta:
-      people.length === 1
-        ? people[0].name
-        : TEAM_FAN.holders.replace('{count}', String(people.length)),
-    // The first person in the post, which is the first in roster order rather
-    // than a pick: the card is a door into the post, not a portrait of them.
-    face: face(people[0]),
+      .replace('{count}', String(holders.length)),
+    face: (
+      <span className="p-md gap-sm flex h-full w-full flex-col items-center justify-center text-center">
+        <span className="text-body font-semibold text-balance">{post}</span>
+        {/* The mark under the front card, which is the reference's way of
+            saying which one is open. Drawn on every card and scaled away on
+            the rest, so it costs a transform rather than a layout change. */}
+        <span
+          aria-hidden="true"
+          className={[
+            'bg-accent duration-base ease-out-brand h-px w-8 origin-center transition-transform',
+            post === openPost ? 'scale-x-100' : 'scale-x-0',
+          ].join(' ')}
+        />
+      </span>
+    ),
   }));
 
+  const memberCards: FanCard[] = people.map((member) => ({
+    id: member.id,
+    label: [member.name, member.role].filter(Boolean).join(', '),
+    face: (
+      <span className="gap-sm p-md flex h-full w-full flex-col items-center justify-center text-center">
+        <span className="border-border size-16 overflow-hidden rounded-full border">
+          <MemberPortrait member={member} />
+        </span>
+        <span className="text-small font-semibold">{member.name}</span>
+        <span className="text-caption text-text-muted">{member.role}</span>
+      </span>
+    ),
+  }));
+
+  const activeMember =
+    people.find((member) => member.id === activeMemberId)?.id ?? people[0]?.id ?? null;
+
   return (
-    <CardFan
-      key="posts"
-      cards={postCards}
-      defaultActiveId={lastPost ?? undefined}
-      onOpen={(card) => {
-        setOpenPost(card.id);
-        setLastPost(card.id);
-      }}
-      aside={<p className="text-caption text-text-subtle">{TEAM_FAN.hint}</p>}
-    />
+    <div className="gap-xl desktop:gap-2xl desktop:flex-row flex w-full flex-col items-center">
+      <div className="tablet:w-44 desktop:w-56 tablet:text-right w-full shrink-0 text-center">
+        <motion.div
+          key={openPost ?? 'none'}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.32 }}
+          className="gap-xs flex flex-col"
+        >
+          <p className="text-eyebrow text-accent tabular-nums">
+            {String(
+              open ? posts.findIndex(([post]) => post === openPost) + 1 : posts.length,
+            ).padStart(2, '0')}{' '}
+            / {String(posts.length).padStart(2, '0')}
+          </p>
+          <h3 className="text-h3 text-balance">{openPost ?? TEAM_FAN.title}</h3>
+          <p className="text-small text-text-muted">
+            {open
+              ? (people.length === 1 ? TEAM_FAN.holderOne : TEAM_FAN.holders).replace(
+                  '{count}',
+                  String(people.length),
+                )
+              : TEAM_FAN.lead}
+          </p>
+
+          {open && (
+            <button
+              type="button"
+              onClick={() => setOpenPost(null)}
+              className="text-label text-text-muted hover:text-text duration-fast ease-out-brand gap-xs desktop:justify-end mt-xs inline-flex items-center justify-center transition-colors"
+            >
+              <X size={15} strokeWidth={2} aria-hidden="true" />
+              {TEAM_FAN.close}
+            </button>
+          )}
+        </motion.div>
+      </div>
+
+      {/* One stage of a fixed height, holding both hands. The postings sit on
+          its floor and rise to the middle when nothing is open; the people
+          occupy the top half and are not in the document at all until a
+          posting is picked, so nothing below them is reachable by Tab while
+          they are away. */}
+      <div className="relative min-w-0 flex-1 self-stretch" style={{ minHeight: 620 }}>
+        <motion.div
+          className="absolute inset-x-0 top-[110px]"
+          initial={false}
+          animate={{ opacity: open ? 1 : 0, scale: open ? 1 : 0.94, y: open ? 0 : 24 }}
+          transition={{ damping: 26, mass: 0.85, stiffness: 300, type: 'spring' }}
+          style={{ pointerEvents: open ? 'auto' : 'none' }}
+        >
+          {open && (
+            <CardFan
+              // Keyed on the posting so a different one's people arrive as a
+              // new hand rather than morphing out of the last: they are
+              // different faces, and a diff between them slides one person's
+              // photograph across the screen into another's.
+              key={openPost ?? 'none'}
+              cards={memberCards}
+              activeId={activeMember}
+              onPick={(card) => setActiveMemberId(card.id)}
+              cardWidth={176}
+              ratio={1.34}
+              lift={0.24}
+            />
+          )}
+        </motion.div>
+
+        <motion.div
+          className="absolute inset-x-0 bottom-0"
+          initial={false}
+          animate={{ y: open ? 0 : -170 }}
+          transition={{ damping: 26, mass: 0.85, stiffness: 300, type: 'spring' }}
+        >
+          <CardFan
+            cards={postCards}
+            activeId={openPost}
+            onPick={(card) => {
+              // Picking the open posting again closes it, which is the
+              // shortest way back and the one a reader tries first.
+              setOpenPost((current) => (current === card.id ? null : card.id));
+              setActiveMemberId(null);
+            }}
+            cardWidth={190}
+            ratio={1.2}
+            lift={0.24}
+            step={11}
+          />
+        </motion.div>
+      </div>
+
+      <div className="tablet:w-44 desktop:w-56 tablet:text-left w-full shrink-0 text-center">
+        <p className="text-caption text-text-subtle">{TEAM_FAN.hint}</p>
+        {/* The announcement, for anyone who cannot see the hand rearrange.
+            Out of sight rather than on the page: spelled out visibly it was a
+            list of six names repeating what the cards already say. */}
+        <p aria-live="polite" className="sr-only">
+          {open ? `${openPost}: ${people.map((member) => member.name).join(', ')}` : ''}
+        </p>
+      </div>
+    </div>
   );
 }
