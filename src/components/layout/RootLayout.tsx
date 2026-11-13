@@ -28,6 +28,14 @@ import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
  */
 const BRAND_ROUTES = ['/gallery', '/events', '/team', '/tips'];
 
+/**
+ * Routes that take the colour but not the column rules.
+ *
+ * The team page is cards on a stage, and a ruled grid behind a fanned hand of
+ * them read as two patterns arguing. The orange stays; this is only the lines.
+ */
+const UNRULED_ROUTES = ['/team'];
+
 /** Once per tab. A curtain on every visit makes a site feel slower the more
     of it you look at. */
 const seenIntro =
@@ -125,6 +133,11 @@ export function RootLayout() {
           data-accent={
             BRAND_ROUTES.some((prefix) => location.pathname.startsWith(prefix))
               ? 'brand'
+              : undefined
+          }
+          data-rules={
+            UNRULED_ROUTES.some((prefix) => location.pathname.startsWith(prefix))
+              ? 'off'
               : undefined
           }
         >

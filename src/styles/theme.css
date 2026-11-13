@@ -467,7 +467,9 @@
  * bands are built from, in the same spirit as `[data-theme='inverse']` being
  * the hook for a dark section.
  *
- * `data-rules="off"` opts an element out, and the team page's cards need it:
+ * `data-rules="off"` opts out, on `main` for a whole page or on one element.
+ * The team page uses both: the page, because a ruled grid behind a fanned
+ * hand of cards is two patterns arguing, and its cards, because:
  * the dark-band selector matches any element carrying the inverse theme, and
  * a small black card is one. Twelve column rules were being painted across
  * every face. A class cannot do this job — `bg-none` is one class against a
@@ -478,9 +480,9 @@
  * every band instead of restarting at each one, and they hold still while
  * the page scrolls under them. Twelve columns, the rhythm the reference uses.
  */
-main[data-accent='brand'],
-main[data-accent='brand'] .bg-surface,
-main[data-accent='brand'] [data-theme='inverse']:not([data-rules='off']) {
+main[data-accent='brand']:not([data-rules='off']),
+main[data-accent='brand']:not([data-rules='off']) .bg-surface,
+main[data-accent='brand']:not([data-rules='off']) [data-theme='inverse']:not([data-rules='off']) {
   background-image: linear-gradient(to right, var(--color-rule) 1px, transparent 1px);
   background-size: calc(100% / 12) 100%;
   background-repeat: repeat;
