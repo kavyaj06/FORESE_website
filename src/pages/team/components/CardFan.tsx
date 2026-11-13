@@ -31,6 +31,15 @@ interface CardFanProps {
   lift?: number;
   /** Degrees between neighbouring cards, before the sweep clamp. */
   step?: number;
+  /**
+   * Deal the hand out of a pile at the centre when it first mounts.
+   *
+   * For the people: picking a posting should look like its cards being
+   * spread, not like a row of them switching on. The postings themselves do
+   * not want it — they are already on the page when you arrive, so there is
+   * no pile for them to come out of.
+   */
+  spreadIn?: boolean;
   className?: string;
 }
 
@@ -86,6 +95,7 @@ export function CardFan({
   ratio = 1.3,
   lift = 0.1,
   step = 9,
+  spreadIn = false,
   className,
 }: CardFanProps) {
   const fanRef = useRef<HTMLDivElement>(null);
@@ -98,10 +108,25 @@ export function CardFan({
   // swiping over the fan scrolls nothing. Pointer devices only — the gate
   // `Tilt3D` already uses.
   const [canDrag, setCanDrag] = useState(false);
+  /**
+   * Whether the deal has finished.
+   *
+   * The stagger below is a delay on the card's transition, and framer uses
+   * one transition for every animation a component runs — so left in place it
+   * would also delay the hover lift and the raise, by up to a third of a
+   * second on the outermost card. It is dropped once the hand is out.
+   */
+  const [dealt, setDealt] = useState(!spreadIn);
 
   useEffect(() => {
     setCanDrag(!window.matchMedia('(pointer: coarse)').matches);
   }, []);
+
+  useEffect(() => {
+    if (dealt) return;
+    const timer = setTimeout(() => setDealt(true), 300 + cards.length * 60);
+    return () => clearTimeout(timer);
+  }, [dealt, cards.length]);
 
   useEffect(() => {
     const node = fanRef.current;
@@ -206,13 +231,22 @@ export function CardFan({
           y: (neighbourShift * Math.sin(rad) + dy * Math.cos(rad)) / slot.scale,
         };
 
+        // Dealt from the middle outwards, so the hand opens from its centre
+        // rather than sweeping from one end.
+        const fromCentre = Math.abs(index - (cards.length - 1) / 2);
+        const delay = dealt ? 0 : fromCentre * 0.06;
+
         return (
           <motion.div
             key={card.id}
             className="absolute bottom-0 left-1/2"
-            initial={false}
-            animate={slot}
-            transition={transition}
+            // The pile every card starts in: no offset, no angle, a little
+            // small. `false` would plant each card in its finished slot,
+            // which is the version that looked like the cards simply
+            // appearing.
+            initial={spreadIn ? { rotate: 0, scale: 0.7, x: 0, y: 0, opacity: 0 } : false}
+            animate={{ ...slot, opacity: 1 }}
+            transition={{ ...transition, delay }}
             onHoverStart={() => setHoveredId(card.id)}
             onHoverEnd={() => clearHover(card.id)}
             style={{

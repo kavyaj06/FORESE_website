@@ -124,8 +124,16 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
     ),
   }));
 
-  const activeMember =
-    people.find((member) => member.id === activeMemberId)?.id ?? people[0]?.id ?? null;
+  /**
+   * Nobody is raised until somebody is picked.
+   *
+   * This used to fall back to the first person in the posting, which chose a
+   * card on the reader's behalf and left the hand with one already pulled out
+   * of it before they had done anything.
+   */
+  const activeMember = people.some((member) => member.id === activeMemberId)
+    ? activeMemberId
+    : null;
 
   return (
     <div className="gap-xl desktop:gap-2xl desktop:flex-row flex w-full flex-col items-center">
@@ -137,21 +145,8 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
           transition={{ duration: 0.32 }}
           className="gap-xs flex flex-col"
         >
-          <p className="text-eyebrow text-accent tabular-nums">
-            {String(
-              open ? posts.findIndex(([post]) => post === openPost) + 1 : posts.length,
-            ).padStart(2, '0')}{' '}
-            / {String(posts.length).padStart(2, '0')}
-          </p>
           <h3 className="text-h3 text-balance">{openPost ?? TEAM_FAN.title}</h3>
-          <p className="text-small text-text-muted">
-            {open
-              ? (people.length === 1 ? TEAM_FAN.holderOne : TEAM_FAN.holders).replace(
-                  '{count}',
-                  String(people.length),
-                )
-              : TEAM_FAN.lead}
-          </p>
+          {!open && <p className="text-small text-text-muted">{TEAM_FAN.lead}</p>}
 
           {open && (
             <button
@@ -192,6 +187,7 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
               cardWidth={176}
               ratio={1.34}
               lift={0.24}
+              spreadIn
             />
           )}
         </motion.div>
