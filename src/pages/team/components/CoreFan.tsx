@@ -161,14 +161,19 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
         </motion.div>
       </div>
 
-      {/* One stage of a fixed height, holding both hands. The postings sit on
+      {/* One stage of a fixed height, holding both hands.
+       *
+       * The people sit 24px down it rather than 110px. At 110 the raised
+       * posting card rode 56px over the bottom of the hand above it, which
+       * is measured, not judged by eye — and there were 231px of unused room
+       * between the tab strip and the top card to spend on fixing it. The postings sit on
           its floor and rise to the middle when nothing is open; the people
           occupy the top half and are not in the document at all until a
           posting is picked, so nothing below them is reachable by Tab while
           they are away. */}
       <div className="relative min-w-0 flex-1 self-stretch" style={{ minHeight: 620 }}>
         <motion.div
-          className="absolute inset-x-0 top-[110px]"
+          className="absolute inset-x-0 top-[24px]"
           initial={false}
           animate={{ opacity: open ? 1 : 0, scale: open ? 1 : 0.94, y: open ? 0 : 24 }}
           transition={{ damping: 26, mass: 0.85, stiffness: 300, type: 'spring' }}
