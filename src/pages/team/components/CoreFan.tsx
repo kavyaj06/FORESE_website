@@ -117,8 +117,12 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
           className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"
         />
         <span className="p-md absolute inset-x-0 bottom-0 flex flex-col gap-0.5 text-left">
+          {/* The name, and nothing under it. Every card in a hand holds the
+              same posting and the heading beside the fan already says which
+              one, so printing it six times said nothing and crowded the
+              photograph it was sitting on. It stays in the button's
+              accessible name, which is read one card at a time. */}
           <span className="text-small font-semibold">{member.name}</span>
-          <span className="text-caption text-text-muted">{member.role}</span>
         </span>
       </span>
     ),
