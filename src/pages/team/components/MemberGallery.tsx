@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { EASE_OUT_BRAND } from '@/components/motion/variants';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { cn } from '@/lib/cn';
 import type { ClubMember } from '@/data/team';
@@ -25,10 +26,14 @@ import { MemberPortrait } from './MemberPortrait';
  * the portrait beside whatever part of the grid is on screen, and still lets
  * it scroll away with the section rather than hanging over the footer.
  *
- * **The grid does not dim until it has been used.** Untouched, every portrait
- * is at full strength; once a face has been picked the others fall back so the
- * chosen one reads. Dimming on arrival would make a reader's first sight of
- * the membership a wall of faded photographs.
+ * **The grid dims only while you are in it.** Move the mouse across it, or
+ * tab through it, and everyone but the face you are on falls back; leave it
+ * and they all come back, while the large portrait keeps showing the last
+ * person you were on. A tap on a phone features somebody without dimming
+ * anyone, because a finger has no "leaving" to undo a dim with.
+ *
+ * **The portraits arrive as they scroll into view**, once each, sweeping
+ * across a row rather than down the whole list.
  *
  * **The working teams sit under the portrait.** Picking one dims everybody
  * outside it, so the team reads as a shape across the whole grid instead of
@@ -44,12 +49,24 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [pickedId, setPickedId] = useState<string | null>(null);
   const [activeTeam, setActiveTeam] = useState<TeamId | null>(null);
+  /**
+   * Whether the reader is in the grid right now: a mouse over it, or keyboard
+   * focus inside it.
+   *
+   * Separate from `pickedId` on purpose. The two used to be one thing, so the
+   * first hover set a pick that nothing ever cleared, and the whole wall sat
+   * dimmed for good after a single pass of the cursor. Now the pick outlives
+   * the hover — the panel keeps showing the last face you were on — but the
+   * dimming only lasts as long as you are actually over the grid.
+   */
+  const [inGrid, setInGrid] = useState(false);
 
   // A different rank arrived; whoever was picked, and whichever team was on,
   // describe a group that is no longer on screen.
   useEffect(() => {
     setPickedId(null);
     setActiveTeam(null);
+    setInGrid(false);
   }, [members]);
 
   /**
@@ -75,7 +92,7 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
   const isDimmed = (member: ClubMember) =>
     activeTeam !== null
       ? member.team !== activeTeam
-      : !prefersReducedMotion && pickedId !== null && member.id !== featured?.id;
+      : !prefersReducedMotion && inGrid && member.id !== featured?.id;
 
   if (!featured) return null;
 
@@ -182,37 +199,90 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
         </div>
       </div>
 
-      <ul className="gap-md tablet:grid-cols-4 desktop:grid-cols-5 desktop:order-1 grid grid-cols-3">
-        {members.map((member) => {
+      <ul
+        className="gap-md tablet:grid-cols-4 desktop:grid-cols-5 desktop:order-1 grid grid-cols-3"
+        // Leaving the grid, by mouse or by tabbing out of it, lifts the
+        // dimming. The featured portrait stays where it was.
+        onPointerLeave={() => setInGrid(false)}
+        onBlur={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setInGrid(false);
+        }}
+      >
+        {members.map((member, index) => {
           const isPicked = member.id === featured.id && pickedId !== null;
           const dimmed = isDimmed(member);
 
+          const tile = (
+            <button
+              type="button"
+              aria-pressed={isPicked}
+              aria-label={TEAM_GALLERY.pick.replace('{name}', member.name)}
+              // A tap features the person and dims nothing. Touch has no
+              // "leaving" to undo a dim with, so a dim set by a finger would
+              // be the same stuck wall this was rewritten to stop.
+              onClick={() => setPickedId(member.id)}
+              // A mouse, specifically, picks on the way past — that is what
+              // makes it a gallery the panel follows across rather than a
+              // list of buttons. Pointer events rather than mouse events
+              // because a phone fires an emulated mouseenter on every tap.
+              onPointerEnter={(event) => {
+                if (event.pointerType !== 'mouse') return;
+                setPickedId(member.id);
+                setInGrid(true);
+              }}
+              // Keyboard focus does the same, but only real keyboard focus:
+              // a click also focuses the button, and that should not count.
+              onFocus={(event) => {
+                if (!event.currentTarget.matches(':focus-visible')) return;
+                setPickedId(member.id);
+                setInGrid(true);
+              }}
+              className={cn(
+                'bg-surface-inverse block w-full overflow-hidden rounded-md',
+                !prefersReducedMotion && 'ease-out-brand transition-opacity duration-300',
+                // A team's outsiders sit lower than a hover's: the team is the
+                // reader's own choice and should read as decided.
+                dimmed && (activeTeam ? 'opacity-20' : 'opacity-25'),
+              )}
+            >
+              <span className="block aspect-[3/4] w-full">
+                <MemberPortrait member={member} />
+              </span>
+            </button>
+          );
+
+          // Reduced motion gets the plain list item: no entrance at all,
+          // rather than the same entrance played quicker.
+          if (prefersReducedMotion) return <li key={member.id}>{tile}</li>;
+
           return (
-            <li key={member.id}>
-              <button
-                type="button"
-                aria-pressed={isPicked}
-                aria-label={TEAM_GALLERY.pick.replace('{name}', member.name)}
-                onClick={() => setPickedId(member.id)}
-                // Hover and focus pick too, which is what makes it a gallery
-                // rather than a list of buttons: on a pointer device the
-                // featured panel follows the cursor across the wall.
-                onMouseEnter={() => setPickedId(member.id)}
-                onFocus={() => setPickedId(member.id)}
-                className={cn(
-                  'bg-surface-inverse block w-full overflow-hidden rounded-md',
-                  !prefersReducedMotion && 'ease-out-brand transition-opacity duration-300',
-                  // A team's outsiders stay dim under the pointer: the team is
-                  // the reader's own choice and hovering past it should not
-                  // undo it. The pick dimming lifts on hover, as before.
-                  dimmed && (activeTeam ? 'opacity-20' : 'opacity-25 hover:opacity-100'),
-                )}
-              >
-                <span className="block aspect-[3/4] w-full">
-                  <MemberPortrait member={member} />
-                </span>
-              </button>
-            </li>
+            <motion.li
+              key={member.id}
+              /**
+               * The scroll entrance lives on the list item, never on the
+               * button. The button's opacity is the dimming, and framer writes
+               * opacity inline: on the same element its `1` would beat the
+               * dim class and the hover would stop working. Nested, the two
+               * opacities simply multiply.
+               *
+               * Once, not on every pass. The site's own `Reveal` replays as
+               * you scroll back up, and across 140 portraits that would be
+               * the grid re-dealing itself under the reader's thumb.
+               */
+              initial={{ opacity: 0, y: 28, scale: 0.96 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, amount: 'some', margin: '0px 0px -60px 0px' }}
+              transition={{
+                duration: 0.55,
+                ease: EASE_OUT_BRAND,
+                // Across the row rather than down the whole list, so a row
+                // arriving together sweeps left to right instead of the last
+                // portraits waiting seconds for the first eighty.
+                delay: (index % 5) * 0.06,
+              }}
+            >
+              {tile}
+            </motion.li>
           );
         })}
       </ul>
