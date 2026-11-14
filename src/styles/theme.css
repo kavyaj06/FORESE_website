@@ -295,25 +295,6 @@
      full width of a column rather than inside a grid cell. */
   --container-measure: 36rem; /* 576px */
 
-  /* The tallest the featured portrait on the team page may be, so that the
-     portrait and the list of working teams under it always fit on screen
-     together while the panel is stuck in place.
-
-     It is the viewport less everything else in that column, all of it fixed:
-       7rem     where the panel sticks (`top-28`, clear of the header)
-       1.5rem   the gap between portrait and list
-       15.5rem  the team list — a 1.4rem label and five 2.75rem rows
-       1.5rem   breathing room at the foot of the screen
-     = 25.5rem.
-
-     Without it the portrait held 512px at every height and the list fell
-     below the fold on every common laptop: measured, at 1440x900 the last
-     team was 28px off screen and at 1440x760 only one of five showed. On a
-     screen tall enough the portrait's own 3:4 is the smaller of the two and
-     wins, so big monitors are unchanged. The 16rem floor stops a very short
-     window squeezing the face to a strip. */
-  --size-team-portrait: max(16rem, calc(100dvh - 25.5rem));
-
   --container-content-narrow: 48rem; /* 768px — prose line length, deliberately fixed:
      a comfortable reading measure doesn't get more comfortable on a bigger
      monitor, so this one never grows. */

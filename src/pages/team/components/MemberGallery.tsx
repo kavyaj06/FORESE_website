@@ -113,15 +113,7 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
             transition={{ duration: 0.4 }}
             className="bg-surface-inverse relative overflow-hidden rounded-lg"
           >
-            {/* 3:4 where there is room for it, shorter where there is not, so
-                the list of teams below always fits on screen with it — at
-                every width, not only desktop: stacked full width on a tablet
-                the portrait was 951px tall on its own, taller than the
-                screen, so the teams started below the fold there too. See
-                `--size-team-portrait`. When the height gives first, the photo
-                crops rather than squashes, and it crops from the bottom: the
-                portrait is framed a fifth of the way down, where faces are. */}
-            <div className="aspect-[3/4] max-h-(--size-team-portrait) w-full">
+            <div className="aspect-[3/4] w-full">
               <MemberPortrait member={featured} />
             </div>
 
@@ -176,12 +168,7 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
                         setPickedId(null);
                       }}
                       className={cn(
-                        // A fixed row height rather than padding, because the
-                        // portrait above is sized by subtracting this list
-                        // from the screen; the sum only holds if the list
-                        // is a known height. 2.75rem is also a full 44px
-                        // touch target.
-                        'text-body flex h-11 w-full items-center justify-between text-left',
+                        'text-body py-sm flex w-full items-center justify-between text-left',
                         'duration-fast ease-out-brand transition-colors',
                         active
                           ? 'text-accent font-semibold'
