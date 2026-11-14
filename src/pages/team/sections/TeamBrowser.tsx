@@ -10,6 +10,7 @@ import type { TeamId } from '@/data/teamIds';
 import { CLUB_MEMBERS, type ClubMember, type MemberRank } from '@/data/team';
 import { byRoleThenName, CLUB_TEAMS, CORE_RANKS } from '@/data/teams';
 import { CoreFan } from '../components/CoreFan';
+import { MemberGallery } from '../components/MemberGallery';
 import { MemberCard } from '../components/MemberCard';
 import { TEAM_CORE_TABS, TEAM_GROUP_TABS } from '../data';
 
@@ -148,7 +149,16 @@ export function TeamBrowser() {
                 ariaLabel="Which core rank to show"
               />
             )}
-            {group === 'member' && (
+            {/* Only once somebody is actually on a working team. Nobody in
+                the roster carries one today, so this row rendered five
+                filters reading Design 0, Development 0, Content 0,
+                Marketing 0 and Videography 0 — five ways to empty the page.
+                The `all` tab is excluded from the test: it counts the whole
+                group, so it is never zero and would keep the row alive on
+                its own.
+                Written as a condition rather than deleted, so the row comes
+                back by itself the day the club fills the field in. */}
+            {group === 'member' && teamTabs.some((tab) => tab.id !== 'all' && tab.count > 0) && (
               <SegmentedTabs
                 tabs={teamTabs}
                 value={team}
@@ -208,22 +218,12 @@ export function TeamBrowser() {
               ))}
             </div>
           ) : (
-            <div className="gap-lg tablet:grid-cols-4 desktop:grid-cols-5 grid grid-cols-2">
-              {visible.map((member, index) => (
-                <Card
-                  key={member.id}
-                  member={member}
-                  index={index}
-                  columns={5}
-                  prefersReducedMotion={prefersReducedMotion}
-                  open={openId === member.id}
-                  onToggle={() =>
-                    setOpenId((current) => (current === member.id ? null : member.id))
-                  }
-                  size="standard"
-                />
-              ))}
-            </div>
+            // The two member ranks are a gallery: a grid of portraits with
+            // one of them held large beside it. See `MemberGallery`. The
+            // group tabs above are its sections — the club's roster has no
+            // working team on anybody, so Senior Members and Members are the
+            // only real division there is to navigate by.
+            <MemberGallery members={visible} />
           )}
         </div>
       </Container>

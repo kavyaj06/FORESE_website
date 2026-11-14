@@ -48,3 +48,21 @@ export const TEAM_FAN = {
   openPostOne: '{post}, show 1 person',
   noPost: 'Core',
 } as const;
+
+/** The membership gallery under the Senior Members and Members tabs. */
+export const TEAM_GALLERY = {
+  pick: 'Show {name}',
+  /**
+   * What goes under the name when a person holds no title.
+   *
+   * Most of the roster holds none: a title belongs to the core, and the 140
+   * people in the two member ranks are identified by the rank itself.
+   * Printing "Member" under all of them would call a senior member the wrong
+   * thing.
+   */
+  ranks: {
+    'senior-member': 'Senior Member',
+    member: 'Member',
+  } as Record<string, string>,
+  noRole: 'Member',
+} as const;
