@@ -145,7 +145,7 @@ export function CardFan({
    * fits — it put 69px of the hand outside the page.
    */
   const width =
-    fanWidth === null ? cardWidth : Math.min(cardWidth, fanWidth / (1.9 + cards.length * 0.22));
+    fanWidth === null ? cardWidth : Math.min(cardWidth, fanWidth / (1.45 + cards.length * 0.16));
   const height = width * ratio;
 
   /**

@@ -175,7 +175,7 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
           occupy the top half and are not in the document at all until a
           posting is picked, so nothing below them is reachable by Tab while
           they are away. */}
-      <div className="relative min-w-0 flex-1 self-stretch" style={{ minHeight: 620 }}>
+      <div className="relative min-w-0 flex-1 self-stretch" style={{ minHeight: 700 }}>
         <motion.div
           className="absolute inset-x-0 top-[24px]"
           initial={false}
@@ -193,7 +193,10 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
               cards={memberCards}
               activeId={activeMember}
               onPick={(card) => setActiveMemberId(card.id)}
-              cardWidth={176}
+              // 232 rather than 176: the club asked for bigger faces. The
+              // stage below is taller by the same amount, so the hand still
+              // clears the postings it sits above.
+              cardWidth={232}
               ratio={1.34}
               lift={0.24}
               spreadIn
@@ -204,7 +207,7 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
         <motion.div
           className="absolute inset-x-0 bottom-0"
           initial={false}
-          animate={{ y: open ? 0 : -170 }}
+          animate={{ y: open ? 0 : -210 }}
           transition={{ damping: 26, mass: 0.85, stiffness: 300, type: 'spring' }}
         >
           <CardFan
