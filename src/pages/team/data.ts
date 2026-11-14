@@ -52,6 +52,7 @@ export const TEAM_FAN = {
 /** The membership gallery under the Senior Members and Members tabs. */
 export const TEAM_GALLERY = {
   pick: 'Show {name}',
+  teamsLabel: 'Teams',
   /**
    * What goes under the name when a person holds no title.
    *
