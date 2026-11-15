@@ -15,6 +15,13 @@ interface CardDealProps {
    * picked rather than out of thin air.
    */
   deckBelow: number;
+  /**
+   * How many cards the size is worked out for — the biggest posting in the
+   * rank, not this one. Sized per posting, a pair got 200px cards and six got
+   * 86px, so the same people looked different depending on who they shared a
+   * posting with.
+   */
+  slots: number;
   className?: string;
 }
 
@@ -45,7 +52,7 @@ const spring = { damping: 24, stiffness: 260, type: 'spring' as const };
  * No reduced-motion branch, for the same reason as `CardFan`: `TeamBrowser`
  * renders plain rows instead and never mounts this.
  */
-export function CardDeal({ cards, activeId, onPick, deckBelow, className }: CardDealProps) {
+export function CardDeal({ cards, activeId, onPick, deckBelow, slots, className }: CardDealProps) {
   const rowRef = useRef<HTMLDivElement>(null);
   const [rowWidth, setRowWidth] = useState<number | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
@@ -68,9 +75,14 @@ export function CardDeal({ cards, activeId, onPick, deckBelow, className }: Card
 
   const n = cards.length;
   const available = rowWidth ?? 0;
-  const columns = available < NARROW ? Math.min(n, 3) : n;
+  const fit = Math.max(n, slots);
+  const sizeColumns = available < NARROW ? Math.min(fit, 3) : fit;
+  const columns = Math.min(n, sizeColumns);
   const rows = Math.ceil(n / columns);
-  const width = Math.max(0, Math.min(MAX_WIDTH, (available - (columns - 1) * GAP) / columns));
+  const width = Math.max(
+    0,
+    Math.min(MAX_WIDTH, (available - (sizeColumns - 1) * GAP) / sizeColumns),
+  );
   const height = width * RATIO;
   const rowHeight = rows * height + (rows - 1) * GAP;
 

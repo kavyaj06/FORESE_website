@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
 import type { ClubMember } from '@/data/team';
 import { TEAM_FAN } from '../data';
 import { CardDeal } from './CardDeal';
@@ -73,6 +72,8 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
     setOpenPost(null);
     setActiveMemberId(null);
   }, [posts]);
+
+  const largestPost = Math.max(1, ...posts.map(([, holders]) => holders.length));
 
   const open = openPost ? posts.find(([post]) => post === openPost) : undefined;
   const people = open?.[1] ?? [];
@@ -153,37 +154,13 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
     : null;
 
   return (
-    <div className="gap-xl desktop:gap-2xl desktop:flex-row flex w-full flex-col items-center">
-      <div className="tablet:w-44 desktop:w-56 tablet:text-right w-full shrink-0 text-center">
-        <motion.div
-          key={openPost ?? 'none'}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.32 }}
-          className="gap-xs flex flex-col"
-        >
-          <h3 className="text-h3 text-balance">{openPost ?? TEAM_FAN.title}</h3>
-          {!open && <p className="text-small text-text-muted">{TEAM_FAN.lead}</p>}
-
-          {open && (
-            <button
-              type="button"
-              onClick={() => setOpenPost(null)}
-              className="text-label text-text-muted hover:text-text duration-fast ease-out-brand gap-xs desktop:justify-end mt-xs inline-flex items-center justify-center transition-colors"
-            >
-              <X size={15} strokeWidth={2} aria-hidden="true" />
-              {TEAM_FAN.close}
-            </button>
-          )}
-        </motion.div>
-      </div>
-
+    <div className="w-full">
       {/* One stage of a fixed height, holding both hands. The postings sit on
           its floor and rise to the middle when nothing is open; the people are
           dealt into a row just above them, and are not in the document at all
           until a posting is picked, so nothing there is reachable by Tab
           while they are away. */}
-      <div className="relative min-w-0 flex-1 self-stretch" style={{ minHeight: STAGE_HEIGHT }}>
+      <div className="relative w-full" style={{ minHeight: STAGE_HEIGHT }}>
         <motion.div
           className="absolute inset-x-0"
           style={{ bottom: PEOPLE_BOTTOM, pointerEvents: open ? 'auto' : 'none' }}
@@ -204,6 +181,10 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
               // measured from the bottom of this row: the people come up out
               // of the posting that was picked.
               deckBelow={DECK_BELOW}
+              // Sized for the biggest posting in the rank, so every posting's
+              // cards are the same size: six General Secretaries look exactly
+              // like two Vice Presidents.
+              slots={largestPost}
             />
           )}
         </motion.div>
@@ -231,15 +212,13 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
         </motion.div>
       </div>
 
-      <div className="tablet:w-44 desktop:w-56 tablet:text-left w-full shrink-0 text-center">
-        <p className="text-caption text-text-subtle">{TEAM_FAN.hint}</p>
-        {/* The announcement, for anyone who cannot see the hand rearrange.
-            Out of sight rather than on the page: spelled out visibly it was a
-            list of six names repeating what the cards already say. */}
-        <p aria-live="polite" className="sr-only">
-          {open ? `${openPost}: ${people.map((member) => member.name).join(', ')}` : ''}
-        </p>
-      </div>
+      {/* The announcement, for anyone who cannot see the cards being dealt.
+          There is no visible heading beside the cards any more — the club
+          asked for the cards alone — so this is the only place the open
+          posting and its people are named outside the cards themselves. */}
+      <p aria-live="polite" className="sr-only">
+        {open ? `${openPost}: ${people.map((member) => member.name).join(', ')}` : ''}
+      </p>
     </div>
   );
 }

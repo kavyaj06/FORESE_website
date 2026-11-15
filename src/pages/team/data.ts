@@ -40,10 +40,6 @@ export const TEAM_CORE_TABS = [
  * upward, which nobody guesses.
  */
 export const TEAM_FAN = {
-  title: 'The postings',
-  lead: 'Every role the club elects, and who holds it.',
-  hint: 'Pick a card to meet the people in that posting.',
-  close: 'Close',
   openPost: '{post}, show {count} people',
   openPostOne: '{post}, show 1 person',
   noPost: 'Core',
