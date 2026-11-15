@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import type { ClubMember } from '@/data/team';
 import { TEAM_FAN } from '../data';
+import { CardDeal } from './CardDeal';
 import { CardFan, type FanCard } from './CardFan';
 import { MemberPortrait } from './MemberPortrait';
 
@@ -35,6 +36,17 @@ import { MemberPortrait } from './MemberPortrait';
  * the reference is kept exactly: black card, glowing border on the one at the
  * front, white type.
  */
+/** The stage's fixed height. Nothing in it animates its own height. */
+const STAGE_HEIGHT = 700;
+/**
+ * The people's row sits on this line, measured up from the stage floor: just
+ * clear of the raised posting card (228px tall, lifted 55px), so the cards
+ * land right above the deck they were dealt from rather than 280px away.
+ */
+const PEOPLE_BOTTOM = 340;
+/** From the bottom of the people's row down to the middle of the postings. */
+const DECK_BELOW = PEOPLE_BOTTOM - 114;
+
 export function CoreFan({ members }: { members: ClubMember[] }) {
   const [openPost, setOpenPost] = useState<string | null>(null);
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
@@ -109,21 +121,21 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
       // point of turning a posting over is to see who holds it.
       <span className="relative block h-full w-full">
         <MemberPortrait member={member} />
-        {/* A light band over the bottom third only, behind the name. It used
-            to cover the whole card, 85% black at the foot, and dimmed the
-            face; the club asked for the same lighter band the member gallery
-            now has. */}
+        {/* A band behind the name only, fading out above it. Taller than the
+            gallery's because these cards are small: a two-line name reaches
+            a third of the way up, and the band has to stay dark that high
+            for the name to read (measured over every core photo). */}
         <span
           aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/60 via-45% to-transparent"
+          className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/85 via-black/70 via-60% to-transparent"
         />
-        <span className="p-md absolute inset-x-0 bottom-0 flex flex-col gap-0.5 text-left">
+        <span className="p-sm absolute inset-x-0 bottom-0 flex flex-col gap-0.5 text-left">
           {/* The name, and nothing under it. Every card in a hand holds the
               same posting and the heading beside the fan already says which
               one, so printing it six times said nothing and crowded the
               photograph it was sitting on. It stays in the button's
               accessible name, which is read one card at a time. */}
-          <span className="text-small font-semibold">{member.name}</span>
+          <span className="text-caption leading-tight font-semibold">{member.name}</span>
         </span>
       </span>
     ),
@@ -166,41 +178,32 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
         </motion.div>
       </div>
 
-      {/* One stage of a fixed height, holding both hands.
-       *
-       * The people sit 24px down it rather than 110px. At 110 the raised
-       * posting card rode 56px over the bottom of the hand above it, which
-       * is measured, not judged by eye — and there were 231px of unused room
-       * between the tab strip and the top card to spend on fixing it. The postings sit on
-          its floor and rise to the middle when nothing is open; the people
-          occupy the top half and are not in the document at all until a
-          posting is picked, so nothing below them is reachable by Tab while
-          they are away. */}
-      <div className="relative min-w-0 flex-1 self-stretch" style={{ minHeight: 700 }}>
+      {/* One stage of a fixed height, holding both hands. The postings sit on
+          its floor and rise to the middle when nothing is open; the people are
+          dealt into a row just above them, and are not in the document at all
+          until a posting is picked, so nothing there is reachable by Tab
+          while they are away. */}
+      <div className="relative min-w-0 flex-1 self-stretch" style={{ minHeight: STAGE_HEIGHT }}>
         <motion.div
-          className="absolute inset-x-0 top-[24px]"
+          className="absolute inset-x-0"
+          style={{ bottom: PEOPLE_BOTTOM, pointerEvents: open ? 'auto' : 'none' }}
           initial={false}
           animate={{ opacity: open ? 1 : 0, scale: open ? 1 : 0.94, y: open ? 0 : 24 }}
           transition={{ damping: 26, mass: 0.85, stiffness: 300, type: 'spring' }}
-          style={{ pointerEvents: open ? 'auto' : 'none' }}
         >
           {open && (
-            <CardFan
-              // Keyed on the posting so a different one's people arrive as a
-              // new hand rather than morphing out of the last: they are
-              // different faces, and a diff between them slides one person's
-              // photograph across the screen into another's.
+            <CardDeal
+              // Keyed on the posting so a different one's people are dealt
+              // fresh from the deck rather than sliding out of the last
+              // posting's slots.
               key={openPost ?? 'none'}
               cards={memberCards}
               activeId={activeMember}
               onPick={(card) => setActiveMemberId(card.id)}
-              // 232 rather than 176: the club asked for bigger faces. The
-              // stage below is taller by the same amount, so the hand still
-              // clears the postings it sits above.
-              cardWidth={232}
-              ratio={1.34}
-              lift={0.24}
-              spreadIn
+              // The middle of the posting cards on the floor of the stage,
+              // measured from the bottom of this row: the people come up out
+              // of the posting that was picked.
+              deckBelow={DECK_BELOW}
             />
           )}
         </motion.div>
