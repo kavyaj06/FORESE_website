@@ -34,8 +34,9 @@ import { SocialPill } from './SocialPill';
  * person you were on. A tap on a phone features somebody without dimming
  * anyone, because a finger has no "leaving" to undo a dim with.
  *
- * **The portraits arrive as they scroll into view**, once each, sweeping
- * across a row rather than down the whole list.
+ * **The portraits arrive as they scroll into view**, every time they do,
+ * scrolling down or back up, sweeping across a row rather than down the
+ * whole list.
  *
  * **The working teams sit under the portrait.** Picking one dims everybody
  * outside it, so the team reads as a shape across the whole grid instead of
@@ -301,13 +302,14 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
                * dim class and the hover would stop working. Nested, the two
                * opacities simply multiply.
                *
-               * Once, not on every pass. The site's own `Reveal` replays as
-               * you scroll back up, and across 140 portraits that would be
-               * the grid re-dealing itself under the reader's thumb.
+               * Every pass, both ways. It used to play once, on the theory
+               * that 140 portraits re-dealing themselves would be a lot; the
+               * club wants it, so a portrait that leaves the screen resets
+               * and plays again on the way back, scrolling down or up.
                */
               initial={{ opacity: 0, y: 28, scale: 0.96 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true, amount: 'some', margin: '0px 0px -60px 0px' }}
+              viewport={{ once: false, amount: 'some', margin: '0px 0px -60px 0px' }}
               transition={{
                 duration: 0.55,
                 ease: EASE_OUT_BRAND,

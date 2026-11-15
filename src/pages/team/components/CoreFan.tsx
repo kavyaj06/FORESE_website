@@ -109,12 +109,13 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
       // point of turning a posting over is to see who holds it.
       <span className="relative block h-full w-full">
         <MemberPortrait member={member} />
-        {/* Dark enough at the foot to carry white type over any crop, and
-            clear at the top so it never dims the face. The same treatment the
-            album covers use. */}
+        {/* A light band over the bottom third only, behind the name. It used
+            to cover the whole card, 85% black at the foot, and dimmed the
+            face; the club asked for the same lighter band the member gallery
+            now has. */}
         <span
           aria-hidden="true"
-          className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent"
         />
         <span className="p-md absolute inset-x-0 bottom-0 flex flex-col gap-0.5 text-left">
           {/* The name, and nothing under it. Every card in a hand holds the
