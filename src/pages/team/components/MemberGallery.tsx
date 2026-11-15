@@ -120,10 +120,17 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
             </div>
 
             {/* Its own layer, so the caption above it does not have to own a
-                background at all. */}
+                background at all.
+
+                A band along the foot, not a wash over the picture. It used to
+                cover the whole frame — 85% black at the bottom, still 35%
+                halfway up — which dimmed the face it was meant to label. Now
+                it is the bottom third only, and lighter: enough behind the
+                name and the two buttons to carry white type, and nothing at
+                all over the face. */}
             <span
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent"
+              className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent"
             />
 
             <figcaption
