@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft, CalendarDays } from 'lucide-react';
 import { Container } from '@/components/layout/Container';
+import { ConstellationBackground } from '@/components/motion/ConstellationBackground';
 import { Badge } from '@/components/ui';
 import { eventStatus, formatEventWhen, relativeWhen, type ForeseEvent } from '@/data/events';
 import { EVENT_PAGE } from '../data';
@@ -31,6 +32,10 @@ export function EventHero({ event }: { event: ForeseEvent }) {
       data-theme="inverse"
       className="bg-bg tablet:min-h-[30rem] relative isolate flex min-h-[24rem] flex-col justify-end overflow-hidden"
     >
+      {/* Starfield over the black ground (and over the cover's scrim when a
+          photograph is present — it sits between scrim and content). */}
+      <ConstellationBackground />
+
       {event.cover && (
         <>
           <img

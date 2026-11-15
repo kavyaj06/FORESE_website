@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Container } from '@/components/layout/Container';
 import { TextReveal } from '@/components/motion/TextReveal';
+import { ConstellationBackground } from '@/components/motion/ConstellationBackground';
 import { fadeInOnly, riseIn, stagger } from '@/components/motion/variants';
 import { useIntroDone } from '@/components/motion/IntroContext';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -83,6 +84,10 @@ export function PageHero({
         className,
       )}
     >
+      {/* The constellation starfield, clipped to the hero. Inverse heroes
+          are the black ones; a light hero keeps its own ground. */}
+      {tone === 'inverse' && <ConstellationBackground />}
+
       {pattern && (
         <motion.div
           aria-hidden="true"

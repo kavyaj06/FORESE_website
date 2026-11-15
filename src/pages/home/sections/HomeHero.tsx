@@ -8,6 +8,7 @@ import { fadeInOnly, riseIn, stagger } from '@/components/motion/variants';
 import { useIntroDone } from '@/components/motion/IntroContext';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 import { Button } from '@/components/ui';
+import { ConstellationBackground } from '@/components/motion/ConstellationBackground';
 import { HOME_HERO } from '../data';
 import { RecruiterMarquee } from '../components/RecruiterMarquee';
 
@@ -45,22 +46,19 @@ export function HomeHero() {
   const prefersReducedMotion = usePrefersReducedMotion();
   const introDone = useIntroDone();
   const { scrollY } = useScroll();
-  const patternY = useTransform(scrollY, [0, 800], [0, 110]);
   const contentOpacity = useTransform(scrollY, [0, 520], [1, 0.15]);
   const contentY = useTransform(scrollY, [0, 520], [0, 60]);
 
   return (
     <header
       data-theme="inverse"
-      className="py-3xl relative isolate flex min-h-[86vh] flex-col justify-center overflow-hidden"
+      className="py-3xl relative isolate flex min-h-[86vh] flex-col justify-center overflow-hidden bg-black"
     >
-      <motion.div
-        aria-hidden="true"
-        style={{ y: prefersReducedMotion ? 0 : patternY }}
-        className="bg-dot-grid mask-radial-fade absolute inset-x-0 -inset-y-24 -z-10"
-      />
+      {/* The hero's black is opaque, so the constellation canvas lives inside
+          the band: absolute, clipped by `overflow-hidden`, behind the content. */}
+      <ConstellationBackground />
 
-      <Container>
+      <Container className="relative z-10">
         <motion.div
           initial="hidden"
           animate={introDone ? 'visible' : 'hidden'}
