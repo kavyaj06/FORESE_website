@@ -122,15 +122,12 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
       // point of turning a posting over is to see who holds it.
       <span className="relative block h-full w-full">
         <MemberPortrait member={member} />
-        {/* A band behind the name only, fading out above it. Taller than the
-            gallery's because these cards are small: a two-line name reaches
-            a third of the way up, and the band has to stay dark that high
-            for the name to read (measured over every core photo). */}
-        <span
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black/85 via-black/70 via-60% to-transparent"
-        />
-        <span className="p-sm absolute inset-x-0 bottom-0 flex flex-col gap-0.5 text-left">
+        {/* The shade belongs to the name block, not to the card: it is
+            exactly as tall as the name's lines plus a short fade above them.
+            A band sized as a share of the card was either too much on the big
+            laptop cards or too little where the small tablet and phone cards
+            wrap a name onto two lines. */}
+        <span className="p-sm pt-lg absolute inset-x-0 bottom-0 flex flex-col gap-0.5 bg-gradient-to-t from-black/85 via-black/65 via-55% to-transparent text-left">
           {/* The name, and nothing under it. Every card in a hand holds the
               same posting and the heading beside the fan already says which
               one, so printing it six times said nothing and crowded the
