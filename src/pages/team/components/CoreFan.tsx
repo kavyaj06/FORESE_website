@@ -115,7 +115,7 @@ export function CoreFan({ members }: { members: ClubMember[] }) {
             now has. */}
         <span
           aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/60 to-transparent"
+          className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/85 via-black/60 via-45% to-transparent"
         />
         <span className="p-md absolute inset-x-0 bottom-0 flex flex-col gap-0.5 text-left">
           {/* The name, and nothing under it. Every card in a hand holds the
