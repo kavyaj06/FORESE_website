@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import {
@@ -101,13 +101,32 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
    * scrolling back up puts it where it belongs, and cleared on resize.
    */
   const launchRef = useRef<{ x: number; bottom: number } | null>(null);
+
+  /**
+   * The screen height the flight is measured in, held still while scrolling.
+   *
+   * On a phone, scrolling up brings the browser's address bar back, which
+   * changes `innerHeight` and fires `resize` in the middle of the scroll.
+   * Read live, that moved the bar's progress under the reader's thumb and —
+   * because resize also cleared the launch point — relaunched it from
+   * wherever its marker happened to be: the bar jumped about on every scroll
+   * up. So the height is only re-read when the width changes too, which is a
+   * real resize or a rotation, never the toolbar.
+   */
+  const viewRef = useRef({ width: 0, height: 0 });
   useEffect(() => {
-    const clear = () => {
+    viewRef.current = { width: window.innerWidth, height: window.innerHeight };
+    const onResize = () => {
+      if (window.innerWidth === viewRef.current.width) return;
+      viewRef.current = { width: window.innerWidth, height: window.innerHeight };
       launchRef.current = null;
     };
-    window.addEventListener('resize', clear);
-    return () => window.removeEventListener('resize', clear);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  /** The latest `apply`, so the bar can be placed the moment it leaves the dock. */
+  const applyRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const apply = () => {
@@ -128,7 +147,7 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
        * would have to be re-tuned every time the boards change height, and
        * they now depend on the viewport's width. This cannot drift.
        */
-      const travel = window.innerHeight * TRAVEL_SCREENS;
+      const travel = (viewRef.current.height || window.innerHeight) * TRAVEL_SCREENS;
       const raw = clamp01(1 - panel.top / travel);
 
       setParked((current) => {
@@ -240,6 +259,7 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
      * recompute. Coalesced to one measurement per frame, because scroll fires
      * far more often than the screen repaints.
      */
+    applyRef.current = apply;
     let frame = 0;
     const onScroll = () => {
       if (frame) return;
@@ -258,6 +278,15 @@ export function JourneyBar({ startRef, stageRef, dockRef, panelRef, active }: Jo
       window.removeEventListener('resize', onScroll);
     };
   }, [startRef, stageRef, dockRef, panelRef]);
+
+  /**
+   * Leaving the dock mounts a fresh bar in `document.body` with no position
+   * yet. Placed before the browser paints, so scrolling back up never shows
+   * a frame of it blank or parked in the corner.
+   */
+  useLayoutEffect(() => {
+    if (!docked) applyRef.current();
+  }, [docked]);
 
   /**
    * The parked bar's line, typed, held, erased, and replaced by the next.
