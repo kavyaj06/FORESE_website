@@ -7,7 +7,9 @@ import type { ClubMember } from '@/data/team';
 import type { TeamId } from '@/data/teamIds';
 import { CLUB_TEAMS } from '@/data/teams';
 import { TEAM_GALLERY } from '../data';
+import { SocialIcon } from '@/components/ui/SocialIcon';
 import { MemberPortrait } from './MemberPortrait';
+import { SocialPill } from './SocialPill';
 
 /**
  * The membership as a gallery: a grid of portraits, and one of them large.
@@ -134,12 +136,39 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
               // because a utility class ties with the theme block on
               // specificity and the winner is then down to stylesheet order.
               style={{ backgroundColor: 'transparent' }}
-              className="p-lg absolute inset-x-0 bottom-0"
+              className="p-lg gap-md absolute inset-x-0 bottom-0 flex items-end justify-between"
             >
-              <p className="text-h3">{featured.name}</p>
-              <p className="text-body text-text-muted">
-                {featured.role ?? TEAM_GALLERY.ranks[featured.rank] ?? TEAM_GALLERY.noRole}
-              </p>
+              {/* The name and nothing under it. The rank used to sit here,
+                  and the tab the reader is on already says which rank this
+                  is. */}
+              <p className="text-h3 min-w-0">{featured.name}</p>
+
+              {/* A link is drawn only for a field the roster has. Senior
+                  members came with LinkedIn and no email, so they show one;
+                  three members have no LinkedIn and show email alone. The
+                  address is behind `mailto:` rather than printed: these are
+                  college addresses, and text on the page is the first thing
+                  a scraper reads. */}
+              {(featured.linkedin || featured.email) && (
+                <ul className="gap-xs flex shrink-0">
+                  {featured.linkedin && (
+                    <SocialPill
+                      href={featured.linkedin}
+                      label={TEAM_GALLERY.linkedin.replace('{name}', featured.name)}
+                    >
+                      <SocialIcon name="linkedin" size={15} />
+                    </SocialPill>
+                  )}
+                  {featured.email && (
+                    <SocialPill
+                      href={`mailto:${featured.email}`}
+                      label={TEAM_GALLERY.email.replace('{name}', featured.name)}
+                    >
+                      <SocialIcon name="mail" size={15} />
+                    </SocialPill>
+                  )}
+                </ul>
+              )}
             </figcaption>
           </motion.figure>
 

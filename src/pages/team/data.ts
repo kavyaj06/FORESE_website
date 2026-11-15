@@ -53,17 +53,6 @@ export const TEAM_FAN = {
 export const TEAM_GALLERY = {
   pick: 'Show {name}',
   teamsLabel: 'Teams',
-  /**
-   * What goes under the name when a person holds no title.
-   *
-   * Most of the roster holds none: a title belongs to the core, and the 140
-   * people in the two member ranks are identified by the rank itself.
-   * Printing "Member" under all of them would call a senior member the wrong
-   * thing.
-   */
-  ranks: {
-    'senior-member': 'Senior Member',
-    member: 'Member',
-  } as Record<string, string>,
-  noRole: 'Member',
+  linkedin: '{name} on LinkedIn',
+  email: 'Email {name}',
 } as const;

@@ -3,6 +3,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { ClubMember } from '@/data/team';
 import { cn } from '@/lib/cn';
 import { MemberPortrait } from './MemberPortrait';
+import { SocialPill } from './SocialPill';
 
 interface MemberCardProps {
   member: ClubMember;
@@ -249,30 +250,5 @@ export function MemberCard({ member, size = 'standard', open, onToggle }: Member
         />
       )}
     </article>
-  );
-}
-
-function SocialPill({
-  href,
-  label,
-  children,
-}: {
-  href: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  const external = href.startsWith('http');
-
-  return (
-    <li>
-      <a
-        href={href}
-        aria-label={label}
-        {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-        className="bg-accent text-accent-fg hover:bg-primary-hover duration-fast rounded-pill flex size-8 items-center justify-center transition-colors"
-      >
-        {children}
-      </a>
-    </li>
   );
 }
