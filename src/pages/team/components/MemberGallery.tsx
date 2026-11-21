@@ -48,7 +48,18 @@ import { SocialPill } from './SocialPill';
  * happen at all. The team dimming is the reader's own filter — information,
  * not decoration — so it still applies there, instantly rather than as a fade.
  */
-export function MemberGallery({ members }: { members: ClubMember[] }) {
+export function MemberGallery({
+  members,
+  showTeams = true,
+}: {
+  members: ClubMember[];
+  /**
+   * Whether to list the working teams under the portrait. Off for senior
+   * members: the club does not divide them into teams, so the list was five
+   * rows of zero.
+   */
+  showTeams?: boolean;
+}) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const [pickedId, setPickedId] = useState<string | null>(null);
   const [activeTeam, setActiveTeam] = useState<TeamId | null>(null);
@@ -180,59 +191,63 @@ export function MemberGallery({ members }: { members: ClubMember[] }) {
             </figcaption>
           </motion.figure>
 
-          <nav aria-label={TEAM_GALLERY.teamsLabel}>
-            <p className="text-eyebrow text-text-subtle mb-xs uppercase">
-              {TEAM_GALLERY.teamsLabel}
-            </p>
-            <ul className="divide-border border-border flex flex-col divide-y border-y">
-              {teams.map((team) => {
-                const active = team.id === activeTeam;
-                const empty = team.count === 0;
+          {showTeams && (
+            <nav aria-label={TEAM_GALLERY.teamsLabel}>
+              <p className="text-eyebrow text-text-subtle mb-xs uppercase">
+                {TEAM_GALLERY.teamsLabel}
+              </p>
+              <ul className="divide-border border-border flex flex-col divide-y border-y">
+                {teams.map((team) => {
+                  const active = team.id === activeTeam;
+                  const empty = team.count === 0;
 
-                return (
-                  <li key={team.id}>
-                    <button
-                      type="button"
-                      aria-pressed={active}
-                      // Disabled rather than hidden when nobody is in it. A
-                      // team with no members dimmed every face on the page,
-                      // which read as the gallery breaking rather than as an
-                      // empty team — and leaving it in the list keeps the
-                      // five teams the club has visible either way.
-                      disabled={empty}
-                      onClick={() => {
-                        setActiveTeam((current) => (current === team.id ? null : team.id));
-                        setPickedId(null);
-                      }}
-                      className={cn(
-                        'text-body py-sm flex w-full items-center justify-between text-left',
-                        'duration-fast ease-out-brand transition-colors',
-                        active
-                          ? 'text-accent font-semibold'
-                          : 'text-text hover:text-accent disabled:text-text-subtle',
-                        empty && 'cursor-not-allowed',
-                      )}
-                    >
-                      <span className="gap-sm flex items-center">
-                        {/* The mark beside the team that is on. Drawn on every
+                  return (
+                    <li key={team.id}>
+                      <button
+                        type="button"
+                        aria-pressed={active}
+                        // Disabled rather than hidden when nobody is in it. A
+                        // team with no members dimmed every face on the page,
+                        // which read as the gallery breaking rather than as an
+                        // empty team — and leaving it in the list keeps the
+                        // five teams the club has visible either way.
+                        disabled={empty}
+                        onClick={() => {
+                          setActiveTeam((current) => (current === team.id ? null : team.id));
+                          setPickedId(null);
+                        }}
+                        className={cn(
+                          'text-body py-sm flex w-full items-center justify-between text-left',
+                          'duration-fast ease-out-brand transition-colors',
+                          active
+                            ? 'text-accent font-semibold'
+                            : 'text-text hover:text-accent disabled:text-text-subtle',
+                          empty && 'cursor-not-allowed',
+                        )}
+                      >
+                        <span className="gap-sm flex items-center">
+                          {/* The mark beside the team that is on. Drawn on every
                             row and scaled away on the rest, so turning a team
                             on costs a transform rather than a reflow. */}
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            'bg-accent duration-base ease-out-brand size-1.5 rounded-full transition-transform',
-                            active ? 'scale-100' : 'scale-0',
-                          )}
-                        />
-                        {team.name}
-                      </span>
-                      <span className="text-small text-text-subtle tabular-nums">{team.count}</span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
+                          <span
+                            aria-hidden="true"
+                            className={cn(
+                              'bg-accent duration-base ease-out-brand size-1.5 rounded-full transition-transform',
+                              active ? 'scale-100' : 'scale-0',
+                            )}
+                          />
+                          {team.name}
+                        </span>
+                        <span className="text-small text-text-subtle tabular-nums">
+                          {team.count}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+          )}
         </div>
       </div>
 

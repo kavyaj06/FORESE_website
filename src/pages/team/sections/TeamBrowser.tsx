@@ -193,7 +193,9 @@ export function TeamBrowser() {
             // group tabs above are its sections — the club's roster has no
             // working team on anybody, so Senior Members and Members are the
             // only real division there is to navigate by.
-            <MemberGallery members={visible} />
+            // Senior members are not divided into teams, so their gallery has
+            // no team list.
+            <MemberGallery members={visible} showTeams={group !== 'senior-member'} />
           )}
         </div>
       </Container>
